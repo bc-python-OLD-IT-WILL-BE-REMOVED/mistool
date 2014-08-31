@@ -1,0 +1,137 @@
+==========
+2013-10-30
+==========
+
+**Réorganisation du package ``mistool``:** le module ``parse_use`` devient un sous-package qui contient les modules suivants.
+
+    1) Le module ``identify`` réunit toutes les fonctions simples ``isVarName``, ``isRoman``, ``isNatural``, ``isInteger``, ``isRational``, ``isDecimal`` et  ``isFloat``.
+
+    2) Le module ``group`` contient les classes ``Groups`` et ``FindGroups``, ainsi que la fonction ``findIndent``.
+
+    3) Le module ``token`` contient la classe ``Tokens``.
+
+
+**Retour de la fonction ``wrap`` dans le module ``string_use``:** bien que les nouvelles fonctionnalités de ``wrap`` permettent de travailler avec la classe ``Tokens``, cette fonction est mieux placé dans ``string_use`` que dans ``parse_use``.
+
+
+==========
+2013-10-27
+==========
+
+**Amélioration de la fonction ``ascii`` du module ``string_use``:** le module standard ``unicode`` est dorénavant utilisé en coulisse afin de gérer une très  grande quantité de caractères spéciaux à moindre frais.
+
+**Ajout de la fonction ``isAscii`` au module ``string_use``:** cette fonction permet de savoir si un texte contient un caractère non ascii.
+
+
+==========
+2013-10-23
+==========
+
+**Réorganisation et nettoyage du package ``mistool``**
+
+    1) Le module ``regex_use`` devient ``parse_use``.
+
+    2) La classe ``FindGroups`` du module ``string_use`` a été déplacée dans ``parse_use``. C'est plus logique...
+
+    3) La fonction ``cut`` du module ``string_use`` se nomme plus logiquement ``wrap`` maintenant. De plus, elle a été déplacée dans ``parse_use`` car elle offre plus de fonctionnalités (voir ci-après).
+
+    4) Les importations se font maintenant de manière économique en important le minimum de choses via ``from unModule import uneFonction``, et non via des importations brutales du type ``import unModule``.
+
+
+**Améliorations dans le module ``parse_use``**
+
+    1) Afin de faciliter l'utilisation de la classe ``FindGroups``, une nouvelle classe ``Groups`` est née pour définir les groupes et certaines règles qu'ils doivent suivre.
+
+    2) Une nouvelle classe ``Token`` permet d'obtenir une liste d'unités lexicales. Bien que basique, cette classe prend tout de même en charge la définition de groupes via la classe ``Groups``.
+
+    3) La fonction ``wrap``, ex-fonction ``cut`` du module ``string_use`` permet de travailler de concert avec la classe ``Token`` pour indiquer par exemple des groups protégés ou des contenus de type verbatim.
+
+    4) Une nouvelle fonction ``findIndent`` permet de trouver le niveau d'indentation d'une ligne.
+
+
+**Amélioration de la fonction ``pyRepr`` du module ``python_use``**
+
+    1) Un nouvel argument optionnel ``name`` permet de donner un nom à l'objet mis en forme afin d'obtenir ``monNom = ...``.
+
+    2) Un autre argument optionnel ``format`` de type ensemble permet de configurer un peu la sortie.
+
+        a) ``"wrap"`` permet d'utiliser des retours à la ligne pour certaines parties utilisant trop de caractères.
+
+        b) ``"short"`` permet pour un objet de type dictionnaire ordonné d'obtenir ``OrderedDict`` au lieu de ``collections.OrderedDict``.
+
+        c) ``"key"`` sert pour les dictionnaires à les mettre en forme via une syntaxe du type ``monDict[uneClé] = uneValeur``.
+
+        d) ``"empty"`` permet d'ajouter une ligne vide entre chaque définition du type ``monDict[uneClé] = uneValeur``.
+
+
+==========
+2013-10-16
+==========
+
+**Correction d'une mini-coccille dans la fonction ``frame`` du module ``string_use``:** dans le cas où aucune ligne n'était à tracer avec un coin droit sans coin gauche correspondant, le rendu n'était pas celui attendu.
+
+
+==========
+2013-10-14
+==========
+
+**Petit nettoyage dans le module ``python_use``:** la fonction ``pyRepr`` utilise des fonctions imbriquées internes à son code. Ceci simplifie bien les choses !
+
+
+==========
+2013-10-12
+==========
+
+**Correction d'une grosse coccile dans la fonction ``pyRepr`` du module ``python_use``:** les listes vides, les uplets vides et les dictionnaires vides n'étaient pas gérés par la fonction.
+
+
+==========
+2013-10-10
+==========
+
+**Ajout de la classe ``FindGroups`` au module ``string_use``:** on peut dorénavant rechercher dans un texte des groupes délimités par des caractères comme des parenthèses, des guillemets...
+
+
+==========
+2013-10-09
+==========
+
+**Amélioration de la fonction ``pyRepr`` du module ``python_use``:** les ensembles correspondant au type ``set`` n'étaient pas gérés jusqu'à présent. De plus, le cas de la constante ``None`` avait été oublié.
+
+
+**Factorisation du module ``string_use``:** les formats de cadres utilisables par défaut avec la fonction ``frame`` seront dorénavant stockés dans un dictionnaire ``FRAME_FORMATS``. Ceci permet au passage à toute utilisateur d'avoir facilement la liste de tous les formats disponibles par défaut.
+
+De plus, on peut utiliser des abréviations pour définir des types personnalisés de cadres.
+
+
+**Nettoyage du code:** ajout d'un sous-module ``config`` contenant toutes les constantes "laides" qui sont construites de façon automatisée.
+
+
+==========
+2013-10-05
+==========
+
+**Automatisation de l'historique anglais des changements:** le nouveau système permet de ne garder que les derniers changements dans la description pour ¨pypi, et il date automatiquement la nouvelle version mise en ligne.
+
+
+==========
+2013-10-03
+==========
+
+**Simplification du module ``regex_use``:** les fonctions ``isUpperRoman`` et ``isLowerRoman`` ont été remplacées par une unique fonction ``isRoman`` qui possède un argument optionnel ``case`` pour indiquer le type de casse attendu.
+
+
+**Changement de noms:** attention à tout ceci !
+
+    1) Dans le module ``os_use``, la variable ``listPath`` de la fonction ``commonPath`` a été renommée ``paths``.
+
+    1) Dans la classe ``AutoComplete`` du module ``string_use``, les variables d'initialisation ``listPath`` et ``dict`` ont été renommées ``paths`` et  ``dictAsso`` ¨resp. La variable ``listText`` de la fonction ``joinAnd`` devient ``texts``, et enfin la classe ``step`` devient ``Step``.
+
+
+==========
+2013-10-01
+==========
+
+**Amélioration de la fonction ``pyRepr`` du module ``python_use``:** support des types ``tuple``, ainsi que du type ``collections.OrderedDict`` du module standard ``collections``.
+
+De plus, la gestion des dictionnaires, ordonnés ou non, prend maintenant en compte des clés de type expressions régulières.

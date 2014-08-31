@@ -1,0 +1,87 @@
+==========
+2012-08-27
+==========
+
+**Amélioration du module ``osUse``:** voici les nouveautés.
+
+    1) La fonction ``relativePath`` renvoie dorénavant une erreur si les deux chemins sont identiques.
+
+    2) ``relativeDepth`` permet de connaître le niveau de profondeur d'un sous-dossier par rapport à un dossier le contenant.
+
+    3) Une nouvelle fonction ``listFile`` permet d'obtenir une liste de fichiers suivant des critères analogues à ceux disponibles pour la fonction ``nextFile``.
+
+**Amélioration du module ``latexUse``:** une nouvelle fonction ``about`` donne des informations sur la distribution ¨latex.
+
+
+==========
+2012-08-26
+==========
+
+**Du nouveau dans le module ``osUse``:** les fonctions suivantes ont été ajoutées.
+
+    1) La fonction ``isFile`` permet de savoir si un chemin renvoie bien vers un fichier existant.
+
+    2) ``watch`` sert à lancer un fichier avec l'application qui lui est associée par défaut si cette dernière existe.
+
+    3) ``system`` essaye de déterminer le nom du système d'exploitation.
+
+    4) ``pathEnv`` renvoie la variable d'environnement ``path``.
+
+
+==========
+2012-08-25
+==========
+
+**Amélioration du module ``latexUse``:** voici les nouvelles fonctionnalités qui ont été ajoutées.
+
+    1) La classe ``Build`` propose des méthodes en lien avec les compilations de fichiers ¨latex.
+
+    2) Avec la fonction ``escape``, il est maintenant possible d'indiquer si le texte à échapper apparait dans un contenu simple, ou bien dans une formule mathématique. De plus, les contre obliques ``\`` sont maintenant prises en compte.
+
+
+==========
+2012-08-24
+==========
+
+**Ajout de la fonction ``test`` au module ``urlUse``:** cette fonction teste si une adresse url renvoie vers une page existante localement ou sur le web.
+
+
+==========
+2012-08-23
+==========
+
+**Amélioration de la fonction ``frame`` du module ``stringUse``:** meilleure gestion de l'absence de caractères de décoration.
+
+
+==========
+2012-08-15
+==========
+
+**Amélioration de la fonction ``case`` du module ``stringUse``:** lorsque différents types de casse sont demandés, la fonction renvoie maintenant un dictionnaire au lieu d'une liste. Ceci permet d'avoir facilement accès à un type de casse.
+
+
+==========
+2012-08-11
+==========
+
+**Modification dans le module ``stringUse``:** les quatre fonctions ``camelToLower``, ``camelToUpper``, ``camelToTitle`` et ``camelToFirstLast`` ont été remplacées par une unique fonction ``camelTo`` qui prend deux arguments, le ¨1er étant le texte à modifier et le second le type de modification à effectuer.
+
+**Modification dans le module ``regexUse``:** les quatre fonctions ``isVarName``, ``isPythonVarName``, ``isLazzyVarName`` et ``isLexerBlockName`` ont été remplacées par une unique fonction ``isVarName`` qui prend deux arguments, le ¨1er étant le texte à tester et le second le type de nom de variable souhaité.
+
+
+==========
+2012-08-08
+==========
+
+**Ajout des fonctions ``camelToTitle`` et ``camelToFirstLast`` au module ``stringUse``:** par souci de cohérence, et bien que cela ne semble pas très utile, en plus des deux fonctions ``camelToUpper`` et ``camelToLower``, il est maintenant possible de faire appel aux fonctions ``camelToTitle`` et ``camelToFirstLast``.
+
+
+==========
+2012-08-01
+==========
+
+**Ajout du module ``latexUse``:** pour le moment, ce nouveau module propose une unique fonction ``escape`` qui protège les caractères spéciaux propres à ¨latex. Par exemple, ``escape("50 %")`` est égal à ``50 \%``, le caractère latex::``%`` servant pour les commentaires dans les codes ¨latex.
+
+**Ajout du module ``urlUse``:** pour le moment, ce nouveau module propose une unique fonction ``escape`` pour obtenir les adresses de site en codant les caractères spéciaux. Par exemple, ``escape("http://www.vivaespaña.com/camión/")`` est égal à ``http://www.vivaespa%C3%B1a.com/cami%C3%B3n/``.
+
+**Ajout du module ``regexUse``:** pour le moment, ce nouveau module réunit les quatre fonctions ``isVarName``, ``isPythonVarName``, ``isLazzyVarName`` et ``isLexerBlockName`` qui vérifient si une chaîne de caractères répond à certains critères de noms de variables. Se reporter à la documentation pour en savoir plus.

@@ -1,0 +1,5 @@
+==========
+2013-07-10
+==========
+
+**Amélioration de la fonction ``frame`` du module ``string_use``:** la variable ``format`` admet maintenant une valeur par défaut, à savoir ``PYTHON_FRAME``.

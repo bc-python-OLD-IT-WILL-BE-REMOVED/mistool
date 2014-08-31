@@ -1,0 +1,31 @@
+==============
+misTool - TODO
+==============
+
+**Mise en ligne de la documentation en français:** ceci a été rendu possible grâce au projet ¨pyba qui lui aussi est disponible sur ¨pypi et ¨github.
+
+**Simplification des messages d'erreurs:** le programme utilise plus efficacement les erreurs standards de ¨python au lieu d'utiliser un type d'erreur propre.
+
+
+**Des grosses améliorations dans le module ``os_use``.**
+
+    1) Une nouvelle fonction ``aregoodpaths`` permet de tester facilement si les chemins de fichiers ¨etou de dossiers répondent à certains critères en indiquant des motifs à respecter. Par exemple, un nom de fichier commence-t-il par ``build_`` et a-t-il pour extension ``.py`` ? La définition des motifs utilise un mini langage maison très rapide à prendre en main !
+
+    2) La fonction ``hasextin`` n'a plus de raison d'être. Elle a donc été supprimée.
+
+    3) Les fonctions ``nextfile`` et ``listfile`` n'utilisent plus les arguments ``exts``, ``prefixes``, ``depth`` et ``unkeephidden`` pour indiquer un type particulier de fichiers à chercher. À la place, on indiquera via la variable ``patterns`` des motifs qui seront testés par la toute nouvelle fonction ``aregoodpaths``. Ceci offre beaucoup plus de flexibilité dans les choix !
+
+    4) La fonction ``clean`` utilise elle aussi juste l'argument ``patterns`` en remplacement des arguments ``cleanall``, ``exts`` et ``depth``.
+
+    5) La classe ``DirView`` utilise elle aussi juste l'argument ``patterns`` en remplacement des arguments ``exts``, ``prefixes``, ``depth`` et ``unkeephidden``.
+
+    6) Les fonctions ``nextdir`` et ``listdir`` disposent maintenant de l'argument ``patterns``.
+
+
+**Un changement dans le module ``python_use`` :** la fonction ``runpys`` utilise juste l'argument ``patterns`` en remplacement des arguments ``prefixes`` et ``depth``, tout comme les fonctions ``nextfile`` et ``listfile`` du module ``os_use``.
+
+
+**Un changement dans le module ``latex_use`` :** la fonction ``clean`` utilise juste l'argument ``patterns`` en remplacement des arguments ``keep``, ``discard`` et ``depth``, tout comme les fonctions ``nextfile`` et ``listfile`` du module ``os_use``.
+
+
+**Améliorations du module ``latex_use`` :** il est maintenant possible d'indiquer des installations non standards de ¨latex à la main via un fichier de configuration initialisé à la main.

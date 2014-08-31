@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+
+from collections import OrderedDict
+
+# The two following variables were automatically built by one Python script.
+
+TEMP_EXTS = OrderedDict([
+    ('debug', ['blg', 'ilg', 'log', 'glg']),
+    ('html', ['4ct', '4tc', 'idv', 'lg', 'tmp', 'xref']),
+    ('slide', ['nav', 'snm', 'vrb']),
+    ('editor', ['synctex.gz', 'synctex.gz(busy)']),
+    ('float', ['fff', 'ttt']),
+    ('list', ['lof', 'lol', 'lot', 'bcl']),
+    ('toc', ['toc', 'maf', 'mlf', 'mlt', 'mtc', 'plf', 'plt', 'ptc']),
+    ('ref', ['aux', 'brf', 'out', 'glo', 'ist', 'gls', 'idx', 'ind']),
+    ('biblio', ['bbl', 'run.xml']),
+    ('theorem', ['thm'])
+])
+
+EXTS_TO_CLEAN = [
+# debug
+#
+# ``log`` is produced by latex compilations, ``ilg`` and ``glg`` by
+# makeindex compilations, where ``glg`` is related to the package glossary.
+# ``blg`` is produced by bibtex compilations.
+    'blg', 'ilg', 'log', 'glg',
+# html
+#
+# This extensions are produced by the package ``tex4ht``.
+    '4ct', '4tc', 'idv', 'lg', 'tmp', 'xref',
+# slide
+#
+# 
+    'nav', 'snm', 'vrb',
+# editor
+#
+# ``synctex.gz`` is produced by some editors to do synchronization between
+# the LaTeX source file and its PDF output.
+    'synctex.gz', 'synctex.gz(busy)',
+# float
+#
+# 
+    'fff', 'ttt',
+# list
+#
+# ``bcl`` is produced by the package ``bclogo`` : this gives the list of
+# the logos.
+# 
+# ``f`` is for Figure, ``l`` for Listing (cf. the package ``listings``),
+# and ``t`` for Table.
+    'lof', 'lol', 'lot', 'bcl',
+# toc
+#
+# The package ``minitoc`` produces all this extensions excepted ``toc``.
+    'toc', 'maf', 'mlf', 'mlt', 'mtc', 'plf', 'plt', 'ptc',
+# ref
+#
+# ``out`` is produced by the package ``hyperref`` with the option
+# ``bookmarks``, and ``brf`` with the option ``backref``.
+# 
+# The package `` glossary`` produces ``glo`` and ``gls``, and also ``ist``
+# if an additional makeindex compilation is launched.
+# 
+# ``idx`` and ``ind`` are produced by makeindex compilations.
+    'aux', 'brf', 'out', 'glo', 'ist', 'gls', 'idx', 'ind',
+# biblio
+#
+# ``bbl`` is produces by bibtex compilations, and ``run.xml`` by biber
+# compilations.
+    'bbl', 'run.xml',
+# theorem
+#
+# 
+    'thm'
+]
+
+# Sources :
+#    * The page 7 in "The Comprehensive LATEX Symbol List" of Scott Pakin.
+#    * http://www.grappa.univ-lille3.fr/FAQ-LaTeX/21.26.html
+
+CHARS_TO_ESCAPE = {
+    'text': "{}_$&%#",
+    'math': "{}_$&%#" 
+}
+
+CHARS_TO_LATEXIFY = {
+    'text': {
+        '\\': "\\textbackslash{}"
+    },
+    'math': {
+        '\\': "\\backslash{}"
+    }
+}

@@ -1,0 +1,33 @@
+==========
+2012-10-28
+==========
+
+**Amélioration de la fonction ``case`` du module ``stringUse``:** la fonction ``case`` permet maintenant d'utiliser le type de casse ``"sentence"`` qui met une majuscule au début du tout premier mot d'un texte.
+
+
+==========
+2012-10-27
+==========
+
+**Création du module ``testUse``:** ce module propose quelques outils pour faciliter le suivi de tests unitaires effectués via le module standard ``unittest``.
+
+
+==========
+2012-10-21
+==========
+
+**Correction d'un gros bug du module ``latexUse``:** la fonction ``escape`` ne fonctionnait pas si un caractère à échapper était en fin de texte.
+
+
+==========
+2012-10-07
+==========
+
+**Amélioration de la fonction ``beforeAfter`` du module ``stringUse``:** il est maintenant possible de choisir de garder ou non les morceaux de texte ``start`` et ``end`` qui délimitent la partie à retirer du texte principal.
+
+
+==========
+2012-10-03
+==========
+
+**Amélioration de la fonction ``beforeAfter`` du module ``stringUse``:** il est maintenant possible d'utiliser un texte vide soit pour le texte à chercher en premier, soit pour le second.

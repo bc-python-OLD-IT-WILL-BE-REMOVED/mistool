@@ -1,0 +1,21 @@
+==========
+2013-06-18
+==========
+
+**Amélioration de la fonction ``ascii`` du module ``string_use``:** on peut utiliser une variable optionnelle ``strict`` pour récupérer ou non une erreur si le texte final contient des caractères non ¨ascii.
+
+**Correction de divers bugs de la fonction ``cut`` du module ``string_use``:** le fonctionnement de la fonction ``cut`` a été revu et amélioré (enfin je l'espère).
+
+
+==========
+2013-06-17
+==========
+
+**Ajout de la fonction ``ascii`` au module ``string_use``:** cette fonction a pour but de transformer n'importe quel texte en une version n'utilisant que des caractères ¨ascii (pour le moment, cette fonction ne prend en compte que certains caractères accentués ainsi que le "o" et le "e" liés mais elle peut très facilement évoluer grâce à l'utilisation de fichiers de configuration de type ¨peuf : voir le projet ¨orpyste).
+
+
+==========
+2013-06-16
+==========
+
+**Petite amélioration des fonctions ``nextFile`` et ``listFile`` du module ``os_use``:** il est maintenant possible d'indiquer uniquement des extensions à garder via une chaîne de caractères, pour un seul type d'extensions, ou via une liste de chaînes de caractères sans avoir à passer via le très verbeux ``ext = {'keep': ...}``.

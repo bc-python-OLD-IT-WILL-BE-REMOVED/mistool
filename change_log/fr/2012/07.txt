@@ -1,0 +1,12 @@
+==========
+2012-07-31
+==========
+
+**Chemin relatif:** en appelant la fonction ``relativePath`` du sous-module ``osUse``, il est maintenant possible d'avoir un chemin relatif par rapport à un autre.
+
+
+==========
+2012-07-29
+==========
+
+**Première version du package ``pytool``:** le but de ce mini-package est de réunir différents petits outils très pratiques dans différents domaines. Pour le moment, les domaines couverts concernent la recherche de fichiers et les chaînes de caractères.

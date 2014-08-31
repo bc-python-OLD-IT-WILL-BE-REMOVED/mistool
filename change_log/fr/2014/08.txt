@@ -1,0 +1,156 @@
+==========
+2014-08-31
+==========
+
+**Quelques améliorations !** Voici ce qu'il faut découvrir.
+
+    1) Dans le module ``python_use``, la nouvelle fonction ``runpys`` permet d'exécuter différents fichiers ¨python en utilisant certains critères liés au chemins des scripts à lancer.
+
+    2) Dans le module ``os_use``, les fonctions `listfile`` et ``nextfile``, ainsi que la classe ``DirView`` ont un nouvel argument booléen ``unkeephidden`` afin d'ignorer les fichiers ¨etou les dossiers cachés, ¨ie dont le nom commence traditionnellement par un point.
+
+    3) Dans le module ``string_use``, pour indiquer plusieurs types de casse aux fonctions ``case`` et ``camelto``, il suffira de séparer ces différents formats à l'aide d'espaces.
+
+
+**Correction d'un bug dans la fonction ``about`` du module ``latex_use`` :** une erreur était renvoyée dans le cas d'une installation non standard de ¨latex (bug découvert sous ¨lubuntu 14 avec une distribution ¨texlive installée à la main). Ce type d'installation n'est pas gérée pour le moment (mais ceci est sur la liste des choses à faire).
+
+
+**Correction d'un pseudo bug dans le module ``os_use`` :** contrairement à ce qu'il se passe sous ¨mac, sous ¨lubuntu, les chemins de dossiers renvoyés par la fonction standard ``os.listdir`` n'apparaissent pas dans un ordre logique. Ceci rendait impossible l'utilisation concrète de la fonction `` listdir`` et de la classe `` DirView`` (car elle ne renvoyait pas une sortie standard). Ceci a été corrigé.
+
+
+**Utilisation de ¨github:** le projet est enfin géré via ¨git et hebergé sur le site ¨github.
+
+
+==========
+2014-08-27
+==========
+
+**Disparitions de certaines fonctionnalités :** l'auteur de ¨mistool s'est lancé dans un autre projet ¨lextex qui reprend et améliore toutes les fonctionnalités ci-dessous qui ont disparues.
+
+    * Le module ``parse_use`` ne fait plus partie de ¨mistool. Ceci a pour conséquence que les fichiers ``config/group.py``, ``config/pattern.py`` et ``config/token.py`` ne font plus partie de ¨mistool.
+
+    * Dans le module ``string_use``, la fonction ``wrap`` a été retirée.
+
+    * Dans le module ``python_use``, les fonctions ``pyRepr`` et ``lambdify`` ont été retirées.
+
+
+**Refonte profonde du code:** pour les modules restants, beaucoup de choses ont été renommées afin de coller à des spécifications internes plus cohérentes, mais aussi plus simples à utiliser en pratique. Voici tous les changements côté interface. Désolé pour tout ce bazar ! :-)
+
+
+Commençons par tout ce qui concerne **les dates**.
+
+    + Dans ``date_use.py``, on a juste les ¨chgts suivants.
+        * La constante ``LANG`` devient ``DEFAULT_LANG``.
+        * La fonction ``nextDay`` devient ``nextday``.
+
+    + Dans ``config/date_name.py``, on a les ¨chgts suivants.
+        * La constante ``__ALL_LANGS`` devient ``LANGS``.
+        * La constante ``__POINTERS`` devient ``_POINTERS``.
+        * La constante ``__FORMAT_TRANSLATIONS`` devient ``_FORMATS_TRANSLATIONS``.
+
+
+Concernant **les fonctionnalités ¨latex**, voici ce qu'il faut retenir.
+
+    + Dans ``latex_use.py``, on a les ¨chgts suivants.
+        * La fonction ``makeMiktexLocalDir`` devient ``make_localdir_miktex``.
+        * La fonction ``mikeTexLocalDir`` devient ``localdir_miketex``.
+        * Dans la fonction ``install``, on a le ¨chgt suivant.
+            - L'argument ``listFile`` devient ``paths``.
+        * Dans la classe ``Build`` et la fonction ``clean``, on a le ¨chgt suivant.
+            - L'argument ``verbose`` devient ``isverbose``.
+
+    + Dans ``config/latex.py``, on a les ¨chgts suivants.
+        * La constante ``CLASSIFIED_TEMP_EXT`` devient ``TEMP_EXTS``.
+        * La constante ``ALL_EXT_TO_CLEAN`` devient ``EXTS_TO_CLEAN``.
+        * La constante ``CHAR_TO_ESCAPE`` devient ``CHARS_TO_ESCAPE``.
+        * La constante ``CHAR_TO_LATEXIFY`` devient ``CHARS_TO_LATEXIFY``.
+
+
+Pour ce qui est **du module ``log_test_use.py``**, voici ce qui a évolué.
+
+    + Dans ``log_test_use.py``, on a les ¨chgts suivants.
+        * La constante ``ASCII_ASSO`` devient ``ASCII_ASSOS``.
+        * La fonction ``diffDict`` devient ``diffdict``. Pour cette fonction, on a le ¨chgt suivant.
+            - L'argument ``recursive`` devient ``dorecursive``.
+        * La fonction ``launchTestSuite`` devient ``runtests``.
+        * La fonction ``logPrint`` devient ``logprint``.
+        * Dans la fonction ``what``, on a le ¨chgt suivant.
+            - L'argument ``isMethod`` devient ``ismethod``.
+
+
+Pour **le module ``os_use``**, il faudra faire attention à ce qui suit.
+
+    + Dans ``os_use.py``, on a les ¨chgts suivants.
+        * Dans  la fonction ``clean``, on a le ¨chgt suivant.
+            - L'argument ``ext`` devient ``exts``.
+        * La fonction ``commonPath`` devient ``commonpath``.
+        * La fonction ``fileName`` devient ``filename``.
+        * La fonction ``hasExtIn`` devient ``hasextin``. Pour cette fonction, on a le ¨chgt suivant.
+            - L'argument ``listOfExt`` devient ``exts``.
+        * La fonction ``isDir`` devient ``isdir``.
+        * La fonction ``isFile` devient ``isfile``.
+        * La fonction ``listDir`` devient ``listdir``.
+        * La fonction ``listFile`` devient ``listfile``. Pour cette fonction, on a les ¨chgts suivants.
+            - L'argument ``keepDir`` devient ``keepdir``.
+            - L'argument ``ext`` devient ``exts``.
+            - L'argument ``prefix`` devient ``prefixes``.
+        * La fonction ``makeDir`` devient ``makedir``.
+        * La fonction ``makeTextFile`` devient ``maketxtfile``.
+        * La fonction ``nextDir`` devient ``nextdir``.
+        * La fonction ``nextFile`` devient ``nextfile``. Pour cette fonction, on a les ¨chgts suivants.
+            - L'argument ``keepDir`` devient ``keepdir``.
+            - L'argument ``ext`` devient ``exts``.
+            - L'argument ``prefix`` devient ``prefixes``.
+        * La fonction ``parentDir`` devient ``parentdir``.
+        * La fonction ``pathEnv`` devient ``pathenv``.
+        * La fonction ``pathNoExt`` devient ``noext``.
+        * La fonction ``realPath`` devient ``realpath``.
+        * La fonction ``readTextFile`` devient ``readtxtfile``.
+        * La fonction ``relativeDepth`` devient ``relativedepth``.
+        * La fonction ``relativePath`` devient ``relativepath``.
+        * Dans la classe ``DirView``, on a les ¨chgts suivants.
+            - La constante classe ``ASCII_DECORATION`` devient ``ASCII_DECOS``.
+            - L'argument ``ext`` devient ``exts``.
+            - L'argument ``prefix`` devient ``prefixes``.
+            - L'argument ``seeMain `` devient ``seemain``.
+            - L'attribut ``listView`` devient ``listview``.
+            - La méthode ``pathToDisplay`` devient ``pathtodisplay``.
+
+
+**Les outils liées à ¨python** ont subi les changements suivants.
+
+    + Dans ``python_use.py``, on a les ¨chgts suivants.
+        * La fonction ``dictSingleValues `` devient ``dictvalues``.
+
+
+Enfin, pour **les manipulations de chaînes**, voici ce qui a changé.
+
+    + Dans ``string_use.py``, on a les ¨chgts suivants.
+        * Dans la fonction ``ascii``, on a le ¨chgt suivant.
+            - L'argument ``replacement`` devient ``replacements``.
+        * La fonction ``beforeAfter`` devient ``between``.
+        * La fonction ``camelTo`` devient ``camelto``.
+        * La fonction ``isAscii`` devient ``isascii``.
+        * La fonction ``isCase`` devient ``iscase``.
+        * La fonction ``joinAnd`` devient ``joinand``. Pour cette fonction, on a le ¨chgt suivant.
+            - L'argument ``andText`` devient ``andtext``.
+        * Dans la fonction ``replace``, on a le ¨chgt suivant.
+            - L'argument ``replacement`` devient ``replacements``.
+        * Dans la fonction ``split``, on a le ¨chgt suivant.
+            - L'argument ``sep`` devient ``seps``.
+        * Dans la classe ``AutoComplete``, on a le ¨chgt suivant.
+            - L'argument ``dictAsso`` devient ``assos``.
+        * Dans la classe ``MultiReplace``, on a les ¨chgts suivants.
+            - L'argument ``replacement`` devient ``replacements``.
+            - L'attribut ``replacementasit`` devient ``replaceasit``.
+        * Dans la classe ``MultiSplit``, on a les ¨chgts suivants.
+            - L'argument ``sep`` devient ``seps``.
+            - L'attribut ``listView`` devient ``listview``.
+
+    + Dans ``config/frame.py``, on a les ¨chgts suivants.
+        * La constante ``_ABREV_FRAME`` devient ``_ABREVS_FRAMES``.
+        * La constante ``_KEY_FRAME`` devient ``_KEYS_FRAMES``.
+        * La constante ``FRAME_FORMATS`` devient ``FRAMES_FORMATS``.
+
+    + Dans ``config/pattern.py``, on a les ¨chgts suivants.
+        * La constante ``PATTERN_GROUP_WORD`` devient ``PATTERNS_WORDS``.
+        * Les constantes ``PATTERN_VAR_NAME``, ``PATTERN_ROMAN_NUMERAL`` et ``PATTERN_NATURAL`` ont été supprimées.

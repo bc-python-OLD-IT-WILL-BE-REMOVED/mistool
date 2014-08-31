@@ -1,0 +1,25 @@
+==========
+2013-05-19
+==========
+
+**Ajout de la classe ``MultiReplace`` au module ``string_use``:** cette classe permet de faire des remplacements de texte où les remplaceemnts peuvent eux-même contenir des textes à remplacer.
+
+**Un nouveau dictionnaire de motifs ``PATTERN_WORD`` dans le module ``regex_use``:** ces motifs pour repérer des "mots" sont utilisés par la classe ``MultiReplace`` du module ``string_use``.
+
+
+==========
+2013-05-11
+==========
+
+**Deux nouvelles fonctionnalités dans le module ``string_use``.**
+
+    1) La fonction ``split`` permet de couper un texte à l'aide de différents séparateurs au lieu d'un seul.
+
+    1) La classe ``MultiSplit`` permet de couper un texte à l'aide de différents séparateurs, puis de couper les morceaux obtenus à l'aide d'autres séparateurs... ¨etc.
+
+
+==========
+2013-05-03
+==========
+
+**Ajout de la classe ``AutoComplete`` au module ``string_use``:** cette classe est permet de faire l'autocomplétion de texte.

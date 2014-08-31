@@ -1,0 +1,36 @@
+==========
+2013-11-20
+==========
+
+**Une nouvelle fonction dans le module ``os_use``:** la fonction ``clean`` sert à nettoyer le contenu d'un dossier.
+
+
+==========
+2013-11-19
+==========
+
+**Une nouvelle fonction dans le module ``os_use``:** la fonction ``realPath`` interprète les raccourcis standards ``~`` et ``../`` pour produire un chemin où ces raccourcis ont été interprétés.
+
+
+**Une nouvelle fonction dans le module ``date_use``:** la fonction ``now``   est en fait égal à la fonction ``datetime.now`` du module standard ``datetime``. Cette fonction donne la date et l'heure actuelles au format anglais ``2013-12-08 10:26:59.806235``.
+
+
+==========
+2013-11-11
+==========
+
+**Un oubli dans la fonction ``pyRepr`` du module ``python_use``:** la constante spéciale ``None`` n'était jamais indentée.
+
+
+==========
+2013-11-10
+==========
+
+**Ajout de la fonction ``nextDay`` au module ``date_use``:** cette fonction permet à partir d'une date donnée d'avoir la date du prochain jour ayant un nom souhaité.
+
+
+==========
+2013-11-01
+==========
+
+**Correction d'une coccille dans la fonction ``pyRepr`` du module ``python_use``:** la fonctionnalité ``"wrap"`` était implémentée d'une façon totalement farfelue.

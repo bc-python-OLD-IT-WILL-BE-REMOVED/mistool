@@ -1,0 +1,10 @@
+==========
+2013-05-19
+==========
+
+The module ``string_use`` has the new following features.
+
+* The class ``MultiReplace`` allows to replace texts that can also contain piece of texts to be replaced.
+* The function ``split`` allows to split one text regarding to several different separators instead of a single one.
+* The class ``MultiSplit`` allows to split one text at different levels of splitting.
+* The class ``AutoComplete`` proposes auto completion features.

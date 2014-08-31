@@ -1,0 +1,12 @@
+==========
+2013-11-10
+==========
+
+A new function ``nextDay`` in the module ``date_use`` allows to find the date of the next day with a wished name.
+
+
+==========
+2013-11-01
+==========
+
+**One bug in the function ``pyRepr`` of the module ``python_use``:** the feature ``"wrap"`` was implemented by an alien... This will work better now.

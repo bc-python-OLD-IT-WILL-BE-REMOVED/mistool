@@ -1,0 +1,70 @@
+==========
+2013-10-30
+==========
+
+**Refactoring of the package ``mistool``**
+
+The module ``regex_use`` becomes the sub-package ``parse_use`` which contains the following modules.
+
+1) First, the module ``identify`` gathers all the simple functions ``isVarName``, ``isRoman``, ``isNatural``, ``isInteger``, ``isRational``, ``isDecimal`` and ``isFloat``.
+
+2) With the module ``group``, you can use the following features.
+
+    a) The class ``FindGroups`` of the module ``string_use`` has been moved to the module ``group`` of ``parse_use``. It makes more sense ...
+
+    b) To facilitate the use of the class ``FindGroups``, a new class ``Groups`` was born so as to define easily groups.
+
+    c) A new function ``findIndent`` allows to find the indentation level of a line.
+
+3) The module ``token`` contains a new class ``Token`` that can build a list of tokens. Although basic, this class can work with groups by using the class ``Groups``.
+
+
+**Rename and improvement of the function ``cut`` into the module ``string_use``**
+
+The function ``cut`` of the module ``string_use`` has been renamed ``wrap``, that's better. This new version can work with the class ``Token`` to indicate, for example, protected groups or verbatim content.
+
+
+**Improvement of the function ``pyRepr`` of the module ``python_use``**
+
+1) A new optional argument ``name`` allows to give a name to be used in order to obtain ``myName =  ...``.
+
+2) Another optional argument ``format`` allows to configure a little the output.
+
+    a) ``"wrap"`` allows to use line breaks for parts using too many characters .
+
+    b) ``"short"`` allows for an ordered dictionary like object to get ``OrderedDict`` instead of ``collections.OrderedDict``.
+
+    c) ``"key"`` is used with dictionaries to format them using a syntax like ``oneDict[oneKey] = oneValue``.
+
+    d) ``"empty"`` asks to add a blank line before every new definition ``oneDict[oneKey] = oneValue``.
+
+
+**That's all !** For the moment... ;-)
+
+
+==========
+2013-10-27
+==========
+
+The function ``ascii`` in ``string_use`` has a better implementation using the standard package ``unicode``.
+
+
+==========
+2013-10-13
+==========
+
+The module ``string_use`` has a new class ``FindGroups`` for searching groups delimited by parenthesis, quotes, ...
+
+**Bug:** empty lists, empty tuples and empty dictionaries were not managed by the function ``pyRepr``.
+
+**Refactoring 1:** the functions ``isUpperRoman`` and ``isLowerRoman`` of the module ``regex_use`` have been replaced by one single function ``isRoman`` with an optional argument ``case`` which indicates the case expected.
+
+**Refactoring 2:** the default formats for the function ``frame`` in the module ``string_use`` are now in a single dictionary ``FRAME_FORMATS`` so as to easy have all the default formats available.
+
+**Warning !** A lot of renamings have been made for sake of simplicity and conventional notations.
+
+1) In the module ``date_use``, the variables ``dateTime`` and ``strFormat`` of the function ``translate`` have been renamed ``date`` and ``format`` respectively.
+
+2) In the module ``os_use``, the variable ``listPath`` of the function ``commonPath`` have been renamed ``paths``.
+
+3) In the module ``string_use``, the initialization variables ``listWord`` and ``dict`` of the class ``AutoComplete`` become ``words`` and ``dictAsso`` respectively. The variable ``listText`` of the function ``joinAnd`` is now called ``texts``, and the class ``step`` becomes ``Step``.

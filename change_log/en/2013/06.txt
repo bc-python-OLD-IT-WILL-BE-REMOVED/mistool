@@ -1,0 +1,5 @@
+==========
+2013-06-17
+==========
+
+The module ``string_use`` has one new function ``ascii`` which aim is to give an ASCII translation of a text.

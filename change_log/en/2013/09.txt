@@ -1,0 +1,18 @@
+==========
+2013-09-21
+==========
+
+Birth of the new module ``date_use`` that only proposes, for the moment, an easy way to translate dates.
+
+The module ``string_use`` has one new function ``isCase`` so as to test the case of one text.
+
+
+==========
+2013-09-15
+==========
+
+The new functions ``nextDir`` and ``listDir`` return the paths of the directories contained in one directory.
+
+The functions ``nextFile`` and ``listFile`` of the module ``os_use`` allow now to use criteria of researches regarding to the prefix of the name of the files (this feature is used by the function ``launchTestSuite`` of the module ``log_test_use``).
+
+**Warning !** The variable ``sub`` of the functions ``nextFile`` and ``listFile``, and also of the class ``DirView`` has been deleted because it is not concretly usable without big problems.

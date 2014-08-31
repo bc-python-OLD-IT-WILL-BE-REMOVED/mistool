@@ -1,0 +1,77 @@
+==========
+2013-03-30
+==========
+
+**Suppression de la fonction ``name`` du module ``pythonUse``:** les tests unitaires ont montré le manque de fiabilité de cette fonction.
+
+**Correction d'une grosse coccille dans la classe ``DirView`` du module ``osUse``:** les dossiers ne contenant que des sous-dossiers étaient mal gérés dans certaines situations.
+
+**Changement de la fonction ``frame`` du module ``stringUse``:** la variable ``kind`` a été rénomé plus logiquement ``format``.
+
+**Amélioration de la fonction ``problem`` du module ``logTestUse``:** il est maintenant possible de choisir de centrer ou non le texte.
+
+**Mise en place de tests unitaires:** ceci permet d'empêcher des régressions tout en vérifiant le bon fonctionnement sur différents environnements.
+
+
+==========
+2013-03-29
+==========
+
+**Simplification des fonctions ``nextFile`` et ``listFile`` du module ``osUse``:** il est maintenant possible de donner une extension seule sans la mettre dans une liste.
+
+==========
+2013-03-27
+==========
+
+**Amélioration de la fonction ``launchTestSuite`` du module ``logTestUse``:** il est maintenant possible d'utiliser une fonction pour ordonner les tests.
+
+
+==========
+2013-03-26
+==========
+
+**Correction d'une coccille dans la fonction ``beforeAfter`` du module ``stringUse``:** l'absence du second texte de césure n'était pas repéré à cause d'une bête erreur de saisie d'un nom de variable. Un classique !
+
+
+==========
+2013-03-24
+==========
+
+**Réorganisation du module ``pythonUse``:** voici ce qui a changé.
+
+    1) La fonction ``write`` n'existe plus. A la place, il faudra utiliser la fonction ``pyrepr`` qui servira à représenter uniquement des variables ¨python d'un certain type. Un nouveau type est pris en compte, à savoir les motifs regex simples créés via ``re.compile("...")``.
+
+    2) Une nouvelle fonction ``lambdify`` a été ajoutée pour produire le code ¨python d'une lambda expression en donnant juste sa définition au format texte.
+
+
+==========
+2013-03-23
+==========
+
+**Gestion d'une suite de tests unitaires grâce au module ``logTestUse``:** la fonction ``launchTestSuite`` rend enfantin le lancement d'une suite de tests unitaires.
+
+**Nouvelles fonctions dans le module ``regexUse``:** on peut tester si un texte correspond à un naturel, un relatif, un décimal, un rationnel, mais aussi si un texte est l'écriture majuscule ou minuscule d'un nombre romain.
+
+
+==========
+2013-03-18
+==========
+
+**Changement de nom du module ``logUse``:** le nom définitif sera ``logTestUse`` afin de pouvoir aussi prendre en compte des outils pour effectuer des tests unitaires.
+
+
+==========
+2013-03-17
+==========
+
+**Deux améliorations de la fonction ``frame`` du module ``stringUse``:** il est maintenant possible d'utiliser plusieurs caractères pour les bordures verticales. De plus, on peut aussi utiliser un cadre supplémentaire afin d'obtenir aisément de jolis cadres comme ci-dessous sans avoir à appeler deux fois la fonction ``frame``.
+
+python::
+    # --------------------------------- #
+    # -- Un commentaire Python sympa -- #
+    # --------------------------------- #
+
+**Changement de nom du module ``testUse``:** étant donné son utilisation, ce module s'appellera dorénavant ``logUse``. Du coup, la fonction ``testPrint`` devient ``logPrint``.
+
+**Mise en ligne du module:** le module sera dorénavant disponible sur ¨pypi. Le nom ``pytool`` étant déjà utilisé par deux projets, un nouveau nom a été choisi, à savoir ``mistool``. C'est une contraction à la fois de ``miscellaneous`` et ``missing`` accolés à ``tool``. Ceci résume l'idée de proposer divers petits outils manquants.
+

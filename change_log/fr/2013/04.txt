@@ -1,0 +1,61 @@
+==========
+2013-04-30
+==========
+
+**Amélioration de la fonction ``diffDict`` du module ``log_test_use``:** prise en charge du cas où l'un seulement des deux dictionnaire vide.
+
+
+**Amélioration du module ``regex_use`` :** voici ce qui a changé.
+
+    1) Les fonctions testants si des chaînes sont des nombres d'un type particulier utilisent toutes dorénavant des expressions régulières.
+
+    1) Il est maintenant possible de spécifier le séparateur décimal lorsque l'on utilise la fonction ``isDecimal``.
+
+    1) Une nouvelle fonction ``isFloat`` permet de tester si un texte représente un nombre en écriture scientifique.
+
+    1) Enfin, la clé ``"pybaLexerBlock"`` du dictionnaire ``PATTERN_VAR_NAME`` a été renommé ``"lexicBlock"`` (en lien avec le projet ¨lexic en cours de fabrication).
+
+**Normalisation des docstrings:** ceci prépare le travail pour le futur package ¨pybadoc.
+
+
+==========
+2013-04-16
+==========
+
+**Amélioration de la fonction ``diffDict`` du module ``log_test_use``:** ajout de la possibilité d'analyser récursivement les différences entre des valeurs de type dictionnaire. La dernière modification pouvait rendre trop succincts certains messages. On a maintenant le choix.
+
+
+==========
+2013-04-13
+==========
+
+**Normalisation des noms:** dorénavant le projet suivra toujours les mêmes règles de nommage. Ceci implique les changments importants suivants.
+
+    * ``latexUse`` devient ``latex_use``.
+    * ``logTestUse`` devient ``log_test_use``.
+    * ``osUse`` devient ``os_use``.
+    * ``pythonUse`` devient ``python_use``. Dans ce module, la fonction ``pyrepr`` devient ``pyRepr``.
+    * ``regexUse`` devient ``regex_use``.
+    * ``stringUse`` devient ``string_use``.
+    * ``urlUse`` devient ``url_use``.
+
+**Simplification de la fonction ``diffDict`` du module ``log_test_use``:** pour éviter les messages à rallonge, qui sont une conséquence de la dernière modification, il a été décidé de ne finalement indiquer que très succinctement les différences. La simplification des messages rend alors inutile la connaissance des noms des dictionnaires.
+
+
+==========
+2013-04-01
+==========
+
+**Amélioration du module ``osUse``:** voici les nouveautés.
+
+    1) Ajout d'une nouvelle fonction ``pathNoExt`` qui permet de récupérer le chemin complet d'un fichier sans son extension.
+
+    2) Le code des fonctions ``name``, ``nameFile`` et ``ext`` a été amélioré.
+
+**Amélioration de la fonction ``diffDict`` du module ``logTestUse``:** voici ce qui a changé.
+
+    1) Dorénavant seule la première différence rencontrée sera affichée pour plus d'efficacité lors de la chasse aux coccilles.
+
+    2) Meilleur affichage dans le cas de dictionnaires imbriqués.
+
+**Ajout de la fonction ``dictSingleValues`` au module ``pythonUse``:** voici ce qui a changé.

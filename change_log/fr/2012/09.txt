@@ -1,0 +1,96 @@
+==========
+2012-09-30
+==========
+
+**Amélioration du module ``osUse``:** voici les nouveautés.
+
+    1) La fonction ``watch`` gère maintenant le cas d'un dossier.
+
+    2) Un nouvelle fonction ``readTextFile`` permet de récupérer le contenu "texte" d'un fichier.
+
+**Ajout de deux fonctions au module ``stringUse``:** voici les nouveautés.
+
+    1) La fonction ``joinAnd`` concatène une liste de textes en séparant les différentes parties par une virgule sauf pour le dernier morceau qui sera précédé de "and" (ce mot de séparation est modifiable).
+
+    2) La fonction ``beforeAfter`` récupère dans un texte ce qui se trouve avant un ¨1er bout de texte, puis celui se trouvant après un autre.
+
+**Changement dans le module ``latexUse``:** la méthode ``clean`` de la classe ``Build`` n'existe plus. A la place, il faudra utiliser la nouvelle fonction ``clean`` qui est plus complète.
+
+
+==========
+2012-09-24
+==========
+
+**Deux nouvelles fonctions dans le module ``osUse``:** voici les nouveautés.
+
+    1) ``move`` permet de changer le nom d'un dossier ou d'un fichier, ou bien d'effectuer des déplacements de dossier ou de fichier.
+
+    2) ``name`` permet de récupérer le nom d'un dossier ou d'un fichier. Dans le cas d'un fichier, l'extension est renvoyée contrairement à ce que fait la fonction ``fileName``.
+
+
+==========
+2012-09-23
+==========
+
+**Amélioration du module ``stringUse``:** voici ce qui a évolué.
+
+    1) Trois nouveaux types de cadre ont été ajoutés : ``PYBA_UNITTEST_FRAME`, ``PYBA_NB_TITLE_FRAME`` et ``PYBA_NO_NB_TITLE_FRAME`` (ces types sont utilisés par le projet ¨pyba, un autre projet de l'auteur de ces lignes).
+
+    2) Une nouvelle fonction ``cut`` permet principalement d'obtenir un texte dont chaque ligne n'excèdera par ``80`` caractères dans la mesure du possible.
+
+
+==========
+2012-09-21
+==========
+
+**Ajout d'une fonction ``replace`` au module ``stringUse``:** cette fonction permet, en un appel, d'effectuer plusieurs remplacements de texte indiqués via un dictionnaire.
+
+
+==========
+2012-09-20
+==========
+
+**Ajout d'une fonction ``clean`` au module ``osUse``:** cette fonction permet de nettoyer un dossier des fichiers ayant une certaine extension.
+
+**Modification de la classe ``Build`` du module ``latexUse``:** la méthode ``clean`` a été totalement revu. Elle utilise dorénavant deux arguments ``keep`` et ``discard`` pour indiquer les extensions des fichiers à nettoyer.
+
+
+==========
+2012-09-11
+==========
+
+**Ajout d'une classe ``DirView`` au module ``osUse``:** cette classe permet d'affiche la structure d'un dossier en ne gardant éventuellement que certains fichiers qui suivent le même type de critères que ceux proposés par les fonctions ``nextFile`` et ``listFile` (il a fallu au passage ajouter à ces deux fonctions une nouvelle variable optionnelle ``keepDir`` pour pouvoir récupérer les chemins des dossiers).
+
+
+==========
+2012-09-02
+==========
+
+**Amélioration du module ``latexUse``:** pour les distributions du type ¨miktex, il est maintenant possible de créer un dossier local. Ceci se fait via la fonction ``makeMiktexLocalDir``.
+
+
+==========
+2012-09-01
+==========
+
+**Amélioration du module ``osUse``:** voici toutes les nouveautés.
+
+    1) Tout d'abord, un bug a été corrigé. Les réponses renvoyées par les fonctions ``nextFile`` et ``listFile`` pour une recherche utilisant ``maxDepth = 0`` étaient totalement fausses.
+
+    2) Avec des fonctions ``nextFile`` et ``listFile``, il est maintenant possible d'indiquer des informations de recherche propres à certains sous-dossiers.
+
+    3) De nouvelles fonctions ont été ajoutées.
+
+        a) ``commonPath`` permet de récupérer le plus petit dossier contenant une liste d'objets de type fichier ou dossier donnés par leur chemin.
+
+        b) ``parentDir`` est une autre nouvelle fonction qui renvoie le chemin du dossier "parent" contenant un fichier ou un dossier.
+
+        c) ``destroy`` détruit un dossier avec son contenu, et ``makeDir`` permet au contraire d'en construire un.
+
+        d) ``copy`` permet de copier un fichier vers une destination de son choix.
+
+**Ajout de nouvelles fonctions au module ``latexUse``:** voici ce qui a été ajouté.
+
+    1) La fonction ``install`` permet d'installer localement des packages non proposés par une distribution ¨latex.
+
+    2) ``refresh`` est une fonction qui met à jour la liste des packages reconnus par votre distribution ¨latex.

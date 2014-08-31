@@ -1,0 +1,43 @@
+==========
+2013-09-24
+==========
+
+**Amélioration de la fonction ``translate`` du module ``date_use``:** on utilise un système de pointeurs afin de mieux gérer le stockage des traductions identiques pour différents types de langues.
+
+
+==========
+2013-09-22
+==========
+
+**Simplification de la fonction ``translate`` du module ``date_use``:** les variables ``dateTime`` et ``strFormat`` ont été renommées plus simplement ``date`` et ``format``.
+
+
+==========
+2013-09-21
+==========
+
+**Arrivée du nouveau module ``date_use``:** pour le moment, ce module contient juste la fonction ``translate`` qui permet de traduire simplement une date de type ``datetime``.
+
+**Ajout de la fonction ``isCase`` au module ``string_use``:** cette fonction permet de tester différents types de casse d'un texte.
+
+
+==========
+2013-09-16
+==========
+
+**Petite amélioration de la fonction ``nextDir`` du module ``os_use``:** elle n'utilise plus la fonction ``nextFile`` pour limiter au mieux des traitements redondants.
+
+
+==========
+2013-09-15
+==========
+
+**Deux nouveautés pour les fonctions ``nextFile`` et ``listFile``, ainsi que pour la classe ``DirView`` du module ``os_use``**
+
+    1) Il est maintenant possible de garder ou écarter des fichiers suivant le préfixe de leur nom (ceci est notamment utilisé par le module ``log_test_use``).
+
+    2) La variable ``sub`` n'existe plus car elle induisait des difficultés ingérables.
+
+
+
+**Deux nouvelles fonctions ``nextDir`` et ``listDir`` dans le module ``os_use``:** elles permettent de récupérer les chemins des sous-dossiers d'un dossier.

@@ -1,0 +1,14 @@
+==========
+2013-03-23
+==========
+
+Firstly there are new functionalities in the modules ``logTestUse`` and ``regexUse``.
+
+Secondly the french log is now attached to the package (just see the directory ``change_log``).
+
+
+==========
+2013-03-17
+==========
+
+First downloadable version of the package.
