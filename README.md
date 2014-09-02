@@ -2,7 +2,7 @@
 
 If you want more informations and examples than thereafter, just take a look at the docstrings.
 
-.. contents:: Table of Contents
+[TOC]
 
 
 Which OS can use this program ?
