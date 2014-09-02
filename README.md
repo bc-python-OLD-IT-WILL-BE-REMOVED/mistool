@@ -2,8 +2,6 @@
 
 If you want more informations and examples than thereafter, just take a look at the docstrings.
 
-[TOC]
-
 
 Which OS can use this program ?
 ===============================
