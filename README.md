@@ -90,7 +90,7 @@ If you want to know every changes, even the minor ones, there are in the directo
 
 1. In the module ``python_use``, the new function ``runpys`` lets you launch different Python files using certain criteria related to the paths of the scripts to run.
 
-2. In the modules ``os_use``, the functions ``listfile`` and ``nextfile``, and also the class ``DirView`` have a new boolean argument ``unkeephidden`` so as to skip the files and/or the hidden folders whose names usually begin with a period.
+2. In the modules ``os_use``, the functions ``listfile`` and ``nextfile``, and also the class ``DirView`` have a new boolean argument ``unkeephidden`` so as to skip the hidden files and/or the hidden folders whose names usually begin with a period.
 
 3. In the module ``string_use``, to indicate several types of cases to the functions ``case`` and ``camelto``, it will be enough to simply separate these different formats using spaces.
 
@@ -102,3 +102,145 @@ If you want to know every changes, even the minor ones, there are in the directo
 
 
 **Fork misTool on GitHub:** the project is now managed via Git and hosted on the website GitHub.
+
+
+2014-08-27
+----------
+
+**Disappearance of certain features:** the author of misTool has started a new project lexTex. This implies that the functionalities below will no longer be in the module misTool.
+
+* The module ``parse_use``, and also the associated files ``config/group.py``, ``config/pattern.py`` and ``config/token.py`` have been deleted.
+
+* In the file ``config/pattern.py``, the constants ``PATTERN_VAR_NAME``, ``PATTERN_ROMAN_NUMERAL`` and ``PATTERN_NATURAL`` have been removed.
+
+* In the module ``string_use``, the function ``wrap`` has been deleted.
+
+* In the module ``python_use``, the functions ``pyRepr`` and ``lambdify`` have been deleted.
+
+
+**Deep renamings in the code:** for the remaining modules, many things have been renamed in order to stick to more coherent, but also easier to use, internal specifications. Here are all the changes. Sorry for all this mess! :-)
+
+
+Let's start with everything concerning **the dates**.
+
++ In ``date_use.py``, it just has the following modifications.
+    * The constant ``LANG`` becomes ``DEFAULT_LANG``.
+    * The function ``nextDay`` becomes ``nextday``.
+
++ In ``config/date_name.py``, we have the following modifications.
+    * The constant ``__ALL_LANGS`` becomes ``LANGS``.
+    * The constant ``__POINTERS`` becomes ``_POINTERS``.
+    * The constant ``__FORMAT_TRANSLATIONS`` becomes ``_FORMATS_TRANSLATIONS``.
+
+
+Regarding **the latex utilities**, here is what to remember.
+
++ In ``latex_use.py``, we have the following modifications.
+    * The function ``makeMiktexLocalDir`` becomes ``make_localdir_miktex``.
+    * The function ``mikeTexLocalDir`` becomes ``localdir_miketex``.
+    * In the function ``install``, we have the following modification.
+        - The argument ``listFile`` becomes ``paths``.
+    * In the class ``Build`` and the function ``clean``, we have the following modification.
+        - The argument ``verbose`` becomes ``isverbose``.
+
++ In ``config/latex.py``, we have the following modifications.
+    * The constant ``CLASSIFIED_TEMP_EXT`` becomes ``TEMP_EXTS``.
+    * The constant ``ALL_EXT_TO_CLEAN`` becomes ``EXTS_TO_CLEAN``.
+    * The constant ``CHAR_TO_ESCAPE`` becomes ``CHARS_TO_ESCAPE``.
+    * The constant ``CHAR_TO_LATEXIFY`` becomes ``CHARS_TO_LATEXIFY``.
+
+
+Regarding **the module ``log_test_use.py``**, here is what has changed.
+
++ In ``log_test_use.py``, we have the following modifications.
+    * The constant ``ASCII_ASSO`` becomes ``ASCII_ASSOS``.
+    * The function ``diffDict`` becomes ``diffdict``. For this function we have the following modification.
+        - The argument ``recursive`` becomes ``dorecursive``.
+    * The function ``launchTestSuite`` becomes ``runtests``.
+    * The function ``logPrint`` becomes ``logprint``.
+    * In the function ``what``, we have the following modification.
+        - The argument ``isMethod`` becomes ``ismethod``.
+
+
+For **the module ``os_use``**, you have to pay attention to the following things.
+
++ In ``os_use.py``, we have the following modifications.
+    * In the function ``clean``, we have the following modification.
+        - The argument ``ext`` becomes ``exts``.
+    * The function ``commonPath`` becomes ``commonpath``.
+    * The function ``fileName`` becomes ``filename``.
+    * The function ``hasExtIn`` becomes ``hasextin``. For this function we have the following modification.
+        - The argument ``listOfExt`` becomes ``exts``.
+    * The function ``isDir`` becomes ``isdir``.
+    * The function ``isFile`` becomes ``isfile``.
+    * The function ``listDir`` becomes ``listdir``.
+    * The function ``listFile`` becomes ``listfile``. For this function we have the following modifications.
+        - The argument ``keepDir`` becomes ``keepdir``.
+        - The argument ``ext`` becomes ``exts``.
+        - The argument ``prefix`` becomes ``prefixes``.
+    * The function ``makeDir`` becomes ``makedir``.
+    * The function ``makeTextFile`` becomes ``maketxtfile``.
+    * The function ``nextDir`` becomes ``nextdir``.
+    * The function ``nextFile`` becomes ``nextfile``. For this function we have the following modifications.
+        - The argument ``keepDir`` becomes ``keepdir``.
+        - The argument ``ext`` becomes ``exts``.
+        - The argument ``prefix`` becomes ``prefixes``.
+    * The function ``parentDir`` becomes ``parentdir``.
+    * The function ``pathEnv`` becomes ``pathenv``.
+    * The function ``pathNoExt`` becomes ``noext``.
+    * The function ``realPath`` becomes ``realpath``.
+    * The function ``readTextFile`` becomes ``readtxtfile``.
+    * The function ``relativeDepth`` becomes ``relativedepth``.
+    * The function ``relativePath`` becomes ``relativepath``.
+    * In the class ``DirView``, we have the following modifications.
+        - The constant of class ``ASCII_DECORATION`` becomes ``ASCII_DECOS``.
+        - The argument ``ext`` becomes ``exts``.
+        - The argument ``prefix`` becomes ``prefixes``.
+        - The argument ``seeMain`` becomes ``seemain``.
+        - The attribute ``listView`` becomes ``listview``.
+        - The method ``pathToDisplay`` becomes ``pathtodisplay``.
+
+
+The tools related to **python** are only concerned with one change.
+
++ In ``python_use.py``, we have the following modification.
+    * The function ``dictSingleValues​​`` becomes ``dictvalues``.
+
+
+Finally, for **string manipulations**, here is what has changed.
+
++ In ``string_use.py``, we have the following modifications.
+    * In the function ``ascii``, we have the following modification.
+        - The argument ``replacement`` becomes ``replacements``.
+    * The function ``beforeAfter`` becomes ``between``.
+    * The function ``camelTo`` becomes ``camelto``.
+    * The function ``isAscii`` becomes ``isascii``.
+    * The function ``isCase`` becomes ``iscase``.
+    * The function ``joinAnd`` becomes ``joinand``. For this function we have the following modification.
+        - The argument ``andText`` becomes ``andtext``.
+    * In the function ``replace``, we have the following modification.
+        - The argument ``replacement`` becomes ``replacements``.
+    * In the function ``split``, we have the following modification.
+        - The argument ``sep`` becomes ``seps``.
+    * In the class ``AutoComplete``, we have the following modification.
+        - The argument ``dictAsso`` becomes ``assos``.
+    * In the class ``MultiReplace``, we have the following modifications.
+        - The argument ``replacement`` becomes ``replacements``.
+        - The attribute ``replacementasit`` becomes ``replaceasit``.
+    * In the class ``MultiSplit``, we have the following modifications.
+        - The argument ``sep`` becomes ``seps``.
+        - The attribute ``listView`` becomes ``listview``.
+
++ In ``config/frame.py``, we have the following modifications.
+    * The constant ``_ABREV_FRAME`` becomes ``_ABREVS_FRAMES``.
+    * The constant ``_KEY_FRAME`` becomes ``_KEYS_FRAMES``.
+    * The constant ``FRAME_FORMATS`` becomes ``FRAMES_FORMATS``.
+
++ In ``config/pattern.py``, we have the following modification.
+    * The constant ``PATTERN_GROUP_WORD`` becomes ``PATTERNS_WORDS``.
+
+
+2013-03-17
+----------
+
+First downloadable version of the package.
