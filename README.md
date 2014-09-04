@@ -3,9 +3,6 @@
 If you want more informations and examples than thereafter, just take a look at the docstrings.
 
 
-.. contents:: Table of Contents
-
-
 Which OS can use this program ?
 ===============================
 
