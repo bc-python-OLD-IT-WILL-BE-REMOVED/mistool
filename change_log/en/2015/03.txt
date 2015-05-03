@@ -1,0 +1,5 @@
+==========
+2015-03-01
+==========
+
+**Names of the versions :** the numbers of versions are now compatible with the ¨pep_440. This is necessary for user installing ¨orpyste with ¨pip.

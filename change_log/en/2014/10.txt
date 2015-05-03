@@ -1,0 +1,13 @@
+==========
+2014-10-27
+==========
+
+**In the module ``string_use``, fix of a bug in the function ``split``:** if two separators followed, the 2nd was kept instead of using an empty text between the two separators. This has been fixed by improving the method used. Bug discovered during the development of the package ¨setytup created by the author of ¨mistool (take a look at ¨pypi or ¨github).
+
+
+==========
+2014-10-23
+==========
+
+**Simplification of the error messages:** the project will use now standard ¨python errors each time that it will be possible.
+

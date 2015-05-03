@@ -3,188 +3,164 @@
 """
 Directory : mistool
 Name      : os_use
-Version   : 2014.08
+Version   : 2015.05
 Author    : Christophe BAL
 Mail      : projetmbc@gmail.com
 
-This module contains functions to manipulate easily files, directories and also
-to have informations about the system.
+This module contains an enhanced version of the classes in ``pathlib`` to
+manipulate easily files, directories and so on, and there are also functions
+which give informations about the system.
 """
 
 import os
+import pathlib
 import shutil
 import platform
 from subprocess import check_call
+import re
 
 
-# ------------------------- #
-# -- FOR ERRORS TO RAISE -- #
-# ------------------------- #
+# ------------------ #
+# -- WALK AND SEE -- #
+# ------------------ #
 
-class OsUseError(ValueError):
+_ALL_QUERIES      = set(["visible", "dir", "file"])
+_SHORT_QUERIES    = {x[0]: x for x in _ALL_QUERIES}
+_FILE_DIR_QUERIES = _ALL_QUERIES - set(["visible"])
+
+def build_meta_pattern(regpattern, regexit = True):
     """
-Base class for errors in the ``os_use`` module of the package ``mistool``.
+This function is used by the method ``walk`` and ``clean`` of the class ``PPath``
+and also by the class ``DirView`` so as to parse the regex like pattern they use.
     """
-    pass
+    i = regpattern.find("::")
+
+    if i > -1:
+        queries, pattern = regpattern[:i], regpattern[i+2:]
+        queries = set(_SHORT_QUERIES.get(x, x) for x in queries.split("-"))
+
+        if not queries <= _ALL_QUERIES:
+            raise ValueError("illegal filter in the regpattern.")
+
+    else:
+        queries, pattern = _FILE_DIR_QUERIES, regpattern
+
+# The regex
+    if regexit:
+        for old, new in {
+            '*': ".*",
+            '.': "\.",
+        }.items():
+            pattern = pattern.replace(old, new)
+
+    return queries, pattern
 
 
-# ----------- #
-# -- TESTS -- #
-# ----------- #
+# ------------------------------------- #
+# -- SPECIAL FUNCTIONS FOR OUR CLASS -- #
+# ------------------------------------- #
 
-def isfile(path):
+# << Warning ! >>
+#
+# Sublcassing ``pathlib.Path`` is not easy ! We have to dirty a little
+# our hands. Hints are hidden in the source and especially in the source
+# of ``pathlib.PurePath``.
+#
+# Sources:
+#     * http://stackoverflow.com/a/29851079/4589608
+#     * https://hg.python.org/cpython/file/151cab576cab/Lib/pathlib.py
+#
+# Extra methods added to ``PPath`` must be defined using function. We choose to
+# use names which all start with ``_ppath_somename`` where ``somename`` will be
+# the name in the class ``PPath``.
+
+
+# --------------- #
+# -- EXTENSION -- #
+# --------------- #
+
+@property
+def _ppath_ext(cls):
     """
-This function simply tests if the path ``path`` points to an existing file.
+This attribut like method returns the extension of a path, that is the value of
+the attribut ``suffix`` of ``pathlib.Path`` without the leading point.
     """
-    return os.path.isfile(path)
+# An extension is a suffix without the leading point.
+    if cls.suffix:
+        return cls.suffix[1:]
 
-def isdir(path):
+    raise ValueError("no extension")
+
+
+def _ppath_with_ext(cls, ext):
     """
-This function simply tests if the path ``path`` points to an existing directory.
+This method changes the extension of a path to the one given in the variable
+``ext``. It is similar to the method ``with_suffix`` of ``pathlib.Path`` but
+without the leading point.
     """
-    return os.path.isdir(path)
+    if ext:
+        ext = "." + ext
 
-def hasextin(
-    path,
-    exts
-):
+    return cls.with_suffix(ext)
+
+
+# ------------------------------- #
+# -- STRING VERSIONS OF A PATH -- #
+# ------------------------------- #
+
+@property
+def _ppath_normpath(cls):
     """
-This function tests if the path ``path`` finishes by one of the extensions given
-in the list of extensions ``exts``.
-    """
-    if '.' in path:
-        for ext in exts:
-            if path.endswith('.' + ext):
-                return True
-
-    return False
+This attribut like method changes the leading shortcut path::``~`` corresponding
+to the complete name of the default user's directory, and it also reduces the
+path::``/../`` used to go higher in the tree structure of a directory.
 
 
-# ----------------------- #
-# -- INFOS ABOUT PATHS -- #
-# ----------------------- #
-
-SEP = os.sep
-
-def realpath(path):
-    """
-This function interprets the shortcut path::``~`` for the default user's
-directory and the relative path using path::``/../`` to go higher in the tree
-structure of a directory. For example, on a Mac the following code will give
-the path path::``/Users/login/dir_1/file.txt`` where ``login`` is the os login
-of the user.
+For example, on a Mac the following code will print the normed path
+path::``/Users/login/dir_1/file.txt`` where ``login`` is the real os login of
+the user.
 
 python::
     from mistool import os_use
 
-    print(
-        os_use.realpath("~/dir_1/dir_2/dir_3/../../file.txt")
-    )
-    """
-    return os.path.normpath(
-        os.path.expanduser(path)
-    )
+    onepath = os_use.PPath("~/dir_1/dir_2/dir_3/../../file.txt")
 
-def name(path):
+    print(onepath.normpath)
     """
-This function extracts from the path ``path`` the name of the file with its
-extension or simply the name of one directory.
-    """
-    i = path.rfind(SEP)
+    return os.path.normpath(os.path.expanduser(str(cls)))
 
-    return path[i+1:]
 
-def filename(path):
+@property
+def _ppath_shortpath(cls):
     """
-This function extracts from the path ``path`` the name of the file without its
-extension.
+This attribut like method returns the shorstest version of a path by using the
+leading shortcut path::``~`` corresponding to the complete name of the default
+user's directory, if it is possible, and by reducing all path::``/../`` used to
+go higher in the tree structure of a directory.
     """
-    return os.path.splitext(name(path))[0]
+    path = os.path.normpath(os.path.expanduser(str(cls)))
+    userpath = os.path.expanduser("~") + cls._flavour.sep
 
-def ext(path):
-    """
-This function extracts from the path ``path`` the extension of the file.
-    """
-    return os.path.splitext(path)[1][1:]
-
-def noext(path):
-    """
-This function removes from the path ``path`` the extension of the file.
-    """
-    i = len(ext(path))
-
-    if i != 0:
-        i += 1
-
-        return path[:-i]
+    if path.startswith(userpath):
+        path = "~" + cls._flavour.sep + path[len(userpath):]
 
     return path
 
-def parentdir(path):
+
+# --------------------------- #
+# -- INFORMATIONS IN PATHS -- #
+# --------------------------- #
+
+def _ppath_depth_in(cls, path):
     """
-This function returns the path of the directory that contains the file or the
-directory corresponding to the path ``path``.
-    """
-    return os.path.dirname(path)
+This method returns the depth of the actual class path regarding to another path.
 
-def relativepath(
-    main,
-    sub,
-):
-    """
-Suppose that we have the following paths where ``main`` is the path of the main
-directory and ``sub`` the one of a sub directory or a file contained in the main
-directory.
 
-python::
-    main = "/Users/projects/source_dev"
-    sub  = "/Users/projects/source_dev/misTool/os_use.py"
-
-The function will return in that case the following string which always begin
-with one slash ``/``.
-
-python::
-    "/misTool/os_use.py"
-    """
-# Special case of the same path !
-    if main == sub:
-        raise OsUseError("The main path and the sub-path are equal.")
-
-# We clean the path in case of they contain things like ``../``.
-    main = realpath(main)
-    sub  = realpath(sub)
-
-# The main path must finish by one backslash because
-#     "python/misTool/source_dev/misTool/os_use.py"
-# is not one sub path of
-#     "python/misTool/source".
-
-    if main[-1] != SEP:
-        main += SEP
-
-# Is the sub path contained in the main one ?
-    if not sub.startswith(main):
-        raise OsUseError(
-            "The sub-path\n\t+ {0}\nis not contained in the main path\n\t+ {1}\n" \
-                .format(sub, main) \
-            + "so it is not possible to have one relative path."
-        )
-
-# Everything seems ok...
-    i = len(main) - 1
-
-    return sub[i:]
-
-def relativedepth(
-    main,
-    sub
-):
-    """
 Suppose that we have the following paths where ``main`` is the path of the main
 directory and ``sub`` the one of a sub directory or a file contained in the main
 directory. Here are some examples.
 
-    1) The function will return ``1`` in the following case.
+    1) The method will return ``1`` in the following case.
 
     python::
         main = "/Users/projects/source_dev"
@@ -193,7 +169,7 @@ directory. Here are some examples.
     This means that the file path::``os_use.py`` is contained in one simple sub
     directory of the main directory.
 
-    2) In the following case, the function will return ``2``.
+    2) In the following case, the method will return ``2``.
 
     python::
         main = "/Users/projects/source_dev"
@@ -205,58 +181,189 @@ directory. Here are some examples.
         main = "/Users/projects/source_dev"
         sub  = "/Users/projects/source_dev/os_use.py"
     """
-    return relativepath(
-        main        = main,
-        sub         = sub
-    ).count(SEP) - 1
+    return len(cls.relative_to(path).parts) - 1
 
-def commonpath(paths):
+
+
+@property
+def _ppath_parent(cls):
     """
-This function returns the smaller directory that contains the objects having the
-paths given in the list ``paths``.
+This attribut like method returns the path of the direct folder "containing" the
+file or the directory corresponding to the path.
     """
-    if len(paths) < 2:
-        raise OsUseError(
-            "You must give at least two paths."
-        )
+    return cls.parents[0]
 
-    if len(paths) == 2:
-        answer = []
 
-        pieces_1 = paths[0].split(SEP)
-        pieces_2 = paths[1].split(SEP)
+def _ppath___sub__(cls, path):
+    """
+This magic method allows to use ``onepath - anotherpath`` instead of the long
+version ``onepath.relative_to(anotherpath)`` given by ``pathlib.Path``.
+    """
+    return cls.relative_to(path)
 
-        for i in range(min(len(pieces_1), len(pieces_2))):
-            if pieces_1[i] == pieces_2[i]:
-                answer.append(pieces_1[i])
+
+def _ppath_common_with(cls, paths):
+    """
+This method returns the path of the smaller common "folder" of the current path
+and at least one paths.
+
+
+info::
+    The variable ``paths`` can be a single path, or a list or a tuple of paths.
+
+
+For example, the following code will print path::``"/Users/projects``.
+
+python::
+    from mistool import os_use
+
+    path   = os_use.PPath("/Users/projects/source/doc")
+    path_1 = os_use.PPath("/Users/projects/README")
+    path_2 = os_use.PPath("/Users/projects/source/misTool/os_use.py")
+
+    print(path.common_with((path_1, path_2)))
+    """
+    if not isinstance(paths, (list, tuple)):
+        paths = [paths]
+
+    commonparts = list(cls.parts)
+
+    for onepath in paths:
+        i = 0
+
+        for common, actual in zip(commonparts, onepath.parts):
+            if common == actual:
+                i += 1
             else:
                 break
 
-        return SEP.join(answer)
+        commonparts = commonparts[:i]
 
-    else:
-        return commonpath([
-            commonpath(paths[:-1]), paths[-1]
-        ])
+        if not commonparts:
+            break
+
+    commonpath = pathlib.Path("")
+
+    for part in commonparts:
+        commonpath /= part
+
+    return commonpath
 
 
-# ------------------------------------- #
-# -- OPENING WITH ASSOCIATED PROGRAM -- #
-# ------------------------------------- #
-
-def watch(path):
+def _ppath___and__(cls, paths):
     """
-This function tries to open one directory, or one file. Indeed, files are opened
-within their associated applications, if this last ones exist.
+This magic method allows to use ``onepath & paths`` instead of the long version
+``onepath.common_with(paths)``.
+    """
+    return cls.common_with(paths)
+
+
+# ------------------ #
+# -- WALK AND SEE -- #
+# ------------------ #
+
+def _ppath_walk(cls, regpattern):
+    """
+Besoin de préciser le langage
+    *  --> n'mporte quel nom sans separtauer
+    ** --> n'import quel caractère donc aaussi spéarateur
+    .  --> tel que
+
+
+
+This method walks inside a directory, if the path is one. It allows to use almost
+all the power of regexes in a pattern with also some additional queries.
+
+
+warning::
+    The special caracters ``*`` and ``.`` for regex become "anything" and "just
+    a single point" in a pattern so as to be near to the Unix-glob syntax.
+
+
+Let's see some examples of patterns ``regpattern``.
+
+    1) ``"*.(py|txt)"`` asks to keep only path ending with either path::``py`` or
+    path::``txt``. This is the main reason of the add of a new method.
+
+    2) ``"**"`` will macth anything.
+
+    3) If you want to keep only Puython files, just use ``"file::**.py"``. We
+    have used a filter at the begining of the pattern ``regpattern``. Here are
+    all the queries.
+
+        a) ``file::`` asks to keep only files. You can use the shortcut ``f``.
+
+        b) ``dir::`` asks to keep only directories, or folders. You can use the
+        shortcut ``d``.
+
+        c) ``visible::`` asks to keep only visible files or directories which
+        have name begining with ``.``. If a file is inside an invisible folder,
+        it is also invisible ! You can use the shortcut ``v``.
+
+        d) ``visible-file::`` and ``visible-dir::`` ask to respectively keep
+        only visible files, or only visible directories.
+    """
+# Do we have an existing directory ?
+    if not cls.is_dir():
+        raise OSError("the path does not point to an existing directory.")
+
+# Metadatas and the normal regex
+    queries, pattern = build_meta_pattern(regpattern)
+
+    keepdir     = "dir" in queries
+    keepfile    = "file" in queries
+    keepvisible = "visible" in queries
+
+    regex_obj = re.compile(pattern)
+
+# Let's walk
+    for root, dirs, files in os.walk(str(cls)):
+
+# Do the actual directory must be added ?
+        addthisdir = False
+
+        if keepdir \
+        and root != str(cls) \
+        and regex_obj.match(root):
+            root_ppath = PPath(root)
+
+            if not keepvisible \
+            or not any(
+                x.startswith('.')
+                for x in root_ppath.relative_to(cls).parts
+            ):
+                addthisdir = True
+
+# A new file ?
+        if keepfile:
+            for file in files:
+                if keepvisible and file.startswith('.'):
+                    continue
+
+                file = os.path.join(root, file)
+
+                if regex_obj.match(file):
+                    yield PPath(file)
+
+# A new directory ?
+        if addthisdir:
+            yield root_ppath
+
+
+def _ppath_see(cls):
+    """
+This method shows one directory or one file in the OS, if it is possible.
+
+
+info::
+    The files are opened within their associated applications, if they have one.
     """
 # Nothing to open...
-    isonefile = isfile(path)
+    if not cls.is_file() and not cls.is_dir():
+        raise OSError("the path does not point to one existing file.")
 
-    if not isonefile and not isdir(path):
-        raise OsUseError(
-            "The following path does not point to one existing file " \
-            "or directory.\n\t<< {0} >>".format(path)
-        )
+# We need the string normalized version of the path.
+    path = cls.normpath
 
 # Each OS has its own method.
     osname = system()
@@ -281,674 +388,188 @@ within their associated applications, if this last ones exist.
 
 # Unknown method...
     else:
-        raise OsUseError(
-            "The opening of file on << {0} >> OS is not "
-            "supported.".format(osname)
+        raise OSError(
+            "the opening of the file on the OS "
+            "<< {0} >> is not supported.".format(osname)
         )
 
 
-# ------------- #
-# -- READING -- #
-# ------------- #
+# ------------ #
+# -- CREATE -- #
+# ------------ #
 
-def readtxtfile(
-    path,
-    encoding = "utf-8"
-):
+def _ppath_make_dir(cls):
     """
-This function returns the text like content of one file given by its path.
+This method builds the directory with the given path ``path``. This argument
+must be an instance of the class ``pathlib.Path`` or ``PPath``.
 
-You can indicate the encoding of the file with the optional argument
-``encoding`` whose dfault value is ``"utf-8"``. The available encodings are the
-same as the ones for the standard ¨python function ``open``.
+If one parent directory must be build, the function will do the job.
     """
-    with open(
-        file     = path,
-        mode     = "r",
-        encoding = encoding
-    ) as f:
-        return f.read()
+    if not cls.is_dir():
+        os.makedirs(str(cls))
 
 
-# ----------------------------------- #
-# -- CREATION, DELETION AND MOVING -- #
-# ----------------------------------- #
-
-def makedir(path):
-    """
-This function build the directory with the given path ``path``. If one parent
-directory must be build, the function will do the job.
-    """
-    if not isdir(path):
-        os.makedirs(path)
-
-def maketxtfile(
-    path,
+def _ppath_make_txt_file(
+    cls,
     text     = '',
     encoding = 'utf-8'
 ):
     """
-This function build the file with the given path ``path`` and the text like
-content ``text``.
+This method builds the file with  the text like content ``text`` and the given
+path ``path``. This last argument must be an instance of the class
+``pathlib.Path`` or ``PPath``.
 
-You can indicate the encoding of the file with the optional argument ``encoding``
-whose dfault value is ``"utf-8"``. The available encodings are the same as the
-ones for the standard ¨python function ``open``.
+You can also indicate the encoding of the file with the optional argument
+``encoding`` whose default value is ``"utf-8"``. The available encodings are the
+same as the ones for the standard ¨python function ``open``.
     """
-    makedir(parentdir(path))
+    cls.parent.make_dir()
 
-    with open(
-        file     = path,
+    with cls.open(
         mode     = "w",
         encoding = encoding
     ) as f:
         f.write(text)
 
-def move(
-    source,
-    destination
-):
+
+# ------------ #
+# -- DELETE -- #
+# ------------ #
+
+def _ppath_destroy(cls):
     """
-This function moves the file or the directory from the path ``source`` to the
-path ``destination``. If the source and the destination have the same parent
-directory, then the final result is just a renaming of the file or directory.
+This method removes the directory or the file given by its path ``path``. This
+argument must be an instance of the class ``pathlib.Path`` or ``PPath``.
     """
-    if isdir(path):
-        os.renames(source, destination)
+    if cls.is_dir():
+        shutil.rmtree(str(cls))
 
-    elif isfile(source):
-        copy(source, destination)
+    elif cls.is_file():
+        os.remove(str(cls))
 
-        if isfile(destination):
-            destroy(source)
 
-def copy(
-    source,
-    destination
-):
+def _ppath_clean(cls, regpattern):
     """
-This function copy the file having the path ``source`` to the destination path
-``destination``.
+This method cleans a directory regarding the value of ``regpattern`` which must
+be an almost regex pattern. See the documentation of the method ``walk``.
     """
-    if isfile(source):
-        dir = parentdir(destination)
+# We have to play with the queries and the pattern in ``regpattern``.
+    queries, pattern = build_meta_pattern(regpattern, regexit = False)
 
-        if not isdir(dir):
-            makedir(dir)
-
-        shutil.copy(source, destination)
-
-    elif isdir(source):
-        raise OsUseError(
-            "The copy of one directory is not yet supported."
-        )
+    if "visible" in queries:
+        prefix = "visible-"
 
     else:
-        raise OsUseError(
-            "The following path points nowhere.\n\t<< {0} >>".format(source)
-        )
+        prefix = ""
 
-def destroy(path):
+# We must first remove the files. This is in case of folders to destroy.
+    if "file" in queries:
+        filepattern = "{0}file::{1}".format(prefix, pattern)
+
+        for path in cls.walk(filepattern):
+            path.destroy()
+
+
+# We can destroy folders but we can use an iterator (because of sub directories).
+    if "dir" in queries:
+        dirpattern = "{0}dir::{1}".format(prefix, pattern)
+
+        sortedpaths = sorted(list(p for p in cls.walk(dirpattern)))
+
+        for path in sortedpaths:
+            path.destroy()
+
+
+# ----------------- #
+# -- MOVE & COPY -- #
+# ----------------- #
+
+def _ppath_copy_to(cls, path):
     """
-This function removes the directory or the file given by its path ``path``.
-    """
-    if isdir(path):
-        shutil.rmtree(path)
-
-    elif isfile(path):
-        os.remove(path)
-
-def clean(
-    path,
-    cleanall = False,
-    exts      = [],
-    depth     = 0
-):
-    """
------------------
-Small description
------------------
-
-This function removes things in a directory. There is two ways of use.
-
-    1) Using something like ``clean(path = mydirpath, cleanall = True)``, you
-    will remove anything that is in the directory having the path ``mydirpath``.
-
-    2) If you don't use ``cleanall``, which default value is ``False``, then the
-    function will only remove files regarding to the values of the arguments
-    ``exts`` and ``depth`` which have the same meaning that for the function
-    ``nextfile``.
-
-
--------------
-The arguments
--------------
-
-This functions uses the following variables.
-
-    1) ``path`` is simply the path of the directory to clean.
-
-    2) ``cleanall`` is a boolean variable to clean all sub files and sub
-    directories. By default, ``cleanall = False`` which asks do not clean all.
-    In that case, the function uses the variables ``exts`` and ``depth``.
-
-    3) ``exts`` is the list of the extensions of the files to remove. By default,
-    ``ext = []`` which asks to remove every kind of files.
-
-    4) ``depth`` is the maximal depth for the research of the files to remove.
-    The very special value ``(-1)`` indicates that there is no maximum. The
-    default value is ``0`` which asks to only look for in the direct content of
-    the main directory to analyse.
-    """
-    if cleanall:
-# We remove the files directly in the directory.
-        for onefile in nextfile(main = path):
-            destroy(onefile)
-
-# << Warning ! >> We can't use the iterator.
-        for onedir in listdir(main = path):
-            destroy(onedir)
-
-    else:
-        for onefile in nextfile(
-            main  = path,
-            exts  = {'keep': exts},
-            depth = depth
-        ):
-            destroy(onefile)
-
-
-# ------------------- #
-# -- LIST OF FILES -- #
-# ------------------- #
-
-def _issubdepthgood(
-    main,
-    sub,
-    depth
-):
-    """
-This small function is used by ``nextfile`` so as to know if one directory must
-be inspected or not.
-    """
-    if depth == -1:
-        return True
-
-    elif depth == 0:
-        return bool(main == sub)
-
-# ``relativedepth`` sends logically one error if the two directories are equal,
-# so we have to take care of this very special case.
-    elif main == sub:
-        return True
-
-    else:
-# The use of ``... + 1`` in the test comes from the fact we work with files
-# contained in the sub directory, and the depth of this file is equal to the
-# one of the sub directory plus one.
-        return bool(
-            relativedepth(main = main, sub = sub) + 1 <= depth
-        )
-
-def _isfilegood(
-    path,
-    exts,
-    prefixes
-):
-    """
-This small function is used by ``nextfile`` so as to know if the file found
-matches the search criteria about extensions, prefixes and hiddeness.
-    """
-    path = name(path)
-
-    tokeep = True
-
-    if exts['discard'] and hasextin(path, exts['discard']):
-        tokeep = False
-
-    if tokeep:
-        if exts['keep'] and not hasextin(path, exts['keep']):
-            tokeep = False
-
-    if tokeep:
-        for prefix in prefixes['discard']:
-            if path.startswith(prefix):
-                tokeep = False
-                break
-
-    if tokeep and prefixes['keep']:
-        tokeep = False
-
-        for prefix in prefixes['keep']:
-            if path.startswith(prefix):
-                tokeep = True
-                break
-
-    return tokeep
-
-def _tokeepdiscard(extorprefixs):
-    """
-This small function is used by ``nextfile`` so as to produce one normalized
-dictionary of the variables ``exts`` and ``prefix``.
-    """
-#    if extorprefixs == None:
-#        extorprefixs = {'keep': "..."}
-
-    if isinstance(extorprefixs, str) \
-    or isinstance(extorprefixs, list):
-        extorprefixs = {'keep': extorprefixs}
-
-    tokeep = extorprefixs.get('keep', [])
-
-    if isinstance(tokeep, str):
-        tokeep = [tokeep]
-
-    todiscard = extorprefixs.get('discard', [])
-
-    if isinstance(todiscard, str):
-        todiscard = [todiscard]
-
-    return {
-        'keep'   : tokeep,
-        'discard': todiscard
-    }
-
-def nextfile(
-    main,
-    exts         = {},
-    prefixes     = {},
-    depth        = 0,
-    unkeephidden = True,
-    keepdir      = None
-):
-    """
------------------
-Small description
------------------
-
-This function is an iterator that sends path of files in a directory with the
-possibility to use some criteria of research.
-
-
-Suppose for example that we have the following directory structure.
-
-directory::
-    + mistool
-        * __init__.py
-        * description.rst
-        * latex_use.py
-        * os_use.py
-        * ...
-        + change_log
-            + 2012
-                * 07.pdf
-                * 08.pdf
-                * 09.pdf
-        + debug
-            * debug_latex_use.py
-            * debug_os_use.py
-            + debug_latex_use
-                * latexTest.pdf
-                * latexTest.tex
-                * latexTestBuilder.py
-                * ...
-        + toUse
-            + latex
-                * ...
-
-
-Let's consider the following code.
-
-python::
-    from mistool import os_use
-
-    for path in os_use.nextfile(
-        main  = "/Users/mistool",
-        exts  = "py",
-        depth = -1
-    ):
-        print(path)
-
-
-If we launch the preceding code in a terminal, then we obtain the following
-outputs.
-
-terminal::
-    /Users/mistool/__init__.py
-    /Users/mistool/latex_use.py
-    /Users/mistool/os_use.py
-    /Users/mistool/debug/debug_latex_use.py
-    /Users/mistool/debug/debug_os_use.py
-    /Users/mistool/debug/debug_latex_use/latexTestBuilder.py
-
-
-You can also have files with different extensions like in the following code.
-
-python::
-    from mistool import os_use
-
-    for path in os_use.nextfile(
-        main  = "/Users/mistool",
-        exts  = ["tex", "pdf"]
-        depth = -1
-    ):
-        print(path)
-
-
-If we launch the preceding code in a terminal, then we obtain the following
-outputs.
-
-terminal::
-    /Users/mistool/change_log/2012/07.pdf
-    /Users/mistool/change_log/2012/08.pdf
-    /Users/mistool/change_log/2012/09.pdf
-    /Users/mistool/debug/debug_latex_use/latexTest.pdf
-    /Users/mistool/debug/debug_latex_use/latexTest.tex
+This method copies the actual file to the destination ``path``. This last path
+must be an instance of the class ``pathlib.Path`` or ``PPath``.
 
 
 info::
-    You can also exclude extensions and use some other tuning. See the
-    presentation of the arguments.
+    The actual path is not changed.
 
 
-It is also possible to use criteria of search regarding to the prefixes of the
-names of the files. For example, the following code will only return the path of
-the file which name starts with "latexTest".
-
-python::
-    from mistool import os_use
-
-    for path in os_use.nextfile(
-        main     = "/Users/mistool",
-        prefixes = "latex",
-        depth    = -1
-    ):
-        print(path)
-
-
-The preceding code will product the following output in a terminal.
-
-terminal::
-    /Users/mistool/debug/debug_latex_use/latexTest.pdf
-    /Users/mistool/debug/debug_latex_use/latexTest.tex
-    /Users/mistool/debug/debug_latex_use/latexTestBuilder.py
-
-
--------------
-The arguments
--------------
-
-This function uses the following variables.
-
-    1) ``main`` is simply the path of the main directory to analyse.
-
-    2) ``exts`` gives informations about the extensions of the files wanted. It
-    can be one of the following kinds.
-
-        i) ``exts`` can be simply a string giving only one extension to keep.
-
-        ii) ``exts`` can be a list of strings giving the list of extensions to
-        keep.
-
-        iii) ``exts`` can be a dictionary of the following kind which is used to
-        keep or to discard some kinds of files.
-
-        python::
-            {
-                'keep'   : the extensions of files to look for,
-                'discard': the extensions of files to discard
-            }
-
-
-        The values giving the extensions can be either a single string, or a list
-        of strings.
-
-    By default, ``exts = {}`` which asks to send every kind of files.
-
-    3) ``prefixes`` can be used in the same way that ``exts`` must be used. This
-    variable indicates files to keep or discard regarding to the prefix of their
-    name.
-
-    4) ``depth`` is the maximal depth for the research. The very special value
-    ``(-1)`` indicates that there is no maximum.
-
-    The default value is ``0`` which asks to only look for in the direct content
-    of the main directory to analyse.
-
-    5) The variable ``unkeephidden`` is a boolean to keep or not hidden files, that is files with a name starting by a point.
-
-    The default value is ``True`` so as to only list visible files.
-
-    6) The variable ``keepdir`` has been added so as to be used by the class
-    ``TreeDir``, but you can play with it if you want. The possible values are
-    the following ones.
-
-        a) The default value ``None`` indicates to unkeep any directory. This is
-        what is expected when you call one function named ``nextfile``.
-
-        b) ``"minimal"`` will make the function returns only the directories
-        that contains at least one file from the ones searched.
-
-        c) ``"all"`` will make the function returns any sub directories even if
-        it doesn't contained one file from the ones searched.
-
-        d) You can also use ``"Minimal"`` and ``"All"``, be carefull of the
-        first uppercase letters, so as to also have idiomatic paths ended by
-        path::"..." to indicate other files that the ones searched which also
-        mustn't be discarded.
+warning::
+    Copy of a directory is not yet supported.
     """
-# Directories to keep ?
-    if keepdir not in [None, "minimal", "Minimal", "all", "All"]:
-        raise OsUseError("Illegal value of the variable << keepdir >>.")
+    if cls.is_file():
+        if not path.parent.is_dir():
+            makedir(path.parent)
 
-    dirtokeep = bool(keepdir != None)
+        shutil.copy(str(cls), str(path))
 
-# Indicate or not the files not matching the search queries ?
-    showallfiles = bool(keepdir in ["Minimal", "All"])
-
-# Does the directory exist ?
-    if not isdir(main):
-        raise OsUseError(
-            "The following path does not point to one existing directory." \
-            "\n\t+ {0}".format(main)
-        )
-
-# Extensions and prefixes
-    exts     = _tokeepdiscard(exts)
-    prefixes = _tokeepdiscard(prefixes)
-
-# It's time to walk in the directory...
-    for root, dirs, files in os.walk(main):
-        if _issubdepthgood(
-            main  = main,
-            sub   = root,
-            depth = depth
-        ):
-# The following boolean are used for the directory views !
-            nobadfilefound  = True
-            nogoodfilefound = True
-
-            for onefile in files:
-                path = root + SEP + onefile
-
-# Hidden file or directory must be ignored.
-                if unkeephidden and onefile.startswith('.'):
-                    ...
-
-# Looking for good files.
-                elif _isfilegood(path, exts, prefixes):
-# Directory of the first good file found to display ?
-                    if nogoodfilefound and dirtokeep:
-                        nogoodfilefound = False
-                        yield root
-
-                    yield path
-
-# One bad file found
-                elif nobadfilefound:
-                    nobadfilefound = False
-
-# Directory without any good file
-            if nogoodfilefound and keepdir in ["all", "All"] \
-            and (not unkeephidden or not filename(root).startswith('.')):
-                yield root
-
-# Directory without some good files
-            if showallfiles and not nobadfilefound:
-                yield root + SEP + "..."
-
-def listfile(*args, **kwargs):
-    """
-This function is similar to the function ``nextfile``, and it has the same
-variables that the ones of ``nextfile``, but instead of sending infos about the
-files found one at a time, this function directly sends the whole list of the
-infos found sorted.
-
-See the documentation of the function ``nextfile`` to have precisions about the
-available variables and the structure of each single info that will be in the
-list returned by ``listfile``.
-    """
-# The use of ``*args`` and ``**kwargs`` makes it very easy to implement the fact
-# that ``listfile`` and ``nextfile`` have the same variables.
-    return sorted([p for p in nextfile(*args, **kwargs)])
-
-
-# ----------------------- #
-# -- ABOUT DIRECTORIES -- #
-# ----------------------- #
-
-def nextdir(
-    main,
-    depth = 0
-):
-    """"
------------------
-Small description
------------------
-
-This function is an iterator that sends path of directories contained in a
-directory.
-
-
-Suppose for example that we have the following directory structure.
-
-directory::
-    + mistool
-        * __init__.py
-        * description.rst
-        * latex_use.py
-        * os_use.py
-        * ...
-        + change_log
-            + 2012
-                * 07.pdf
-                * 08.pdf
-                * 09.pdf
-        + debug
-            * debug_latex_use.py
-            * debug_os_use.py
-            + debug_latex_use
-                * latexTest.pdf
-                * latexTest.tex
-                * latexTestBuilder.py
-                * ...
-        + toUse
-            + latex
-                * ...
-
-
-Let's consider the following code.
-
-python::
-    from mistool import os_use
-
-    for path in os_use.nextfile(
-        main  = "/Users/mistool",
-        depth = -1
-    ):
-        print(path)
-
-
-If we launch the preceding code in a terminal, then we obtain the following
-outputs.
-
-terminal::
-    /Users/mistool/change_log
-    /Users/mistool/change_log/2012
-    /Users/mistool/debug
-    /Users/mistool/debug/debug_latex_use
-    /Users/mistool/toUse
-    /Users/mistool/toUse/latex
-
-
--------------
-The arguments
--------------
-
-This function uses the following variables.
-
-    1) ``main`` is simply the path of the main directory to analyse.
-
-    2) ``depth`` is the maximal depth for the research. The very special value
-    ``(-1)`` indicates that there is no maximum.
-
-    The default value is ``0`` which asks to only look for in the direct content
-    of the main directory to analyse. In other word, ``depth = 0`` asks to find
-    the directories directly contained in the main directory analysed.
-    """
-    if depth == -1:
-        subdepth = - 1
+    elif cls.is_dir():
+        raise ValueError("copy of directories is not yet supported.")
 
     else:
-        if depth == 0:
-            subdepth = None
+        raise OSError("actual path is not a real one.")
+
+
+def _ppath_move_to(cls, path):
+    """
+This method moves the actual file to the destination ``path``. This last path
+must be an instance of the class ``pathlib.Path`` or ``PPath``.
+
+If the source and the destination have the same parent directory, then the final result will just be a renaming of the file or the directory.
+
+
+info::
+    The actual path is not changed.
+
+
+warning::
+    Moving a directory is not yet supported.
+    """
+    if cls.is_file():
+        cls.copy_to(path)
+
+# Let's be cautious...
+        if path.is_file():
+            cls.destroy()
 
         else:
-            subdepth = depth - 1
+            raise OSError("moving the file has failed.")
 
-        depth += 1
+    elif cls.is_dir():
+        raise ValueError("moving directories is not yet supported.")
 
-    for pathdir in os.listdir(main):
-        pathdir = main + SEP + pathdir
+    else:
+        raise OSError("actual path is not a real one.")
 
-        if isdir(pathdir) \
-        and _issubdepthgood(
-            main  = main,
-            sub   = pathdir,
-            depth = depth
-        ):
-            yield pathdir
 
-            if subdepth != None:
-                for subpathdir in nextdir(
-                    pathdir,
-                    depth = subdepth
-                ):
-                    if _issubdepthgood(
-                        main  = main,
-                        sub   = subpathdir,
-                        depth = depth
-                    ):
-                        yield subpathdir
+# ------------------------ #
+# -- OUR ENHANCED CLASS -- #
+# ------------------------ #
 
-def listdir(*args, **kwargs):
+_SPECIAL_FUNCS = [
+    (x[len("_ppath_"):], x)
+    for x in dir()
+    if x.startswith("_ppath_")
+]
+
+class PPath(pathlib.Path):
     """
------------------
-Small description
------------------
-
-This function is similar to the function ``nextdir``, and it has the same
-variables that the ones of ``nextdir``, but instead of sending infos about the
-directories found one at a time, this function directly sends the whole list of
-the infos found sorted.
-
-See the documentation of the function ``nextdir`` to have precisions about the
-available variables and the structure of each single info that will be in the
-list returned by ``listdir``.
+    hhhh
     """
-# The use of ``*args`` and ``**kwargs`` makes it very easy to implement the fact
-# that ``listfile`` and ``nextfile`` have the same variables.
-    return sorted([p for p in nextdir(*args, **kwargs)])
+    def __new__(cls, *args):
+        if cls is PPath:
+            cls = pathlib.WindowsPath if os.name == 'nt' else pathlib.PosixPath
+
+# We have to add our additional methods using a short dirty way.
+        for specialname, specialfunc in _SPECIAL_FUNCS:
+            setattr(cls, specialname, globals()[specialfunc])
+
+        return cls._from_parts(args)
+
+
+# ----------------------- #
+# -- VIEWS OF A FOLDER -- #
+# ----------------------- #
 
 class DirView:
     """
@@ -961,10 +582,12 @@ keep only some relevant informations like in the following example. Note that in
 a given directory, the files are displayed before the directories.
 
 code::
-    + misTool
+    + mistool_old
         * __init__.py
-        * latexUse.py
+        * latex_use.py
+        * LICENCE.txt
         * os_use.py
+        * README.md
         * ...
         + change_log
             + 2012
@@ -972,33 +595,32 @@ code::
                 * 08.pdf
                 * 09.pdf
         + debug
-            * debug_latexUse.py
+            * debug_latex_use.py
             * debug_os_use.py
-            + debug_latexUse
-                * latexTest.pdf
-                * latexTest.tex
-                * latexTestBuilder.py
+            + debug_latex_use
+                * latex_test.pdf
+                * latex_test.tex
+                * latex_test_builder.py
                 * ...
-        + toUse
+        + to_use
             + latex
                 * ...
 
 
-This output has been obtained with the following ¨python code.
+In this output no invisible directory or file has been printed, and ellipsis
+indicated visible files that do not match to our pattern. All of this has been
+obtained with the following code.
 
 python::
     from mistool import os_use
 
-    dirView = os_use.dirView(
-        main    = "/Users/misTool",
-        ext     = {'keep': ["py", "txt", "tex", "pdf"]},
-        depth   = -1,
-        keepdir = "all",
-        output  = "short",
-        seemain = True
+    DirView = os_use.DirView(
+        ppath      = "/Users/projetmbc/python/mistool",
+        regpattern = "visible::*.(py|txt|tex|pdf)",
+        display    = "main short"
     )
 
-    print(dirView.ascii)
+    print(DirView.ascii)
 
 
 -------------
@@ -1007,256 +629,300 @@ The arguments
 
 This class uses the following variables.
 
-    1) The variables ``main``, ``exts``, ``depth``, ``sub``, ``unkeephidden`` and
-    ``keepdir`` have exactly the same meaning and behavior that they have with
-    the function ``nextfile``, except that here the default value of ``keepdir``
-    is ``"minimal"`` and not ``None``.
+    1) ``ppath`` is a path defined using the class ``PPath``.
 
-    2) ``output`` is for the writings of the paths.
+    2) ``regpattern`` is an optional string which is an almost regex pattern.
+    See the documentation of the method ``walk`` of the class ``PPath``. By
+    default, ``regpattern = "**"`` which indicates to look for anything.
 
-        a) The default value ``"all"`` asks to display the whole paths of the
-        files and directories found.
+    3) ``display`` is an optional string which can contains the following
+    options separated by spaces. By default, ``format = "main short"``.
 
-        b) ``"relative"`` asks to display relative paths comparing to the main
-        directory analysed.
+        a) ``long`` asks to display the whole paths of the
+        files and directories found. You can use the shortcut ``l``.
 
-        c) ``"short"`` asks to only display names of directories found, and
-        names, with its extensions, of the files found.
+        b) ``relative`` asks to display relative paths comparing to the main
+        directory analysed. You can use the shortcut ``r``.
 
-    3) ``seemain`` is one boolean value to display or not the main directory
-    which is analyzed. The default value is ``True``.
+        c) ``short`` asks to only display names of directories found, and
+        names, with its extensions, of the files found. You can use the
+        shortcut ``s``.
+
+        d) ``main`` asks to display the main directory which is analyzed. You
+        can use the shortcut ``m``.
+
+        e) ``found`` asks to only display directories and files which path
+        matches the pattern ``regpattern``. You can use the shortcut ``f``.
+
+        e) ``alpha`` asks to display directories and files in an alphabetic
+        order instead of the files before the folders for a given depth. This
+        second behavior is the default one. You can use the shortcut ``a``.
     """
     ASCII_DECOS = {
-        'directory': "+",
-        'file'     : "*",
-        'tab'      : " "*4
+        'dir' : "+",
+        'file': "*",
+        'tab' : " "*4
     }
+
+    _FORMATTERS = set(["alpha", "found", "main", "long", "relative", "short"])
+    _PATH_FORMATTERS = set(["long", "relative", "short"])
+    _SHORT_FORMATTERS = {x[0]: x for x in _FORMATTERS}
 
     def __init__(
         self,
-        main,
-        exts         = {},
-        prefixes     = {},
-        depth        = 0,
-        unkeephidden = True,
-        keepdir      = "minimal",
-        output       = "All",
-        seemain      = True
+        ppath,
+        regpattern = "**",
+        display    = "main short"
     ):
-# Directories to keep ?
-        if keepdir == None:
-            raise OsUseError(
-                "Illegal value of the variable << keepdir >>."
-            )
+        self.ppath      = ppath
+        self.regpattern = regpattern
+        self.display    = display
 
-        self.main          = main
-        self.exts          = exts
-        self.prefixes      = prefixes
-        self.depth         = depth
-        self.unkeephidden = unkeephidden
-        self.keepdir       = keepdir
-        self.output        = output
-        self.seemain       = seemain
+        self._ellipsis = PPath('...')
 
         self.build()
 
+
     def build(self):
         """
-This method builds one list of dictionaries of the following kind.
+This method builds first one flat list ``self.listview`` of dictionaries of the
+following kind that will ease the making of the tree view. This list is sorted
+in alphabetic order with a depth walk.
 
 python::
     {
-        'kind' : "directory" or "file",
-        'depth': the depth level regarding to the main directory,
-        'path' : the path of one directory or file found
+        'kind'   : "dir" or "file",
+        'depth'  : the depth level regarding to the main directory,
+        'relpath': the relative path of one directory or file found
     }
-        """
-        self.format = {}
-        listview    = []
 
-        for path in nextfile(
-            main         = self.main,
-            exts         = self.exts,
-            prefixes     = self.prefixes,
-            depth        = self.depth,
-            unkeephidden = self.unkeephidden,
-            keepdir      = self.keepdir
-        ):
-            if path == self.main:
-                listview.append({
-                    'kind' : "directory",
-                    'depth': -1,
-                    'path' : path
-                })
+
+Then, if it is asked byt the user, a second list ``self.filefirst_listview`` is
+build. It is a reordering such as for a given dpeth the file appears before the
+directories.
+        """
+# Reset all things !
+        self.listview = []
+        self.options  = set()
+        self.output   = {}
+
+        self.queries, _ = build_meta_pattern(
+            self.regpattern,
+            regexit = False
+        )
+
+# What have to be displayed ?
+        for opt in self.display.split(" "):
+            opt = opt.strip()
+            opt = self._SHORT_FORMATTERS.get(opt, opt)
+
+            if opt not in self._FORMATTERS:
+                raise ValueError("unknown option for displaying.")
+
+            self.options.add(opt)
+
+        if len(self._PATH_FORMATTERS & self.options) > 1:
+            raise ValueError("ambiguous option for printing the paths.")
+
+# We must add all the folders except if the option "found" has been used.
+        if "found" not in self.options:
+            if "visible" in self.queries:
+                prefix = "visible-"
 
             else:
-# Which kind of object ?
-                if self._otherfiles(path) or isfile(path):
-                    kind = "file"
+                prefix = ""
 
+            self.listview = [
+                {
+                    'kind'   : "dir",
+                    'depth'  : p.depth_in(self.ppath),
+                    'relpath': p.relative_to(self.ppath)
+                }
+                for p in self.ppath.walk(prefix + "dir::**")
+            ]
+
+# Unsorted flat version of the tree view.
+        for onepath in self.ppath.walk(self.regpattern):
+            kind = "file" if onepath.is_file() else "dir"
+
+            infos = {
+                'kind'   : kind,
+                'depth'  : onepath.depth_in(self.ppath),
+                'relpath': onepath.relative_to(self.ppath)
+            }
+
+# We do not want to see twice a folder !
+            if kind == "file" or infos not in self.listview:
+                self.listview.append(infos)
+
+# If the option "found" has been used, we must add folders of files found.
+        if "found" in self.options:
+            self._add_parentdir()
+
+# We build the alphabetic sorted version. This works because ``PPath`` does
+# better comparisons than the ones of ``pathlib``.
+        self.listview.sort(key = lambda x: x['relpath'])
+
+# If the option "found" has not been used, we must take care of folder with no
+# winning files so as to display ellipsis ``...``.
+        if "found" not in self.options:
+            self._add_ellipsis()
+
+# "Files first" sorting version of the flat version of the tree view.
+        if "alpha" not in self.options:
+            self._filefirst_sort()
+
+
+    def _filefirst_sort(self):
+        """
+This method sorts the list view so as to first show the files and then the
+directories contained in a folder.
+        """
+        maxdepth = 0
+        depth    = 0
+
+        while(depth <= maxdepth):
+            firsts = []
+            lasts  = []
+
+            for infos in self.listview:
+                if infos['depth'] < depth:
+                    firsts += lasts
+                    lasts = []
+                    firsts.append(infos)
+
+                elif infos['depth'] == depth:
+                    if infos['kind'] == "file":
+                        firsts.append(infos)
+
+                    else:
+                        lasts.append(infos)
                 else:
-                    kind = "directory"
+                    if infos['depth'] > maxdepth:
+                        maxdepth = infos['depth']
 
-# The depth
-                depth = relativedepth(self.main, path)
+                    lasts.append(infos)
 
-# << WARNING ! >> We must take care of directories without any file which
-# have the same depth of previous files.
-                if kind == "directory" and listview:
-                    if depth >= listview[-1]['depth']:
-                        lastpardir = commonpath([
-                            listview[-1]['path'],
-                            path
-                        ])
+            self.listview = firsts + lasts
 
-                        i = len(lastpardir) + 1
+            depth += 1
 
-                        subdirnames = path[i:].split(SEP)
-                        lastdepth   = depth - len(subdirnames)
-
-                        for name in subdirnames[:-1]:
-                            lastpardir += SEP + name
-                            lastdepth     += 1
-
-                            listview.append({
-                                'kind' : "directory",
-                                'depth': lastdepth,
-                                'path' : lastpardir
-                            })
-
-# Let's store the infos found.
-                listview.append({
-                    'kind' : kind,
-                    'depth': depth,
-                    'path' : path
-                })
-
-# We have to sort the list by showing first files an then the directories.
-# A recursive method is well adpated here even if it is not the clever way
-# to do things !
-        self.listview = self._sortlistview(listview)
-
-    def _sortlistview(self, listview):
+    def _add_parentdir(self):
         """
-This method sorts the list view so as to display in a given directory, the files
-before the directories.
+When the option ``found`` is used, we only show files found but we also have to
+add all their parent directories.
         """
-# << Warning ! >> We know that the list view shows the structure but not in
-# alphabetical order !
+        for x in self.listview:
+            parts = x['relpath'].parts
 
-# fod = file or directory
-# lof = list of files
-# lod = list or directories
-        minidepth = min(fod['depth'] for fod in listview)
+            if len(parts) != 1:
+                newdir = PPath("")
+                depth  = -1
 
-        lof = []
-        lod = []
+                for part in parts[:-1]:
+                    newdir /= part
+                    depth  += 1
 
-        lastdir           = None
-        subcontent        = []
-        subdirs_listviews = {}
+                    infos = {
+                        'kind'   : "dir",
+                        'depth'  : depth,
+                        'relpath': newdir
+                    }
 
-        for fod in listview:
-            depth = fod['depth']
+                    if infos not in self.listview:
+                        self.listview.append(infos)
 
-            if depth == minidepth:
-                if fod['kind'] == "file":
-                    lof.append(fod)
-
-                else:
-                    if subcontent and lastdir:
-                        subdirs_listviews[lastdir] = self._sortlistview(subcontent)
-
-                    lastdir                    = fod['path']
-                    subcontent                 = []
-                    subdirs_listviews[lastdir] = []
-
-                    lod.append(fod)
-
-            else:
-                subcontent.append(fod)
-
-        if subcontent and lastdir:
-            subdirs_listviews[lastdir] = self._sortlistview(subcontent)
-
-# We have to take care of "..." for other files.
-        lof.sort(key = lambda obj: obj['path'])
-
-        if lof \
-        and lof[0]['path'].endswith('...'):
-            lof.append(lof[0])
-            lof.pop(0)
-
-# We have merly finished...
-        lod.sort(key = lambda obj: obj['path'])
-
-        lod_and_content = []
-
-        for directory in lod:
-            lod_and_content.append(directory)
-            lod_and_content += subdirs_listviews[directory['path']]
-
-        return lof + lod_and_content
-
-    def _otherfiles(self, path):
+    def _add_ellipsis(self):
         """
-This method displays text indicated that other files are in the directory.
+When the option ``found`` is not used, we have to add ellipsis ``...`` so as to
+materiealize unshown files.
         """
-        return path.endswith("...")
+        indexes = []
 
-    def pathtodisplay(
-        self,
-        path,
-        kind
-    ):
-        if self._otherfiles(path):
-            return "..."
+        for i, infos in enumerate(self.listview):
+            if infos['kind'] == "dir":
+                for p in (self.ppath / infos['relpath']).iterdir():
+                    if p.is_file() \
+                    and (
+                        "visible" not in self.queries
+                        or not p.name.startswith('.')
+                    ) \
+                    and {
+                        'kind'   : "file",
+                        'depth'  : infos['depth'] + 1,
+                        'relpath': p.relative_to(self.ppath)
+                    } not in self.listview:
+                        indexes.append((i + 1, infos['depth'] + 1))
+                        break
 
-        elif self.output == "relative":
-            if self.main == path:
-                return path[len(parentdir(path)) + 1:]
-            else:
-                return relativepath(self.main, path)
+        delay = 0
 
-        elif self.output == "short":
-            if kind == "file":
-                return path[path.rfind(SEP)+1:]
+        for i, depth in indexes:
+            self.listview.insert(
+                i + delay,
+                {
+                    'kind'   : "file",
+                    'depth'  : depth,
+                    'relpath': self._ellipsis
+                }
+            )
 
-            else:
-                return path[len(parentdir(path))+1:]
+            delay += 1
 
-        return path
 
     @property
     def ascii(self):
         """
-This property like method returns a simple ASCCI tree view of the tree structure.
+This attribut like method returns an ASCCI view of the tree structure.
         """
-        if 'ascii' not in self.format:
-            text = []
+        if 'ascii' not in self.output:
+            seemain = "main" in self.options
+            text    = []
 
-            for info in self.listview:
-                depth = info["depth"]
+            if seemain:
+                if "long" in self.options:
+                    mainpath = self._pathprinted(PPath(""))
+
+                else:
+                    mainpath = self.ppath.name
+
+                text = [
+                    "{0} {1}".format(self.ASCII_DECOS["dir"], mainpath)
+                ]
+
+            for infos in self.listview:
+                depth = infos["depth"]
 
 # Does the main directory must be displayed ?
-                if self.seemain:
+                if seemain:
                     depth += 1
 
                 tab = self.ASCII_DECOS['tab']*depth
 
-                decokind = self.ASCII_DECOS[info["kind"]] + " "
+                decokind = self.ASCII_DECOS[infos["kind"]]
 
-                pathtoshow = self.pathtodisplay(
-                    info["path"], info["kind"]
-                )
+                pathtoshow = self._pathprinted(infos["relpath"])
 
                 text.append(
-                    "{0}{1}{2}".format(tab, decokind, pathtoshow)
+                    "{0}{1} {2}".format(tab, decokind, pathtoshow)
                 )
 
-            self.format['ascii'] = '\n'.join(text)
+            self.output['ascii'] = '\n'.join(text)
 
-        return self.format['ascii']
+        return self.output['ascii']
+
+
+    def _pathprinted(self, path):
+# The path are stored relatively by default !
+        if path == self._ellipsis or  "relative" in self.options:
+            return str(path)
+
+# We have to rebuild the while path.
+        if "long" in self.options:
+            return str(self.ppath / path)
+
+# "short" is the default option for printing the paths.
+        return str(path.name)
 
 
 # ------------------- #
@@ -1278,9 +944,7 @@ Possible names can be "windows", "mac", "linux" and also "java".
     osname = platform.system()
 
     if not osname:
-        raise OsUseError(
-            "The operating sytem can not be found."
-        )
+        raise SystemError("the operating sytem can not be found.")
 
     if osname == 'Darwin':
         return "mac"

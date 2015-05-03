@@ -2,30 +2,148 @@
 misTool - TODO
 ==============
 
-**Mise en ligne de la documentation en français:** ceci a été rendu possible grâce au projet ¨pyba qui lui aussi est disponible sur ¨pypi et ¨github.
+**Amélioration de la classe ``DirView`` du module ``os_use`` :** le tri de la liste des fichiers se fait maintenant via des classes dédiées (idée prise dans cf::```le code source de functools ; ``https://hg.python.org/cpython/file/default/Lib/functools.py#l210``).
 
-**Simplification des messages d'erreurs:** le programme utilise plus efficacement les erreurs standards de ¨python au lieu d'utiliser un type d'erreur propre.
-
-
-**Des grosses améliorations dans le module ``os_use``.**
-
-    1) Une nouvelle fonction ``aregoodpaths`` permet de tester facilement si les chemins de fichiers ¨etou de dossiers répondent à certains critères en indiquant des motifs à respecter. Par exemple, un nom de fichier commence-t-il par ``build_`` et a-t-il pour extension ``.py`` ? La définition des motifs utilise un mini langage maison très rapide à prendre en main !
-
-    2) La fonction ``hasextin`` n'a plus de raison d'être. Elle a donc été supprimée.
-
-    3) Les fonctions ``nextfile`` et ``listfile`` n'utilisent plus les arguments ``exts``, ``prefixes``, ``depth`` et ``unkeephidden`` pour indiquer un type particulier de fichiers à chercher. À la place, on indiquera via la variable ``patterns`` des motifs qui seront testés par la toute nouvelle fonction ``aregoodpaths``. Ceci offre beaucoup plus de flexibilité dans les choix !
-
-    4) La fonction ``clean`` utilise elle aussi juste l'argument ``patterns`` en remplacement des arguments ``cleanall``, ``exts`` et ``depth``.
-
-    5) La classe ``DirView`` utilise elle aussi juste l'argument ``patterns`` en remplacement des arguments ``exts``, ``prefixes``, ``depth`` et ``unkeephidden``.
-
-    6) Les fonctions ``nextdir`` et ``listdir`` disposent maintenant de l'argument ``patterns``.
-
-
-**Un changement dans le module ``python_use`` :** la fonction ``runpys`` utilise juste l'argument ``patterns`` en remplacement des arguments ``prefixes`` et ``depth``, tout comme les fonctions ``nextfile`` et ``listfile`` du module ``os_use``.
-
-
-**Un changement dans le module ``latex_use`` :** la fonction ``clean`` utilise juste l'argument ``patterns`` en remplacement des arguments ``keep``, ``discard`` et ``depth``, tout comme les fonctions ``nextfile`` et ``listfile`` du module ``os_use``.
+def cmp_to_key(mycmp):
+    """Convert a cmp= function into a key= function"""
+    class K(object):
+        __slots__ = ['obj']
+        def __init__(self, obj):
+            self.obj = obj
+        def __lt__(self, other):
+            return mycmp(self.obj, other.obj) < 0
+        def __gt__(self, other):
+            return mycmp(self.obj, other.obj) > 0
+        def __eq__(self, other):
+            return mycmp(self.obj, other.obj) == 0
+        def __le__(self, other):
+            return mycmp(self.obj, other.obj) <= 0
+        def __ge__(self, other):
+            return mycmp(self.obj, other.obj) >= 0
+        __hash__ = None
+    return K
 
 
-**Améliorations du module ``latex_use`` :** il est maintenant possible d'indiquer des installations non standards de ¨latex à la main via un fichier de configuration initialisé à la main.
+
+
+limiter nbre de fichiers/dossiers trouvés visibles via  * ... [etc]   et  * ... [autres]   avec choix de langues (angalis par défaut mais définissable)
+    ---> comment ?
+
+
+limiter laprofondeur de recherche via    + nomdir [...]
+    ---> comment ? regpattern suffisant ?
+
+
+
+
+**Amélioration côté développement interne :** voici ce qui a évolué.
+
+    1) Les tests unitaires sont tous faits via ¨pytest ce qui simplifie énormément les choses. On va enfin à l'essentiel !
+
+    2) L'utilisation de ¨pyvenv permet d'éviter des dégâts colatéraux non négligeables avec les versions en cours de développement (l'environnment virtuel se nomme ``env_mistool``). Fini l'amateurisme !
+
+    3) Seul le module ``pdt.mistool.orpyste`` du package maison ``pdt`` est encore utilisé (le nouveau module ``pathlib`` permet maintenant de travailler facilement avec des chemins de dossiers et de fichiers même si la classe ``PPath`` facilite encore plus les choses).
+
+    En attendant la nouvelle version de ¨orpyste, qui ne sera plus dépendante de ¨mistool, on continue encore à utiliser ``pdt.mistool.orpyste`` mais plus pour très longtemps...
+
+
+
+**¨Maj des modules impactés par la prise en compte de ``pathlib`` dans ``os_use``:** voici les modules concernés.
+
+    1) Dans le module ``python_use``, la fonction ``runpys`` ????
+
+    utilise juste un argument ``patterns`` en remplacement des arguments ``prefixes`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
+
+
+    1) Dans le module ``latex_use``, la fonction ``clean`` ????
+
+    utilise juste l'argument ``patterns`` en remplacement des arguments ``keep``, ``discard`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
+
+
+**Ajout d'une licence :** le projet est maintenant sous licence ???.
+
+
+
+**Noms des versions :** les numéros de version deviennent standards en suivant la convention ``majeur.mineur.patch``, cette version ayant pour numéro ``0.0.0`` car le projet ¨mistool reste à l'état `¨beta`. Cette norme étant suivie par tout le monde, soyons grégaire pour devenir clair...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+A VOIR ????
+
+    https://github.com/mahmoud/boltons ???
+
+    string
+    	---> befor after = amount, space, currency = "123.45 USD".partition(" ")
+    	---> S.expandtabs(tabsize=8)
+
+
+    -----> type input securisé  via regex  ????
+    			* int_input
+
+
+
+
+**Mise à jour de la documentation on technique en français:** la nouvelle fçaon d'utiliser le moddule ``os_use`` est maintenant documentée en français.
+
+
+
+**Abandon de la prise en charge du module ¨unittest dans le module ``log_test_use``:** dorénavant, ce sera le module ¨pytest qui sera privilégié.
+
+
+**Une belle nouveauté dans le module ``python_use`` :** la classe ``MKDict`` permet de définir des dictionnaires dont on peut extraire une valeur en utilisant une syntaxe du type ``mymkdict["key_1", "subkey_1", "subsubkey_1"]`` au lieu de ``mymkdict["key_1"]["subkey_1"]["subsubkey_1"]``.
+
+    MKDict ---> Multi Keys Dict
+
+    toc = MKDict({
+        "I": {
+            "A": {
+                "1": "Dans I-A-1",
+                "2": "Dans I-A-2",
+            }
+        }
+    })
+
+
+    print(toc)
+    print()
+    print(toc["I", "A", "2"])
+
+
+**Mise en ligne d'une documentation non technique en français :** ceci a été rendu possible grâce au projet ¨pyba qui lui aussi est disponible sur ¨pypi et ¨github.
+
+
+**Mise en ligne de la documentation technique en anglais uniquement :** ceci a été rendu possible grâce au projet ¨pybadoc qui lui aussi est disponible sur ¨pypi et ¨github.
+
+
+**Amélioration côté développement interne :** voici ce qui a évolué.
+
+    1) L'effacité des tests est évaluée à l'aide de ¨coverage.
+
+    2) ¨pep8py et ¨pylint sont consultés pour améliorer le code de ¨mistool lorsque cela paraît pertinent.
+
+	3) Le module ``pdt.mistool.orpyste`` du package maison ``pdt`` n'est plus utilisé. C'est la mort de cet étrange ``pdt``. À la place, on utilise tout simplement ¨orpyste qui est devenu titalement indépendant de ¨mistool. Et oui, on se professionnalise... ;-)
+
+    Ceci permet au passage de rendre les tests disponibles sur ¨github uniquement (pas sur ¨pypi par choix).
+
+
+**Utilisation de branches avec ¨git :** afin d'éviter des dégâts colatéraux non négligeables, les versions en cours de développement sont développées et testées dans une branche spéciale relativement à ¨git. À quand la certification ¨python ?
+
+
+**Améliorations du module ``latex_use`` :** il est maintenant possible d'indiquer des installations non standards de ¨latex qui ont été "faites à la main".
+
+
+**De nouveaux motifs dans le module ``config\pattern.py`` :** ????

@@ -16,17 +16,6 @@ from datetime import datetime, timedelta
 from mistool.config import date_name
 
 
-# ------------------------- #
-# -- FOR ERRORS TO RAISE -- #
-# ------------------------- #
-
-class DateUseError(ValueError):
-    """
-Base class for errors in the ``date_use`` module of the package ``mistool``.
-    """
-    pass
-
-
 # ------------------- #
 # -- SPECIAL DATES -- #
 # ------------------- #
@@ -87,7 +76,7 @@ This function uses two variables.
     2) ``name`` is the english long name of the day wanted.
     """
     if name not in _WEEKDAYS:
-        raise DateUseError("Unknown name << {0} >>.".format(name))
+        raise ValueError("unknown name << {0} >>.".format(name))
 
     daysahead = _WEEKDAYS[name] - date.weekday()
 
@@ -126,7 +115,10 @@ python::
     import datetime
 
     locale.setlocale(locale.LC_ALL, 'fr_FR')
-    print (datetime.date(2013, 9, 21).strftime("%A %d %B %Y"))
+
+    print(
+        datetime.date(2013, 9, 21).strftime("%A %d %B %Y")
+    )
 
 This code prints the text terminal::``Samedi 29 septembre 2013`` in a terminal.
 This can be achieved using the function ``translate`` like in the following code.
@@ -186,8 +178,8 @@ This function uses three variables.
     module constant defined by ``DEFAULT_LANG = "en_GB"``.
 """
     if lang not in LANGS:
-        raise DateUseError(
-            'Illegal value << {0} >> for the argument ``lang``.'.format(lang)
+        raise ValueError(
+            'illegal value << {0} >> for the argument ``lang``.'.format(lang)
         )
 
     nbday   = date.weekday()

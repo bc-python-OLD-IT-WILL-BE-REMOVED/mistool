@@ -3,12 +3,11 @@
 """
 Directory : mistool
 Name      : log_test_use
-Version   : 2014.08
+Version   : 2015.03
 Author    : Christophe BAL
 Mail      : projetmbc@gmail.com
 
-This modules contains some utilities that can be useful for unit tests made
-with the standard module ``unittest``.
+This modules contains some utilities that can be useful for log messages.
 """
 
 # Source used :
@@ -24,17 +23,6 @@ from unittest import makeSuite, TestSuite, TextTestRunner
 
 from mistool.os_use import listfile, name as osuse_name
 from mistool.string_use import camelto, frame, FRAMES_FORMATS, replace
-
-
-# ------------------------- #
-# -- FOR ERRORS TO RAISE -- #
-# ------------------------- #
-
-class LogTestUseError(ValueError):
-    """
-Base class for errors in the ``log_test_use`` module of the package ``mistool``.
-    """
-    pass
 
 
 # ---------------------- #
@@ -92,7 +80,7 @@ This function uses two arguments.
     """
     if ismethod:
         if not text.startswith('test'):
-            raise LogTestUseError('The text does not start with "test".')
+            raise ValueError('the text does not start with "test".')
 
         text = text[len('test'):]
 
@@ -230,9 +218,7 @@ This function has four arguments.
     3) ``start`` and ``end`` are texts put at the start and the end of the text
     ``kind + text``. By default ``start = "    + "``and ``end = "..."``.
     """
-    logprint(
-        '{0}{1} "{2}"{3}'.format(start, kind, text, end)
-    )
+    logprint('{0}{1} "{2}"{3}'.format(start, kind, text, end))
 
 FRAME_PROBLEM = FRAMES_FORMATS['unittest_problem']
 
@@ -384,4 +370,3 @@ This function uses the following variables.
 
     else:
         logprint('No test has been found...')
-

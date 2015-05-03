@@ -3,7 +3,7 @@
 """
 Directory : mistool
 Name      : latex_use
-Version   : 2014.08
+Version   : 2015.03
 Author    : Christophe BAL
 Mail      : projetmbc@gmail.com
 
@@ -24,19 +24,19 @@ join     = os_use.os.path.join
 # -- FOR ERRORS TO RAISE -- #
 # ------------------------- #
 
-class LaTeXUseError(ValueError):
+class LatexError(ValueError):
     """
-Base class for errors in the ``latex_use`` module of the package ``mistool``.
+Base class for errors specific to LaTeX.
     """
     pass
 
-def _raise_error(
+def _raise_ioerror(
     kind,
     path,
     action
 ):
     """
-This method simply eases the raising of some specific errors.
+This function simply eases the raising of some specific errors.
     """
     if action == 'access':
         action = 'needs the "Super User\'s rights"'
@@ -50,11 +50,8 @@ This method simply eases the raising of some specific errors.
     elif action == 'notTeX':
         action = "is not a TeX one"
 
-    else:
-        raise Exception('BUG !')
-
-    raise LaTeXUseError(
-        "The following {0} {1}.\n\t<< {2} >>".format(kind, action, path)
+    raise IOError(
+        "the following {0} {1}.\n\t<< {2} >>".format(kind, action, path)
     )
 
 
@@ -105,8 +102,8 @@ info::
     ``CHARS_TO_LATEXIFY`` is for expressions that needs one LaTeX command.
     """
     if mode not in CHARS_TO_ESCAPE:
-        raise LaTeXUseError(
-            "Unknown mode : << {0} >>.".format(mode)
+        raise ValueError(
+            "unknown mode : << {0} >>.".format(mode)
         )
 
     tolatexify = CHARS_TO_LATEXIFY[mode].items()
@@ -189,7 +186,7 @@ This class uses the following variables.
     ):
 # Does the file to compile exist ?
         if not os_use.isfile(path):
-            _raise_error(
+            _raise_ioerror(
                 kind   = "file",
                 path   = path,
                 action = "exist"
@@ -197,7 +194,7 @@ This class uses the following variables.
 
 # Do we have TEX file ?
         if os_use.ext(path) != "tex":
-            _raise_error(
+            _raise_ioerror(
                 kind   = "file",
                 path   = path,
                 action = "notTeX"
@@ -228,9 +225,7 @@ This method launches the compilation in verbose mode or not.
 
         for i in range(1, repeat + 1):
             if self.isverbose:
-                print(
-                    '\t+ Start of compilation Nb.{0} +'.format(i)
-                )
+                print('\t+ Start of compilation Nb.{0} +'.format(i))
 
             subprocess_method(
 # We go in the directory of the file to compile.
@@ -240,9 +235,7 @@ This method launches the compilation in verbose mode or not.
             )
 
             if self.isverbose:
-                print(
-                    '\t+ End of compilation Nb.{0} +'.format(i)
-                )
+                print('\t+ End of compilation Nb.{0} +'.format(i))
 
     def pdf(
         self,
@@ -334,7 +327,7 @@ This function uses the following variables.
 # One file
     elif os_use.isfile(main):
         if os_use.ext(main) != "tex":
-            _raise_error(
+            _raise_ioerror(
                 kind   = "file",
                 path   = main,
                 action = "notTeX"
@@ -477,8 +470,8 @@ The key ``'localdir'`` contains the path to use to install special packages.
 
 # Unknown method...
     else:
-        raise LaTeXUseError(
-            "The OS << {0} >> is not supported. ".format(osname)
+        raise OSError(
+            "the OS << {0} >> is not supported. ".format(osname)
         )
 
 # The job has been done...
@@ -508,7 +501,7 @@ This function tests if the script has been launched by the "Super User".
         os_use.destroy(tempfile)
 
     except:
-        _raise_error(
+        _raise_ioerror(
             kind   = "directory",
             path   = localdir_latex,
             action = "access"
@@ -529,8 +522,8 @@ importation of the module ``latexUse``.
 
     if aboutlatex['osname'] != "windows" \
     or aboutlatex['latexname'] != "miktex":
-        raise LaTeXUseError(
-            'This function can only be used with the OS "window" '
+        raise OSError(
+            'this function can only be used with the OS "window" '
             'and the LaTeX distribution "miktex".'
         )
 
@@ -539,7 +532,7 @@ importation of the module ``latexUse``.
         os_use.makedir(localdir_miketex())
 
     except:
-        _raise_error(
+        _raise_ioerror(
             kind   = "directory",
             path   = localdir_miketex(),
             action = "create"
@@ -595,8 +588,8 @@ returned by the function ``about``.
 
 # Unkonwn !!!
     else:
-        raise LaTeXUseError(
-            'The refresh of the list of LaTeX packages is not supported '
+        raise LatexError(
+            'the refresh of the list of LaTeX packages is not supported '
             'with your LaTeX distribution.'
         )
 
@@ -645,12 +638,12 @@ This function uses the following variables.
     localdir_latex = aboutlatex['localdir']
 
     if localdir_latex == None:
-        message = "No local directroy for special packages has been found."
+        message = "no local directory for special packages has been found."
 
         if aboutlatex['latexname'] == "miktex":
             message += "You can use the function << make_localdir_miktex >>."
 
-        raise LaTeXUseError(message)
+        raise LatexError(message)
 
     localdir_latex = os_use.SEP.join([
         localdir_latex,
@@ -671,7 +664,7 @@ This function uses the following variables.
 
     for onepath in paths:
         if not os_use.isfile(onepath):
-            _raise_error(
+            _raise_ioerror(
                 kind   = "file",
                 path   = onepath,
                 action = "exist"
@@ -723,7 +716,7 @@ This function uses the following variables.
 
             for onepath in directories_and_files[newdir]:
                 if not os_use.isfile(onepath):
-                    _raise_error(
+                    _raise_ioerror(
                         kind   = "file",
                         path   = onepath,
                         action = "exist"
@@ -752,7 +745,7 @@ This function uses the following variables.
 
 # Unsupported OS
     else:
-        raise LaTeXUseError(
-            'The installation of local packages is not yet supported '
+        raise LatexError(
+            'the installation of local packages is not yet supported '
             'with the OS << {0} >>.'.format(aboutlatex['osname'])
         )

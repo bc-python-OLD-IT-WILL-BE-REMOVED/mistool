@@ -1,0 +1,5 @@
+==========
+2015-03-01
+==========
+
+**Noms des versions :** les numéros de version seront maintenant compatibles avec la ¨pep_440. Ceci est nécessaire pour un utilisateur souhaitant installer ¨mistool via ¨pip.

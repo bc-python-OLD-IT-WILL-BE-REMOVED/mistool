@@ -3,7 +3,7 @@
 """
 Directory : mistool
 Name      : string_use
-Version   : 2014.08
+Version   : 2014.10
 Author    : Christophe BAL
 Mail      : projetmbc@gmail.com
 
@@ -16,17 +16,6 @@ from mistool.config.ascii import ASCII_CHARS
 from mistool.config.frame import FRAMES_FORMATS, _ABREVS_FRAMES, _KEYS_FRAME
 
 from mistool.config.pattern import PATTERNS_WORDS
-
-
-# ------------------------- #
-# -- FOR ERRORS TO RAISE -- #
-# ------------------------- #
-
-class StringUseError(ValueError):
-    """
-Base class for errors in the ``string_use`` module of the package ``mistool``.
-    """
-    pass
 
 
 # ------------- #
@@ -236,7 +225,7 @@ Indeed all the job is done by the hidden method ``self._noviciouscycle``.
             oldinnew = self._crossreplace[old]
 
             if old in oldinnew:
-                raise StringUseError(
+                raise ValueError(
                     "<< {0} >> is used in its associated replacement." \
                         .format(old)
                 )
@@ -248,8 +237,8 @@ Indeed all the job is done by the hidden method ``self._noviciouscycle``.
                 visitedwords.append(old)
                 visitedwords = [""] + visitedwords
 
-                raise StringUseError(
-                    "The following viscious circle has been found." \
+                raise ValueError(
+                    "the following viscious circle has been found." \
                     + "\n\t + ".join(visitedwords)
                 )
 
@@ -345,7 +334,7 @@ TO SEND TO THE AUTHOR OF ``misTool``
 Subject of your mail : "mistool: ascii report"
 ==============================================
 
-Just replace each "?" with the appropriate
+Just replace each "?" with an appropriate
 ASCII character(s).
 
 {0}
@@ -517,7 +506,7 @@ This function uses the following variables.
                 )
 
             elif strict:
-                raise StringUseError(
+                raise ValueError(
                     "ASCII conversion can be achieved because of the character "
                     "<< {0} >>. ".format(onechar) + "\nYou can use the "
                     "function ``_ascii_report`` so as to report more precisely " "this with the possibility to indicate ascii assos."
@@ -574,7 +563,7 @@ Launched in a terminal, the preceding code will produce something similar to the
 following output.
 
 terminal::
-    ['article', 'artist']
+    ['art', 'article', 'artist']
     ---
     [
         'art', 'article', 'artiste',
@@ -592,6 +581,10 @@ The search indeed uses a special "magical" dictionary which is stored in the
 attribut ``assos``. With the preceding example, ``myAC.assos`` is equal to the
 dictionary above where the lists of integers correspond to the good indexes in
 the ordered list of words.
+
+
+
+
 
 python::
     {
@@ -678,8 +671,8 @@ The instanciation of this class uses the following variables.
         depth = 0
     ):
         if words == None and assos == None:
-            raise StringUseError(
-                "You must give either the value of ``words`` or ``assos``."
+            raise ValueError(
+                "you must give either the value of ``words`` or ``assos``."
             )
 
         self.words = words
@@ -772,8 +765,8 @@ This method uses the following variables.
     2) ``word`` is a string where the prefix ``prefix`` must be removed.
         """
         if not word.startswith(prefix):
-            raise StringUseError(
-                "The word << {0} >> does not star with the prefix << {1} >>."\
+            raise ValueError(
+                "the word << {0} >> does not start with the prefix << {1} >>."\
                     .format(word, prefix)
             )
 
@@ -838,7 +831,11 @@ This function uses the following variables.
     if andtext == None:
         andtext = AND_TEXT
 
-    return ", ".join(texts[:-1]) + " " + andtext + " " + texts[-1]
+    return "{0} {1} {2}".format(
+        ", ".join(texts[:-1]),
+        andtext,
+        texts[-1]
+    )
 
 def split(
     text,
@@ -892,8 +889,8 @@ This function uses the following variables.
 
     1) ``text`` is simply the text to split.
 
-    2) ``seps`` is either a string for a single separator, or a list of
-    separators.
+    2) ``seps`` is either a string for a single separator, or a list or a tuple
+    of separators.
 
     3) ``escape`` is a string used to escape the separators. By default,
     ``escape = None`` which indicates that there is no escaping feature.
@@ -913,50 +910,61 @@ This function uses the following variables.
     if isinstance(seps, str):
         seps = [seps]
 
-    if not isinstance(seps, list) \
-    and not isinstance(seps, tuple):
-        raise StringUseError(
-            "The variable << sep >> must be a list or tuple of strings."
+    elif isinstance(seps, tuple):
+        seps = list(seps)
+
+    elif not isinstance(seps, list):
+        raise TypeError(
+            "the variable << sep >> must be a list or tuple of strings."
             "\n\t{0}".format(sep)
         )
 
     for sep in seps:
         if not isinstance(sep, str):
-            raise StringUseError(
-                "The variable << seps >> must be list or tuple of strings."
+            raise TypeError(
+                "the variable << seps >> must be list or tuple of strings."
                 "\n\t{0}".format(seps)
             )
 
 # << Warning ! >> We must sort the opening symbolic tags from the longer one
 # to the shorter.
-    sorted(seps, key = lambda x: -len(x))
+    seps.sort(key = lambda x: -len(x))
 
-    answer = []
-    imax   = len(text)
-    i      = 0
-    ilast  = 0
+# We look for the positions where the separators are, but we also have to clean
+# overlapping texts. Think of the separators "(((" and "(" for example.
+#
+# << WARNING ! >> We use the fact that the first positions are the ones of
+# the longest separators !
+    _posfound = []
+    positions = []
 
-    while(i < imax):
-# The bigger is the winner !
-        for sep in seps:
-            if text[i:].startswith(sep):
-                lastpiece = text[ilast: i]
+    for sep in seps:
+        sepsize = len(sep) - 1
+        i = text.find(sep)
 
-                if not(escape and lastpiece.endswith(escape)):
-                    i    += len(sep)
-                    ilast = i
+        while(i != - 1):
+            iend = i + sepsize
 
-                    answer.append(lastpiece)
+            if not(escape and text[:i].endswith(escape)) \
+            and i not in _posfound and iend not in _posfound:
+                positions.append((i, iend))
+                _posfound.extend(range(i, iend + 1))
 
-                    break
+            i = text.find(sep, iend + 1)
 
-        i += 1
+    positions.sort()
 
-    endtext = text[ilast:]
+# Let's build the splited text.
+    answer  = []
+    lastend = 0
 
-    if endtext:
-        answer.append(endtext)
+    for start, end in positions:
+        answer.append(text[lastend: start])
+        lastend = end + 1
 
+    answer.append(text[lastend:])
+
+# Strip or not strip, that is the question.
     if strip:
         answer = [x.strip() for x in answer]
 
@@ -1221,8 +1229,8 @@ This function uses the following variables.
     and the end in the piece of text found.
     """
     if start == "" and end == "":
-        raise StringUseError(
-            'The variables << start >> and  << end >> can not be both empty.'
+        raise ValueError(
+            'the variables << start >> and  << end >> can not be both empty.'
         )
 
     if isinstance(keep, bool):
@@ -1239,8 +1247,8 @@ This function uses the following variables.
         s = text.find(start)
 
         if s == -1:
-            raise StringUseError(
-                'The starting text << {0} >> has not been found.'.format(start)
+            raise ValueError(
+                'the starting text << {0} >> has not been found.'.format(start)
             )
 
         s += len(start)
@@ -1252,12 +1260,10 @@ This function uses the following variables.
         e = text.find(end, s)
 
         if e == -1:
-            message = 'The ending text  << {1} >> has not been found after ' \
+            message = 'the ending text  << {1} >> has not been found after ' \
                     + 'the first text << {0} >>.'
 
-            raise StringUseError(
-                message.format(start, end)
-            )
+            raise ValueError(message.format(start, end))
 
         if start == "":
             s = e
@@ -1393,7 +1399,7 @@ This function uses the following variables.
         return text[0].upper() + text[1:-1].lower() + text[-1].upper()
 
     else:
-        raise StringUseError(
+        raise ValueError(
             '<< {0} >> is not an existing kind of case variant formatting.' \
                 .format(kind)
         )
@@ -1485,11 +1491,11 @@ This function uses the following variables.
     """
     if kind == "mix":
         return not text.islower() \
-        and not text.isupper() \
-        and text != case(text, "sentence")
+               and not text.isupper() \
+               and text != case(text, "sentence")
 
     elif kind not in _CASE_VARIANTS:
-        raise StringUseError(
+        raise ValueError(
             '<< {0} >> is not an existing kind of case variant testing.' \
                 .format(kind)
         )
@@ -1742,7 +1748,7 @@ This function uses the following variables.
     """
 # Default values must be chosen if nothing is given.
     if not set(format.keys()) <= {'rule', 'corner', 'extra'}:
-        raise StringUseError("Illegal key for the dictionary << format >>.")
+        raise ValueError("illegal key for the dictionary << format >>.")
 
     for kind in ['rule', 'corner', 'extra']:
         if kind not in format:
@@ -1751,17 +1757,17 @@ This function uses the following variables.
 
     for kind in ['rule', 'corner']:
         if not set(format[kind].keys()) <= _KEYS_FRAME[kind]:
-            raise StringUseError(
-                "Illegal key for the dictionary << format >>. "
+            raise ValueError(
+                "illegal key for the dictionary << format >>. "
                 "See the kind << {0} >>.".format(kind)
             )
 
         for key, abrev in _ABREVS_FRAMES[kind].items():
             if abrev in format[kind] and key in format[kind]:
-                message = "Use of the key << {0} >> and its abreviation " \
+                message = "use of the key << {0} >> and its abreviation " \
                         + "<< {1} >> for the dictionary << format >>."
 
-                raise StringUseError(message.format(key, abrev))
+                raise ValueError(message.format(key, abrev))
 
             if abrev in format[kind]:
                 format[kind][key] = format[kind][abrev]
@@ -1775,11 +1781,8 @@ This function uses the following variables.
             message = "You can only use nothing or one single character " \
                     + "for rules.\nSee << {0} >> for the {1} rule."
 
-            raise StringUseError(
-                message.format(
-                    format['rule'][loc],
-                    loc
-                )
+            raise ValueError(
+                message.format(format['rule'][loc], loc)
             )
 
 # Infos about the lines of the text.
@@ -1810,11 +1813,11 @@ This function uses the following variables.
 
 # First line of the frame
     answer = _draw_hrule(
-        rule     = format['rule']['up'],
-        left     = format['corner']['leftup'],
-        right    = format['corner']['rightup'],
-        lenght   = lenght,
-        nbspace  = nbspace
+        rule    = format['rule']['up'],
+        left    = format['corner']['leftup'],
+        right   = format['corner']['rightup'],
+        lenght  = lenght,
+        nbspace = nbspace
     )
 
 # Management of the lines of the text
@@ -1851,11 +1854,11 @@ This function uses the following variables.
 
 # Last line of the frame
     answer += _draw_hrule(
-        rule     = format['rule']['down'],
-        left     = format['corner']['leftdown'],
-        right    = format['corner']['rightdown'],
-        lenght   = lenght,
-        nbspace  = nbspace
+        rule    = format['rule']['down'],
+        left    = format['corner']['leftdown'],
+        right   = format['corner']['rightdown'],
+        lenght  = lenght,
+        nbspace = nbspace
     )
 
     answer = '\n'.join([x.rstrip() for x in answer])
@@ -1869,8 +1872,8 @@ This function uses the following variables.
                 center = center
             )
 
-        except StringUseError as e:
-            raise StringUseError(
+        except ValueError as e:
+            raise ValueError(
                 str(e)[:-1] + " in the definition of the extra frame."
             )
 

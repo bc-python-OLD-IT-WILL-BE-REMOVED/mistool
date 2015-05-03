@@ -3,7 +3,7 @@
 """
 Directory : mistool
 Name      : python_use
-Version   : 2014.08
+Version   : 2015.03
 Author    : Christophe BAL
 Mail      : projetmbc@gmail.com
 
@@ -13,17 +13,6 @@ This module contains some simple tools about the Python programming language.
 from subprocess import check_call, check_output
 
 from mistool.os_use import filename, nextfile, parentdir, relativepath
-
-
-# ------------------------- #
-# -- FOR ERRORS TO RAISE -- #
-# ------------------------- #
-
-class PythonUseError(ValueError):
-    """
-Base class for errors in the ``python_use`` module of the package ``mistool``.
-    """
-    pass
 
 
 # ------------- #

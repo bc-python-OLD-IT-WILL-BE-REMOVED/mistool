@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-# Source :
-#    http://docs.python.org/library/re.html
-
 import re
 
 
