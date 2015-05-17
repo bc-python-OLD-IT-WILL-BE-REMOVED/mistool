@@ -1,6 +1,9 @@
-**misTool** is a contraction of **missing**, **miscellaneous** and **tool**. This package contains the following modules that could be useful for Python developments.
+**misTool** is a contraction of **missing**, **miscellaneous** and **tool**.
+This package contains the following modules that could be useful for Python
+developments.
 
-If you want more informations and examples than thereafter, just take a look at the docstrings.
+If you want more informations and examples than thereafter, just take a look at
+the docstrings.
 
 
 Which OS can use this program ?

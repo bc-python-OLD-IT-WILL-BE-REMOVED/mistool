@@ -1,20 +1,22 @@
 ==========
-2015-05-????
+2015-05-      ????
 ==========
 
-**Prise en compte de ``pathlib`` dans le module ``os_use``:** ajout d'une nouvelle classe ``PPath``, qui est grosso modo une sous-classe de ``pathlib.Path`` suivant le système d'exploitation utilisé (voir le code pour comprendre la signification technique du "grosso modo"). Ceci implique tous les changements suivants.
+**Non rétro-compatibilité du code suite à la prise en compte de ``pathlib`` dans le module ``os_use``:** ajout d'une nouvelle classe ``PPath``, qui est grosso modo une sous-classe de ``pathlib.Path`` (voir le code pour comprendre la signification technique du "grosso modo"). Ceci implique tous les changements importants suivants.
 
     1) Concernant **les noms** de fichier ou de dossier, voici ce qui a évolué.
 
-        a) La fonction ``hasextin`` a été supprimée car il suffit maintenant de faire ``mypath.ext in [...]``. Simple et efficace !
+        a) La fonction ``hasextin`` a été supprimée au profit de la méthode ``mypath.ext in [...]``. Simple et efficace !
 
         a) La fonction ``name`` n'existe plus car la classe ``pathlib.Path`` possède un attribut ``name``. Il faudra donc faire ``mypath.name``.
 
         a) La fonction ``filename`` n'existe plus. Il faudra utiliser à la place ``mypath.stem`` en utilisant l'attribut ``stem`` présent dans la classe ``pathlib.Path``.
 
-        a) La classe ``PPath`` possède l'attribut ``ext`` qui joue le même rôle que l'ancienne fonction ``ext``.
+        a) La classe ``PPath`` possède un attribut ``ext`` qui joue le même rôle que l'ancienne fonction ``ext``.
 
-        a) La classe ``PPath`` possède la méthode ``with_ext`` qui permet de changer l'extension d'un fichier. Donc la fonction ``noext`` devient inutile car il suffit de faire ``mypath.with_ext("")``.
+        a) La classe ``PPath`` possède la méthode ``with_ext`` qui permet de changer l'extension d'un fichier.
+
+        a) La fonction ``noext`` devient inutile car il suffit de faire ``mypath.with_ext("")``.
 
     1) Concernant **les informations** contenues dans les chemins, voici les évolutions.
 
@@ -22,59 +24,113 @@
 
         a) La fonction ``isdir`` s'efface au profit de la méthode ``is_dir`` des classes ``pathlib.PosixPath`` et ``pathlib.WindowsPath``.
 
-        a) La focntion ``parentdir`` devient l'attribut ``parent`` de la classe ``PPath``.
+        a) La fonction ``parentdir`` devient l'attribut ``parent`` de la classe ``PPath``.
 
         Noter que la classe ``pathlib.Path`` possède l'attribut ``parents`` au pluriel qui est une liste des dossiers parents du plus proche au plus éloigné.
 
-        a) La fonction ``realpath`` devient l'attribut ``normpath`` de la classe ``PPath``. Cet attribut renvoie le chemin dans lequel path::``~`` sera développé et les raccourcis path::``../`` de remonter de dossier seront interprétés.
+        a) La fonction ``realpath`` devient la méthode ``normpath`` de la classe ``PPath``.
+        Cette méthode renvoie une classe ``PPath`` construite à partir du chemin obtenu en interprétant les raccourcis path::``~`` et path::``../``.
 
-        Noter que la classe ``pathlib.Path`` possède une méthode ``resolve()`` qui va chercher à trouver le chemin physique complet. Cette méthode renverra donc une erreur si le chemin pointe nulle part.
+        Noter que la classe ``pathlib.Path`` possède une méthode ``resolve()`` qui va chercher à trouver le chemin physique complet. Cette méthode renverra une erreur si le chemin pointe nulle part.
 
-        a) La classe ``PPath`` possède l'attribut  ``shortpath`` pour raccourcir au maximum un chemin en utilisant path::``~`` si possible et en interprétant les raccourcis path::``../`` de remonter de dossier.
+        a) La classe ``PPath`` possède la méthode ``shortpath`` qui renvoie une classe ``PPath`` construite à partir d'un chemin obtenu en utilisant path::``~`` si possible, et en interprétant les raccourcis path::``../`` de remonter de dossier.
 
-        a) La fonction ``commonpath(path1, path2)`` devient la méthode ``common_with`` de la classe ``PPath``. Cette méthode demande un argument qui peut être soit un chemin de type ``PPath``, ``pathlib.Path``, ou bien une liste ou un uplet de chemins.
+        a) La fonction ``commonpath(path1, path2)`` devient la méthode ``common_with`` de la classe ``PPath``. Cette méthode demande un argument qui peut être soit un chemin de type ``PPath``, ``pathlib.Path``, ou bien une liste ou un uplet de tels chemins.
 
         Par exemple, l'ancienne utilisation de ``commonpath(path1, path2)`` devient ``path1.common_with(path2)``.
 
-        a) La classe ``PPath`` permet d'utiliser ``path1 & path2`` ou ``path1 & paths`` comme raccourci de ``path1.common_with(paths)``. Merci les méthodes magiques !
+        a) La classe ``PPath`` permet d'utiliser ``path1 & path2`` ou ``path1 & paths`` comme raccourci de ``path1.common_with(path2)`` et ``path1.common_with(paths)`` ¨resp. Merci les méthodes magiques !
 
-        Le choix de cette notation se comprend si l'on pense au lien entre intersection ensembliste et le ET logique.
+        Le choix de cette notation se comprend si l'on pense au lien entre intersection ensembliste et "ET" logique.
 
-            a) La fonction ``relativepath(main, sub)`` dipsarait car la classe ``pathlib.Path`` propose la méthode  ``relative_to`` qui s'utilise via ``sub.relative_to(main)``.
+        a) La fonction ``relativepath(main, sub)`` dipsarait car la classe ``pathlib.Path`` propose la méthode  ``relative_to`` qui s'utilise via ``sub.relative_to(main)``.
 
         a) La classe ``PPath`` permet d'utiliser ``sub - main`` comme raccourci de ``sub.relative_to(main)``. Merci les méthodes magiques !
 
-        a) La fonction ``relativedepth(main, sub)`` devient la méthode ``depth_in`` de la classe ``PPath``. Cette méthode demande un argument qui peut être un chemin de type ``PPath``, ``pathlib.Path``, ou bien une liste ou un uplet de chemins.
+        a) La fonction ``relativedepth(main, sub)`` devient la méthode ``depth_in`` de la classe ``PPath``. Cette méthode demande un argument qui peut être un chemin de type ``PPath`` ou ``pathlib.Path``.
 
     1) Pour **les manipulations physiques** de fichiers et de dossiers, les changements sont les suivants.
 
-        a) La fonction ``readtxtfile`` disparait car la classe ``pathlib.Path`` possède une méthode ``open`` et permettent d'utiliser ``with mypath.open() as f: ...``.
+        a) Les fonctions ``readtxtfile`` et ``maketxtfile`` disparaissent car la classe ``pathlib.Path`` peut s'utilise via ``with mypath.open() as f: ...`` en utilisant les mêmes options que la fonction standard ``open``.
 
         a) La fonction ``watch`` devient la méthode ``see`` de la classe ``PPath``.
 
-        a) La fonction ``makedir`` devient la méthode ``make_dir`` de la classe ``PPath``.
-
-        a) La fonction ``make_txt_file`` devient la méthode ``make_txt_file`` de la classe ``PPath``.
+        a) La fonction ``makedir`` disparait car la classe ``PPath`` dispose d'une nouvelle méthode ``create`` qui permet au choix de créer un fichier ou un dossier via ``mypath.create("file")`` et ``mypath.create("dir")`` ¨resp.
 
         a) La fonction ``move`` est remplacée par la méthode ``move_to`` de la classe ``PPath``.
 
         L'ancienne utilisation de ``move(source, destination)`` devient ``source.move_to(destination)``.
 
-        a) La fonction ``copy`` est remplacée par la méthode ``move_to`` de la classe ``PPath``.
+        a) La fonction ``copy`` est remplacée par la méthode ``copy_to`` de la classe ``PPath``.
 
         L'ancienne utilisation de ``copy(source, destination)`` devient ``source.copy_to(destination)``.
 
         a) La fonction ``clean`` est remplacée par la méthode ``clean`` de la classe ``PPath``. Cette méthode s'utilise avec des motifs de type ¨regex_fr, mais pas exactement, pour plus de flexibilité.
 
-    1) La **recherche ciblée** de fichiers et de dossiers peut se faire via les méthodes ``glob`` et ``rglob`` des classes ``pathlib.PosixPath`` et ``pathlib.WindowsPath`` qui s'utilise avec des motifs de type "Unix-glob" (voir cf::``cette page Wikipdéia ; http://en.wikipedia.org/wiki/Glob_(programming)``).
-    La classe ``PPath`` propose en plus la méthode ``walk`` qui utilise des motifs de type ¨regex_fr, mais pas exactement, pour plus de flexibilité.
+    1) La **recherche ciblée** de fichiers et de dossiers peut se faire via les méthodes ``glob`` et ``rglob`` des classes ``pathlib.PosixPath`` et ``pathlib.WindowsPath`` qui s'utilisent avec des motifs de type "Unix-glob" (voir cf::``cette page Wikipdéia ; http://en.wikipedia.org/wiki/Glob_(programming)``).
+
+    La classe ``PPath`` propose en plus la méthode ``walk`` qui utilise des motifs de type ¨regex_fr, mais pas exactement, qui offrent plus plus de flexibilité.
 
     Ceci implique **la disparition** des itérateurs ``nextfile`` et ``nextdir``, ainsi que des fonctions ``listfile`` et ``listdir``.
 
-    Indiquons au passage que la méthode ``match`` des classes ``pathlib.PosixPath`` et ``pathlib.WindowsPath`` permet de tester si un chemin correpsond à un motif, tandis que la méthode ``iterdir`` permet de voir le contenu "direct" d'un dossier.
+    Indiquons au passage que la méthode ``match`` des classes ``pathlib.PosixPath`` et ``pathlib.WindowsPath`` permet de tester si un chemin correspond à un motif, tandis que la méthode ``iterdir`` permet de voir le contenu "direct" d'un dossier.
 
-    1) La classe ``DirView`` est la seule rescapée des anciennes fonctionnalités travaillant sur des chemins. Son utilisation et son fonctionnement ont été toutefois adaptés aux nouveautés précédentes (le code est bien plus propre qu'avant). Ceci a permis au passage de proposer deux types d'arbre ¨ascii.
+
+
+
+
+
+
+    1) La classe ``DirView`` est la seule rescapée des anciennes fonctionnalités travaillant sur des chemins. Son utilisation et son implémentation ont été toutefois adaptées à la classe ``PPath``.
+
+    Au passage, des classes ont été ajoutées pour proposer différents types d'arbre ¨ascii.
 
     1) La constante ``SEP`` a été supprimée car elle devient totalement inutile face à la facilité d'utilisation de ``pathlib`` et donc aussi de ``PPath``.
 
     1) Les fonctions ``pathenv`` et ``system`` ont été gardées sans modification.
+
+
+
+
+
+
+
+
+
+
+?????
+
+
+**Ajout d'une licence :** le projet est maintenant sous licence ???.
+
+
+
+**Documentation des méthodes :** on utilise des exemples "en console" pour rendre le propos plus clair.
+
+
+**Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer.
+
+
+**Amélioration du fichier ``README.md`` :** des exemples "en console" ont été ajoutés afin de rendre le package plus "bankable".
+
+
+
+
+
+**Noms des versions :** les numéros de version deviennent standards en suivant la convention ``majeur.mineur.patch``, cette version ayant pour numéro ``0.0.0`` car le projet ¨mistool reste à l'état très `¨beta`. Cette norme étant suivie par tout le monde, soyons grégaire pour devenir clair...
+
+
+
+
+
+**Amélioration côté développement interne :** voici ce qui a évolué.
+
+    1) Les tests unitaires sont tous faits via ¨pytest ce qui simplifie énormément les choses. On va enfin à l'essentiel !
+
+    2) L'utilisation de ¨pyvenv permet d'éviter des dégâts colatéraux non négligeables avec les versions en cours de développement (l'environnment virtuel se nomme ``pyenv/mistool``). Fini l'amateurisme !
+
+    3) Toujours dans un souci de développement serein, on utilise une branche ``dev`` avec ¨git. À quand la certification ¨python ?
+
+    4) Pour finir, seul le module ``pdt.mistool.orpyste`` du package maison ``pdt`` est encore utilisé (le nouveau module ``pathlib`` permet maintenant de travailler facilement avec des chemins de dossiers et de fichiers même si la classe ``PPath`` facilite encore plus les choses).
+
+    En attendant la nouvelle version de ¨orpyste, qui ne sera plus du tout dépendante de ¨mistool, on continue encore à utiliser l'affreux ``pdt.mistool.orpyste`` mais plus pour très longtemps...

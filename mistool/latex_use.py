@@ -13,7 +13,7 @@ langage for typing scientific documents.
 
 from subprocess import check_call, check_output, CalledProcessError
 
-from mistool import os_use
+from mistool.os_use import PPath
 from mistool.config import latex
 
 normpath = os_use.os.path.normpath

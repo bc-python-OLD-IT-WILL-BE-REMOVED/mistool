@@ -1,17 +1,8 @@
 ==========
-2014-10-27 ????
-==========
-
-**Utilisation de ¨setuptools:** le fichier ``setup.py`` se base maintenant sur ¨setuptools. Ceci se fait très efficacement grâce à ¨setytup un autre projet de l'auteur de ¨mistool.
-
-
-
-
-==========
 2014-10-27
 ==========
 
-**Dans le module ``string_use``, correction d'un bug de la fonction ``split``:** si deux séparateurs se suivaient, le ¨2nd était gardé au lieu d'utiliser un texte vide entre ces deux séparateurs. Ceci a été réparé en améliorant la méthode utilisée. Bug découvert lors du développement du package ¨setytup créé par l'auteur de ¨mistool (jeter un oeil sur ¨pypi ou ¨github).
+**Dans le module ``string_use``, correction d'un bug de la fonction ``split``:** si deux séparateurs se suivaient, le ¨2nd était gardé au lieu d'utiliser un texte vide entre ces deux séparateurs. Ceci a été réparé en améliorant la méthode utilisée. Bug découvert lors du développement du package ¨setytup en cours de fabriquation par l'auteur de ¨mistool.
 
 
 ==========
