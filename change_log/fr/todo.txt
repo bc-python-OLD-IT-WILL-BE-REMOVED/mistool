@@ -1,23 +1,36 @@
+LES 100 Saison 2
+    --> jusqu'à 13 (sauf fin)
+
+
 ==============
 misTool - TODO
 ==============
 
-**Amélioration de la classe ``regpat2meta`` du module ``config.pattern`` :** utilisation du module ¨dare pour une gestion fine des différences entre les "regpatterns" et les ¨reg_frs de ¨python.
+
+==========
+2015-05-      ????
+==========
+
+???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer.
 
 
-**Amélioration de la fonction ``DirView`` du module ``os_use`` :**
+???? ---------->    **Noms des versions :** les numéros de version deviennent standards en suivant la convention ``majeur.mineur.patch``, cette version ayant pour numéro ``0.0.0`` car le projet ¨mistool reste à l'état très `¨beta`. Cette norme étant suivie par tout le monde, soyons grégaire pour devenir clair...
 
 
-limiter nbre de fichiers/dossiers trouvés visibles via  * ... [etc]   et  * ... [autres]   avec choix de langues (angalis par défaut mais définissable)
-    ---> comment ?
+???? ---------->    **Amélioration du fichier ``README.md`` :** des exemples "en console" ont été ajoutés afin de rendre le package plus "bankable".
 
 
-limiter laprofondeur de recherche via    + nomdir [...]
-    ---> comment ? regpattern suffisant ?
+???? ---------->    **Ajout d'une licence :** le projet est maintenant sous licence ???.
 
 
 
-**¨Maj des modules impactés par la prise en compte de ``pathlib`` dans ``os_use``:** voici les modules concernés.
+
+
+==========
+2015-05-      ????
+==========
+
+???? ---------->    **¨Maj des modules impactés par la prise en compte de ``pathlib`` dans ``os_use``:** voici les modules concernés.
 
     1) Dans le module ``python_use``, la fonction ``runpys`` ????
 
@@ -29,6 +42,14 @@ limiter laprofondeur de recherche via    + nomdir [...]
     utilise juste l'argument ``patterns`` en remplacement des arguments ``keep``, ``discard`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
 
 
+???? ---------->    **Amélioration des docstrings:** la syntaxe utilisée se base sur de nouvelles spécification de ¨pybadoc, un outil maison en cours de construction. Par exemple, on utilise des exemples "en console" pour rendre le propos plus clair et on peut indiquer via un bloc prh .
+
+
+???? ---------->    **Amélioration et mise à jour des tests :** on utilise maintenant ¨pytest ce qui simplifie énormément les choses. On va enfin à l'essentiel !
+
+Ceci étant dit, le module ``pdt.mistool.orpyste`` du package maison ``pdt`` est encore utilisé (le nouveau module ``pathlib`` permet maintenant de travailler facilement avec des chemins de dossiers et de fichiers même si la classe ``PPath`` facilite encore plus les choses).
+
+En attendant la nouvelle version de ¨orpyste, qui ne sera plus du tout dépendante de ¨mistool, on continue encore à utiliser l'affreux ``pdt.mistool.orpyste`` mais plus pour très longtemps... Une fois ceci fait, les tests seront disponibles sur ¨github et ¨pypi (afin que les utilisateurs puissent tester leur installation).
 
 
 
@@ -39,13 +60,56 @@ limiter laprofondeur de recherche via    + nomdir [...]
 
 
 
+> ---------------------------- <
+
+Utilisation de __slots__ , __version__ ... Voir ce qu'il faut ajouter.
+
+
+> ---------------------------- <
+
+**Amélioration côté développement interne :** voici ce qui a évolué.
+
+    1) L'effacité des tests est évaluée à l'aide de ¨coverage.
+
+    2) ¨pep8py et ¨pylint sont consultés pour améliorer le code de ¨mistool lorsque cela paraît pertinent.
+
+	3) Le module ``pdt.mistool.orpyste`` du package maison ``pdt`` n'est plus utilisé. C'est la mort de cet étrange ``pdt``. À la place, on utilise tout simplement ¨orpyste qui est devenu titalement indépendant de ¨mistool. Et oui, on se professionnalise... ;-)
+
+    Ceci permet au passage de rendre les tests disponibles sur ¨github uniquement (pas sur ¨pypi par choix).
+
+
+> ---------------------------- <
+
+**Amélioration de la fonction ``DirView`` du module ``os_use`` :**
+
+
+limiter nbre de fichiers/dossiers trouvés visibles via  * ... [etc]   et  * ... [autres]   avec choix de langues (angalis par défaut mais définissable)
+    ---> via query
+
+
+limiter laprofondeur de recherche via    + nomdir [...]
+    ---> via query
+
+
+> ---------------------------- <
+
+Gestion de tous les types d'importation
+    * from mistool import os_use
+    * from mistool.os_use import DirView
+    * AUTRES ?
+
+
+> ---------------------------- <
+
+**Amélioration de la classe ``regpat2meta`` du module ``config.pattern`` :** utilisation du module ¨dare pour une gestion fine des différences entre les "regpatterns" et les ¨reg_frs de ¨python.
+
+
+> ---------------------------- <
 
 **Utilisation de ¨setuptools:** le fichier ``setup.py`` se base maintenant sur ¨setuptools. Ceci se fait très efficacement grâce à ¨setytup un autre projet de l'auteur de ¨mistool.
 
 
-
-
-
+> ---------------------------- <
 
 A VOIR ????
 
@@ -60,14 +124,17 @@ A VOIR ????
     			* int_input
 
 
-
+> ---------------------------- <
 
 **Mise à jour de la documentation on technique en français:** la nouvelle fçaon d'utiliser le moddule ``os_use`` est maintenant documentée en français.
 
 
+> ---------------------------- <
 
 **Abandon de la prise en charge du module ¨unittest dans le module ``log_test_use``:** dorénavant, ce sera le module ¨pytest qui sera privilégié.
 
+
+> ---------------------------- <
 
 **Une belle nouveauté dans le module ``python_use`` :** la classe ``MKDict`` permet de définir des dictionnaires dont on peut extraire une valeur en utilisant une syntaxe du type ``mymkdict["key_1", "subkey_1", "subsubkey_1"]`` au lieu de ``mymkdict["key_1"]["subkey_1"]["subsubkey_1"]``.
 
@@ -88,24 +155,16 @@ A VOIR ????
     print(toc["I", "A", "2"])
 
 
+> ---------------------------- <
+
 **Mise en ligne d'une documentation non technique en français :** ceci a été rendu possible grâce au projet ¨pyba qui lui aussi est disponible sur ¨pypi et ¨github.
 
+
+> ---------------------------- <
 
 **Mise en ligne de la documentation technique en anglais uniquement :** ceci a été rendu possible grâce au projet ¨pybadoc qui lui aussi est disponible sur ¨pypi et ¨github.
 
 
-**Amélioration côté développement interne :** voici ce qui a évolué.
-
-    1) L'effacité des tests est évaluée à l'aide de ¨coverage.
-
-    2) ¨pep8py et ¨pylint sont consultés pour améliorer le code de ¨mistool lorsque cela paraît pertinent.
-
-	3) Le module ``pdt.mistool.orpyste`` du package maison ``pdt`` n'est plus utilisé. C'est la mort de cet étrange ``pdt``. À la place, on utilise tout simplement ¨orpyste qui est devenu titalement indépendant de ¨mistool. Et oui, on se professionnalise... ;-)
-
-    Ceci permet au passage de rendre les tests disponibles sur ¨github uniquement (pas sur ¨pypi par choix).
-
+> ---------------------------- <
 
 **Améliorations du module ``latex_use`` :** il est maintenant possible d'indiquer des installations non standards de ¨latex qui ont été "faites à la main".
-
-
-**De nouveaux motifs dans le module ``config\pattern.py`` :** ????

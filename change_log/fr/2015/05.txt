@@ -2,7 +2,7 @@
 2015-05-      ????
 ==========
 
-**Non rétro-compatibilité du code suite à la prise en compte de ``pathlib`` dans le module ``os_use``:** ajout d'une nouvelle classe ``PPath``, qui est grosso modo une sous-classe de ``pathlib.Path`` (voir le code pour comprendre la signification technique du "grosso modo"). Ceci implique tous les changements importants suivants.
+**NON RÉTRO-COMPATIBILITÉ du code suite à la prise en compte de ``pathlib`` dans le module ``os_use``:** ajout d'une nouvelle classe ``PPath``, qui est grosso modo une sous-classe de ``pathlib.Path`` (voir le code pour comprendre la signification technique du "grosso modo"). Ceci implique tous les changements importants suivants.
 
     1) Concernant **les noms** de fichier ou de dossier, voici ce qui a évolué.
 
@@ -73,15 +73,10 @@
 
     Ceci implique **la disparition** des itérateurs ``nextfile`` et ``nextdir``, ainsi que des fonctions ``listfile`` et ``listdir``.
 
-    Indiquons au passage que la méthode ``match`` des classes ``pathlib.PosixPath`` et ``pathlib.WindowsPath`` permet de tester si un chemin correspond à un motif, tandis que la méthode ``iterdir`` permet de voir le contenu "direct" d'un dossier.
+    info::
+        La méthode ``match`` des classes ``pathlib.PosixPath`` et ``pathlib.WindowsPath`` permet de tester si un chemin correspond à un motif, tandis que la méthode ``iterdir`` permet de voir le contenu "direct" d'un dossier.
 
-
-
-
-
-
-
-    1) La classe ``DirView`` est la seule rescapée des anciennes fonctionnalités travaillant sur des chemins. Son utilisation et son implémentation ont été toutefois adaptées à la classe ``PPath``.
+???? ---------->    1) La classe ``DirView`` est la seule rescapée des anciennes fonctionnalités travaillant sur des chemins. Son utilisation et son implémentation ont été toutefois adaptées à la classe ``PPath``.
 
     Au passage, des classes ont été ajoutées pour proposer différents types d'arbre ¨ascii.
 
@@ -90,47 +85,8 @@
     1) Les fonctions ``pathenv`` et ``system`` ont été gardées sans modification.
 
 
+???? ---------->    **Amélioration côté développement interne :** voici ce qui a évolué.
 
+    1) Dans un souci de développement serein, on utilise dorénavant une branche ``dev`` avec ¨git.
 
-
-
-
-
-
-
-?????
-
-
-**Ajout d'une licence :** le projet est maintenant sous licence ???.
-
-
-
-**Documentation des méthodes :** on utilise des exemples "en console" pour rendre le propos plus clair.
-
-
-**Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer.
-
-
-**Amélioration du fichier ``README.md`` :** des exemples "en console" ont été ajoutés afin de rendre le package plus "bankable".
-
-
-
-
-
-**Noms des versions :** les numéros de version deviennent standards en suivant la convention ``majeur.mineur.patch``, cette version ayant pour numéro ``0.0.0`` car le projet ¨mistool reste à l'état très `¨beta`. Cette norme étant suivie par tout le monde, soyons grégaire pour devenir clair...
-
-
-
-
-
-**Amélioration côté développement interne :** voici ce qui a évolué.
-
-    1) Les tests unitaires sont tous faits via ¨pytest ce qui simplifie énormément les choses. On va enfin à l'essentiel !
-
-    2) L'utilisation de ¨pyvenv permet d'éviter des dégâts colatéraux non négligeables avec les versions en cours de développement (l'environnment virtuel se nomme ``pyenv/mistool``). Fini l'amateurisme !
-
-    3) Toujours dans un souci de développement serein, on utilise une branche ``dev`` avec ¨git. À quand la certification ¨python ?
-
-    4) Pour finir, seul le module ``pdt.mistool.orpyste`` du package maison ``pdt`` est encore utilisé (le nouveau module ``pathlib`` permet maintenant de travailler facilement avec des chemins de dossiers et de fichiers même si la classe ``PPath`` facilite encore plus les choses).
-
-    En attendant la nouvelle version de ¨orpyste, qui ne sera plus du tout dépendante de ¨mistool, on continue encore à utiliser l'affreux ``pdt.mistool.orpyste`` mais plus pour très longtemps...
+    2) L'utilisation de ¨pyvenv permet aussi d'éviter des dégâts colatéraux non négligeables avec les versions en cours de développement (l'environnment virtuel se nomme ``pyenv/mistool``). Fini l'amateurisme !

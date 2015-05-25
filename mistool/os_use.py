@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
 
 """
-Directory : mistool
-Name      : os_use
-Version   : 2015.05
-Author    : Christophe BAL
-Mail      : projetmbc@gmail.com
+prototype::
+    date = 2015-05-25
 
-This module contains an enhanced version of the classes in ``pathlib`` to
-manipulate easily files, directories and so on, and it also contains functions
-which give informations about the system.
+
+The main feature of this module is the class ``PPath`` which is an enhanced
+version of the standard class ``pathlib.Path`` that allows to manipulate easily
+paths and as a consequence files and folders.
+
+There is also a class ``DirView`` so as to display the content of a directory
+using filters if necessary, and two functions which give informations about the
+system.
 """
 
 import os
 import pathlib
+import re
 import shutil
 import platform
 from subprocess import check_call
-
-from mistool.config.pattern import regpat
 
 
 # ------------------------------------- #
@@ -27,17 +28,17 @@ from mistool.config.pattern import regpat
 
 # << Warning ! >>
 #
-# Sublcassing ``pathlib.Path`` is not easy ! We have to dirty a little
-# our hands. Hints are hidden in the source and especially in the source
-# of ``pathlib.PurePath``.
+# Sublcassing ``pathlib.Path`` is not easy ! We have to dirty a little our
+# hands. Hints are hidden in the source and especially in the code of the class
+# ``pathlib.PurePath``.
 #
 # Sources:
 #     * http://stackoverflow.com/a/29851079/4589608
 #     * https://hg.python.org/cpython/file/151cab576cab/Lib/pathlib.py
 #
-# Extra methods added to ``PPath`` must be defined using function. We choose to
-# use names which all start with ``_ppath_somename`` where ``somename`` will be
-# the name in the class ``PPath``.
+# Extra methods added to ``PPath`` must be defined using functions. We choose to
+# use names which all llok like ``_ppath_somename`` where ``somename`` will be
+# the name used in the class ``PPath``.
 
 
 # ----------- #
@@ -47,12 +48,21 @@ from mistool.config.pattern import regpat
 @property
 def _ppath_parent(cls):                     # DOC OK !!
     """
-This attribut like method returns a path of the first depth folder "containing"
-the file or the directory corresponding to the actual path.
+prototype::
+    type   = property ;
+             a hack is used so as to transform this function into a property
+             method ``parent`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``parent`` of the class ``PPath``
+    return = PPath ;
+             a new path corresponding to the first "parent folder" of the
+             current path
 
 
-Here is ane example with a ¨mac. The ``PosixPath`` refers to the Unix version
-of ``PPath``.
+Here is an example made using a ¨mac. The ``PosixPath`` refers to the Unix
+version of ``PPath``.
 
 pyterm::
     >>> from mistool.os_use import PPath
@@ -66,15 +76,29 @@ pyterm::
 @property
 def _ppath_ext(cls):                        # DOC OK !!
     """
-This attribut like method returns the extension of a path, that is the value of
-the attribut ``suffix`` of ``pathlib.Path`` without the leading point. Here is
-an example.
+prototype::
+    type   = property ;
+             a hack is used so as to transform this function into a property
+             method ``ext`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``ext`` of the class ``PPath``
+    return = str ;
+             the extension of the path
+
+
+Here is a small example of use where you can see that the attribut ``ext`` is
+just the value of the attribut ``suffix``, from ``pathlib.Path``, but without
+the leading point.
 
 pyterm::
     >>> from mistool.os_use import PPath
     >>> path = PPath("dir/subdir/file.txt")
     >>> print(path.ext)
     'txt'
+    >>> print(path.suffix)
+    '.txt'
     """
 # An extension is a suffix without the leading point.
     return cls.suffix[1:]
@@ -82,13 +106,29 @@ pyterm::
 
 def _ppath_with_ext(cls, ext):              # DOC OK !!
     """
-This method changes the extension of a path to the one given in the variable
-``ext``. It is similar to the method ``with_suffix`` of ``pathlib.Path`` but
-without the leading point. Here is ane example with a ¨mac. The ``PosixPath``
-refers to the Unix version of ``PPath``.
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into a method
+             ``with_ext`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``with_ext`` of the class ``PPath``
+    arg    = str: ext ;
+             value of the extension
+    return = PPath ;
+             a new path obtained from the current path by adding or changing
+             the extension using the value of ``ext``
+
+
+Here is ane example made using a ¨mac. The ``PosixPath`` refers to the Unix
+version of ``PPath``.
 
 pyterm::
     >>> from mistool.os_use import PPath
+    >>> path = PPath("dir/subdir")
+    >>> path.with_ext("ext")
+    PosixPath('dir/subdir.ext')
     >>> path = PPath("dir/subdir/file.txt")
     >>> path.with_ext("ext")
     PosixPath('dir/subdir/file.ext')
@@ -106,16 +146,23 @@ pyterm::
 @property
 def _ppath_normpath(cls):                   # DOC OK !!
     """
-This attribut like method changes the leading shortcut path::``~``
-corresponding to the whole name of the default user's directory, and it also
-reduces the path::``/../`` used to go higher in the tree structure of a
-directory. Then an instance of the class ``PPath`` using this new path is
-returned.
+prototype::
+    type   = property ;
+             a hack is used so as to transform this function into a property
+             method ``normpath`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``normpath`` of the class ``PPath``
+    return = PPath ;
+             a new path obtained from the current path by interpreting the
+             leading shortcut path::``~``, and the shortcuts path::``/../``
+             used to go higher in the tree structure
 
 
-Here is an example made on the Mac of the author of ¨mistool. In that case
-path::``/Users/projetmbc`` is the user's folder. The ``PosixPath`` refers to
-the Unix version of ``PPath``.
+Here is an example made on the ¨mac of the author of ¨mistool where the user's
+folder is path::``/Users/projetmbc``. The ``PosixPath`` refers to the Unix
+version of ``PPath``.
 
 pyterm::
     >>> from mistool.os_use import PPath
@@ -133,11 +180,18 @@ pyterm::
 @property
 def _ppath_shortpath(cls):                  # DOC OK !!
     """
-This attribut like method builds the shorstest version of a path by using the
-leading shortcut path::``~`` corresponding to the complete name of the default
-user's directory, and by reducing all path::``/../`` used to go higher in the
-tree structure of a directory. Then an instance of the class ``PPath`` using
-this new path is returned.
+prototype::
+    type   = property ;
+             a hack is used so as to transform this function into a property
+             method ``shortpath`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``shortpath`` of the class ``PPath``
+    return = PPath ;
+             a new path obtained from the current path by trying to use the
+             leading shortcut path::``~``, and by intepreting the shortcuts
+             path::``/../`` used to go higher in the tree structure
 
 
 Here is an example made on the Mac of the author of ¨mistool. In that case
@@ -165,8 +219,20 @@ pyterm::
 
 def _ppath_common_with(cls, *args):         # DOC OK !!
     """
-This method returns the path of the smaller common "folder" of the current path
-and at least one paths.
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into a method
+             ``common_with`` of the class ``PPath`` (uggly but functional)
+    see    = PPath , _ppath___and__
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``common_with`` of the class ``PPath``
+    args   = PPath ;
+             the arguments can be given separated by comas, or in list, or in
+             a tuple
+    return = PPath ;
+             a new path which corresponds to the "smaller common folder" of
+             the current path and the other ones given in arguments
 
 
 In the following example, the two last calls to ``common_with`` show that you
@@ -224,8 +290,8 @@ info::
     for path in paths:
         i = 0
 
-        for common, actual in zip(commonparts, path.parts):
-            if common == actual:
+        for common, current in zip(commonparts, path.parts):
+            if common == current:
                 i += 1
             else:
                 break
@@ -243,17 +309,45 @@ info::
     return commonpath
 
 
-def _ppath___and__(cls, *args):             # DOC OK !!
+def _ppath___and__(cls, paths):             # DOC OK !!
     """
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into the magic
+             method ``__and__`` of the class ``PPath`` (uggly but functional)
+    see    = PPath , _ppath_common_with
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             magic method ``__and__`` of the class ``PPath``
+    arg    = PPath | list(PPath) | tuple(PPath): paths
+    return = PPath ;
+             a new path which corresponds to the "smaller common folder" of
+             the current path and the other ones given in arguments
+
+
 This magic method allows to use ``path & paths`` instead of the long version
-``path.common_with(paths)`` when paths is either a single path, or a list or
-a tuple of paths.
+``path.common_with(paths)`` where ``paths`` can be either a single path, or
+a list or a tuple of paths.
     """
-    return cls.common_with(*args)
+    return cls.common_with(paths)
 
 
 def _ppath___sub__(cls, path):              # DOC OK !!
     """
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into the magic
+             method ``__sub__`` of the class ``PPath`` (uggly but functional)
+    see    = PPath , relative_to (pathlib.Path)
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             magic method ``__sub__`` of the class ``PPath``
+    arg    = PPath: path
+    return = PPath ;
+             a new path which corresponds to the relative path of the current
+             one regarding to the path given in the argument ``path``
+
+
 This magic method allows to use ``path - anotherpath`` instead of the long
 version ``path.relative_to(anotherpath)`` given by ``pathlib.Path``.
     """
@@ -262,7 +356,18 @@ version ``path.relative_to(anotherpath)`` given by ``pathlib.Path``.
 
 def _ppath_depth_in(cls, path):             # DOC OK !!
     """
-This method returns the depth of the actual path regarding to another path.
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into a method
+             ``depth_in`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``depth_in`` of the class ``PPath``
+    arg    = PPath: path
+    return = PPath ;
+             the depth of the current path regarding to the one given in the
+             argument ``path``
 
 
 Here are some examples of use.
@@ -287,53 +392,291 @@ pyterm::
     return len(cls.relative_to(path).parts) - 1
 
 
-# ------------------ #
-# -- WALK AND SEE -- #                  # DOC OK !!
-# ------------------ #
+# -------------- #
+# -- REGPATHS -- #
+# -------------- #
 
-def _ppath_walk(cls, regpattern = "**"):
+# Sources for the regex:
+#
+#     * http://stackoverflow.com/a/430781/4589608
+#     * http://stackoverflow.com/a/30439865/4589608
+#     * http://stackoverflow.com/a/817117/4589608
+#     * http://stackoverflow.com/questions/20294704/which-pattern-has-been-found/20294987
+
+_VISIBLE, _DIR, _FILE, _RELATIVE = "visible", "dir", "file", "relative"
+
+_PATH_QUERIES      = set([_VISIBLE, _DIR, _FILE, _RELATIVE])
+_LONG_PATH_QUERIES = {x[0]: x for x in _PATH_QUERIES}
+_FILE_DIR_QUERIES  = _PATH_QUERIES - set([_VISIBLE])
+_VISIBLE_QUERY     = set([_VISIBLE])
+
+_RE_SPECIAL_CHARS = pattern = re.compile(
+    r"(?<!\\)((?:\\\\)*)((\*+)|(@)|(×)|(\.))"
+)
+
+_REPLACEMENTS = {
+    '**': ".+",
+    '.' : r"\.",
+    '@' : ".",
+    '×' : "*",
+}
+
+_SPE_CHARS = list(_REPLACEMENTS) + ["*"]
+
+_REPLACEMENTS['\\'] = "[^\\]+"
+_REPLACEMENTS['/']  = "[^/]+"
+
+def _ppath_regpath2meta(cls, regpath, regexit = True):      # DOC OK !!
     """
-This method walks inside a directory using the regpattern to select the paths
-of the files and directories to keep.
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into a method
+             ``regpath2meta`` of the class ``PPath`` (uggly but functional)
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``regpath2meta`` of the class ``PPath``
+    arg    = str: regpath ;
+             ``regpath`` uses a syntax trying to catch the best of the regex and
+             the Unix-glob syntaxes with some little extra features
+    arg    = bool: regexit = True ;
+             ``regexit`` allows to have the regex version of ``regpath``
+    return = tuple(set(str): queries, str: pattern) ;
+             ``queries`` give extra infos about the kind of objects to "search",
+             and ``pattern`` is a "searching pattern" which is in regex
+             uncompiled version if ``regexit = True``.
 
 
+=====================
+What is a "regpath" ?
+=====================
+
+A "regpath" allows to use all the power of regexes with the easy to use special
+characters of the Unix-glob syntax, and it offers also some additional query
+features.
+
+The syntax can be either "regex_glob_part" or "query_part::regex_glob_part"
+where "query_part" and "regex_glob_part" must follow some rules explained in
+the following sections.
 
 
-Here is an example showing of the have only ?????
+Here are some exemples on a ¨unix system.
+
+pyterm::
+    >>> from mistool.os_use import PPath
+    >>> path = PPath("")
+
+    >>> print(path.regpath2meta("*.(py|txt)"))
+    ({'dir', 'file'}, '[^/]+\\.(py|txt)')
+
+    >>> print(path.regpath2meta("*.(py|txt)", regexit = False))
+    ({'dir', 'file'}, '*.(py|txt)')
+
+    >>> print(path.regpath2meta("file-visible::**.py"))
+    ({'visible', 'file'}, '.+\\.py')
 
 
+In the outputs printed, `{'file', 'dir'}` indicates to look for any kind of
+files and directories, whereas `{'file', 'visible'}` asks to only keep visible
+files, i.e. files without a name starting with a point.
 
 
+=================================
+The regex and Unix-glob like part
+=================================
 
+Here are the only differences between the syntax for ``regpath``, the Unix-glob
+syntax and the traditional regexes.
+
+    1) ``*`` indicates one ore more characters except the separator of the OS.
+    This corresponds to the regex regex::``[^\\]+`` or regex::``[^/]+``
+    regarding to the OS is Windows or Unix.
+
+    2) ``**`` indicates one ore more characters even the separator of the OS.
+    This corresponds to the regex regex::``.+``.
+
+    3) ``.`` is not a special character, this is just a point. This corresponds
+    to regex::``\.`` in regexes.
+
+    4) The multiplication symbol ``×`` is the equivalent of regex::``*`` in
+    regexes. This allows to indicate zero or more repetitions.
+
+    5) ``@`` is the equivalent of regex::``.`` in regexes. This allows to
+    indicate any single character except a newline.
+
+    6) ``\`` is an escaping for special character. For example, you have to use
+    a double backslash ``\\`` to indicate the Windows separator ``\``.
+
+
+With this syntax you can do easily things like indicated a file or a directory
+not in a folder and also tahs ends with either path::``.py`` or path::``.txt``.
+To do that, just use the pattern ``*.(py|txt)``.
+
+The regex version of this pattern is regex::``[^\\]+\.(py|txt)`` for a ¨unix
+¨os. This is a little less user friendly as you can see.
+
+
+==================
+An addiitonal rule
+==================
+
+A regpath starting with the ¨os separator indicates that the search must be
+done relatively to the current directory.
+
+
+==============
+The query part
+==============
+
+Before two double points, you can use the following queries.
+
+    a) ``file`` asks to keep only files. You can use the shortcut ``f``.
+
+    b) ``dir`` asks to keep only folders. You can use the shortcut ``d``.
+
+    c) ``visible`` asks to keep only visible files and folders. This ones have
+    a name begining with ``.``.
+
+    d) ``visible-file`` and ``visible-dir`` ask to respectively keep
+    only visible files, or only visible directories.
+
+    e) ``relative`` simply allows to do searches relatively to the current
+    directory if ``PPath`` points to a folder.
+
+
+For example, to keep only the Python files, in a folder or not, just use
+``"file::**.py"``. This is not the same that ``"**.py"`` which will also catch
+folders with a name finishing by path::``.py``.
 
 
 info::
-    When walking in a given folder, the files are always yield before the
-    subfolders.
+    For each query, you can only use the initial letter of the query. For
+    example, ``f`` is a shortcut for ``file``, and ``v-f`` is the same that
+    ``visible-file``.
+    """
+    queries, *pattern = regpath.split("::")
+
+    if len(pattern) > 1:
+        raise ValueError("too much \"::\" in the regpath.")
+
+# Two pieces
+    if pattern:
+        pattern = pattern[0]
+        queries = set(_LONG_PATH_QUERIES.get(x, x) for x in queries.split("-"))
+
+        if not queries <= _PATH_QUERIES:
+            raise ValueError("illegal filter in the regpath.")
+
+# One single piece
+    else:
+        queries, pattern = _FILE_DIR_QUERIES, queries
+
+# Just visible objects ?
+    if queries == _VISIBLE_QUERY:
+        queries |= _FILE_DIR_QUERIES
+
+# The regex uncompiled version : we just do replacing by taking care of
+# the escaping character. We play with regexes to do that.
+#
+# << Warning : >> ***, ****, ... are not allowed !
+
+    if regexit:
+        onestar2regex = _REPLACEMENTS[cls._flavour.sep]
+
+        newpattern = ""
+        lastpos    = 0
+
+        for m in _RE_SPECIAL_CHARS.finditer(pattern):
+            spechar = m.group()
+
+            if spechar not in _SPE_CHARS:
+                raise ValueError("too much consecutive stars ''*''")
+
+            spechar     = _REPLACEMENTS.get(spechar, onestar2regex)
+            newpattern += pattern[lastpos:m.start()] + spechar
+            lastpos     = m.end()
+
+        newpattern += pattern[lastpos:]
+        pattern     = newpattern
+
+    return queries, pattern
 
 
-warning::
-    You have to see the documentation of the function ``regpat2meta`` in the
-    submodule ``config.pattern`` so as to have informations on regpatterns
-    (an homemade concept).
+# ------------------ #
+# -- WALK AND SEE -- #
+# ------------------ #
+
+def _ppath_walk(cls, regpath = "relative::**"):               # DOC OK !!
+    """
+prototype::
+    type  = method ;
+            a hack is used so as to transform this function into a method
+            ``depth_in`` of the class ``PPath`` (uggly but functional)
+    see   = PPath , _ppath_regpath2meta
+    arg   = PPath: cls ;
+            this argument nearly refers to the ``self`` used by the associated
+            method ``depth_in`` of the class ``PPath``
+    arg   = str: regpath = "relative::**" ;
+            this is a string that follows some rules named regpath rules (see
+            the documentation of the function ``_ppath_regpath2meta``)
+    yield = PPath ;
+            files and subdirectories matching ``regpath`` are yield (for each
+            folder, the files are yield before the subdirectories)
+
+
+Let's suppose that we have the following directory having the full path
+path::``/Users/projects/dir`` in a ¨unix system.
+
+dir::
+    + dir
+        * code_1.py
+        * code_2.py
+        * file_1.txt
+        * file_2.txt
+        + subdir
+            * slide_A.pdf
+            * slide_B.pdf
+            * subcode_A.py
+            * subcode_B.py
+
+Here is two examples of use where you can see that the repaths ``"*"`` and
+``"**"`` don't do the same thing : there are two much files with ``"**"``. Just
+go to the documentation of the function ``_ppath_regpath2meta`` so as to know
+why (you have to remember that by default the search is relative).
+
+pyterm::
+    >>> from mistool.os_use import PPath
+    >>> folder = PPath("/Users/projects/dir")
+    >>> for p in folder.walk("*.py"):
+    ...     print("+", p)
+    ...
+    + /Users/projects/dir/code_1.py
+    + /Users/projects/dir/code_2.py
+    >>> for p in folder.walk("**.py"):
+    ...     print("+", p)
+    ...
+    + /Users/projects/dir/code_1.py
+    + /Users/projects/dir/code_2.py
+    + /Users/projects/dir/subdir/code_A.py
+    + /Users/projects/dir/subdir/code_B.py
     """
 # Do we have an existing directory ?
     if not cls.is_dir():
-        raise OSError("the path points nowhere.")
+        raise OSError("the path doesn't point to a directory.")
 
 # Metadatas and the normal regex
-    queries, pattern = regpat2meta(regpattern)
+    queries, pattern = cls.regpath2meta(regpath)
 
-    keepdir     = bool(set(["dir", "d"]) & queries)
-    keepfile    = bool(set(["file", "f"]) & queries)
-    keepvisible = bool(set(["visible", "v"]) & queries)
+    keepdir     = _DIR in queries
+    keepfile    = _FILE in queries
+    keepvisible = _VISIBLE in queries
+    relsearch   = _RELATIVE in queries
 
-    regex_obj = re.compile(pattern)
+    regex_obj = re.compile("^{0}$".format(pattern))
 
 # Let's walk
     for root, dirs, files in os.walk(str(cls)):
 
-# Do the actual directory must be added ?
+# Do the current directory must be added ?
         addthisdir = False
 
         if keepdir \
@@ -354,10 +697,17 @@ warning::
                 if keepvisible and file.startswith('.'):
                     continue
 
-                file = os.path.join(root, file)
+                full_file = os.path.join(root, file)
 
-                if regex_obj.match(file):
-                    yield PPath(file)
+                if relsearch:
+                    ppath_full_file = PPath(full_file)
+                    rel_file = str(ppath_full_file.relative_to(cls))
+
+                    if regex_obj.match(rel_file):
+                        yield ppath_full_file
+
+                elif regex_obj.match(full_file):
+                    yield PPath(full_file)
 
 # A new directory ?
         if addthisdir:
@@ -366,8 +716,16 @@ warning::
 
 def _ppath_see(cls):                        # DOC OK !!
     """
-This method shows one directory or one file in the OS environment by trying to
-call an associated application.
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into a method
+             ``see`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``see`` of the class ``PPath``
+    action = this method shows one directory or one file in the OS environment
+             by trying to call an associated application
     """
 # Nothing to open...
     if not cls.is_file() and not cls.is_dir():
@@ -409,42 +767,56 @@ call an associated application.
 # -- CREATE -- #
 # ------------ #
 
-_ALL_KINDS   = set(["file", "dir"])
-_SHORT_KINDS = {x[0]: x for x in _ALL_KINDS}
+_ALL_CREATE_KINDS  = set([_FILE, _DIR])
+_LONG_CREATE_KINDS = {x[0]: x for x in _ALL_CREATE_KINDS}
 
 def _ppath_create(cls, kind):               # DOC OK !!
     """
-This method creates the file or the directory having the actual path except
-if this path points to an existing directory or file respectively.
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into a method
+             ``create`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``create`` of the class ``PPath``
+    arg    = str: kind in _FILE, _DIR
+    action = this method creates the file or the directory having the current
+             path except if this path points to an existing directory or file
+             respectively.
 
 
-Here is an example of creations relatively to the current directory showing
-that some exceptions can be raised.
+Here is an example of creations relatively to a current directory having path
+path::``/Users/projetmbc``. You can see that some exceptions can be raised.
 
 pyterm::
     >>> from mistool.os_use import PPath
-    >>> file = PPath("test/README")
-    >>> file.create("file")
-    >>> dir = PPath("test/README")
-    >>> dir.create("dir")
+    >>> path_1 = PPath("test/README")
+    >>> path.is_file()
+    False
+    >>> path_1.create(_FILE)
+    >>> path.is_file()
+    True
+    >>> path_2 = PPath("test/README")
+    >>> path_2.create(_DIR)
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-      File "/Users/projetmbc/Google Drive/git/python/tools/misTool/mistool/os_use.py", line 317, in _ppath_create
+      File "/anaconda/lib/python3.4/site-packages/mistool/os_use.py", line 330, in _ppath_create
         raise ValueError("path points to an existing file.")
     ValueError: path points to an existing file.
 
 
 info::
-    All the parent directories are automatically created.
+    All the parent directories that don't yet exist are automatically created.
     """
 # Good kind.
-    kind = _SHORT_KINDS.get(kind, kind)
+    kind = _LONG_CREATE_KINDS.get(kind, kind)
 
-    if kind not in _ALL_KINDS:
+    if kind not in _ALL_CREATE_KINDS:
         raise ValueError("illegal kind.")
 
 # A new directory.
-    if kind == "dir":
+    if kind == _DIR:
         if cls.is_file():
             raise ValueError("path points to an existing file.")
 
@@ -456,7 +828,7 @@ info::
         raise ValueError("path points to an existing directory.")
 
     elif not cls.is_file():
-        cls.parent().create("dir")
+        cls.parent().create(_DIR)
 
         with cls.open(mode = "w") as file:
             ...
@@ -468,11 +840,20 @@ info::
 
 def _ppath_remove(cls):                     # DOC OK !!
     """
-This method removes the directory or the file corresponding to the actual path.
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into a method
+             ``create`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``create`` of the class ``PPath``
+    action = this method removes the directory or the file corresponding to
+             the current path
 
 
 warning::
-    Removing a directory will destroy anything within it using a recusrive
+    Removing a directory will destroy anything within it using a recursive
     destruction of all subfolders and subfiles.
     """
     if cls.is_dir():
@@ -485,44 +866,40 @@ warning::
         raise OSError("path points nowhere.")
 
 
-
-
-
-
-
-
-# DOC OK !!
-
-def _ppath_clean(cls, regpattern):
+def _ppath_clean(cls, regpath):                         # DOC OK !!
     """
-This method cleans a directory regarding the value of ``regpattern`` which must
-be an almost regex pattern: you have to see the documentation of the function
-``regpat2meta`` in the submodule ``config.pattern``.
-
-warning::
-    You have to see the documentation of the function ``regpat2meta`` in the
-    submodule ``config.pattern`` so as to have informations on regpatterns
-    (an homemade concept).
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into a method
+             ``depth_in`` of the class ``PPath`` (uggly but functional)
+    see    = PPath , _ppath_regpath2meta
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``depth_in`` of the class ``PPath``
+    arg    = str: regpath ;
+             this is a string that follows some rules named regpath rules (see
+             the documentation of the function ``_ppath_regpath2meta``)
+    action = every files and directories matching ``regpath`` are removed
     """
-# We have to play with the queries and the pattern in ``regpattern``.
-    queries, pattern = regpat2meta(regpattern, regexit = False)
+# We have to play with the queries and the pattern in ``regpath``.
+    queries, pattern = regpath2meta(regpath, regexit = False)
 
-    if "visible" in queries:
+    if _VISIBLE in queries:
         prefix = "visible-"
 
     else:
         prefix = ""
 
 # We must first remove the files. This is in case of folders to destroy.
-    if "file" in queries:
+    if _FILE in queries:
         filepattern = "{0}file::{1}".format(prefix, pattern)
 
         for path in cls.walk(filepattern):
             path.remove()
 
-
-# We can destroy folders but we can use an iterator (because of sub directories).
-    if "dir" in queries:
+# Now, we can destroy folders but we can use an iterator (because of sub
+# directories).
+    if _DIR in queries:
         dirpattern = "{0}dir::{1}".format(prefix, pattern)
 
         sortedpaths = sorted(list(p for p in cls.walk(dirpattern)))
@@ -537,22 +914,28 @@ warning::
 
 def _ppath_copy_to(cls, path):              # DOC OK !!
     """
-This method copies the actual file to the destination ``path``. This last path
-must be an instance of the class ``pathlib.Path`` or ``PPath``.
-
-
-info::
-    The actual path is not changed.
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into a method
+             ``create`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``create`` of the class ``PPath``
+    arg    = PPath: path
+    action = this method copies the current file to the destination given by
+             the argument ``path``
 
 
 warning::
-    Copy of a directory is not yet supported.
+    The current path is not changed and the copy of a directory is not yet
+    supported.
     """
     if cls.is_file():
         parent = path.parent
 
         if not parent.is_dir():
-            parent.create("dir")
+            parent.create(_DIR)
 
         shutil.copy(str(cls), str(path))
 
@@ -565,17 +948,26 @@ warning::
 
 def _ppath_move_to(cls, path):              # DOC OK !!
     """
-This method moves the actual file to the destination ``path``. This last path
-must be an instance of the class ``pathlib.Path`` or ``PPath``.
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into a method
+             ``create`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``create`` of the class ``PPath``
+    arg    = PPath: path
+    action = this method moves the current file to the destination given by
+             the argument ``path``
 
 
 info::
     If the source and the destination have the same parent directory, then the
-    final result will just be a renaming of the file or the directory.
+    final result will be at the end a renaming of the file or the directory.
 
 
 warning::
-    The actual path is not changed and moving a directory is not yet supported.
+    The current path is not changed and moving a directory is not yet supported.
     """
     if cls.is_file():
         cls.copy_to(path)
@@ -591,20 +983,7 @@ warning::
         raise ValueError("moving directories is not yet supported.")
 
     else:
-        raise OSError("actual path is not a real one.")
-
-
-
-
-
-
-
-
-
-
-
-
-
+        raise OSError("current path points nowhere.")
 
 
 # ------------------------ #
@@ -617,10 +996,15 @@ _SPECIAL_FUNCS = [
     if x.startswith("_ppath_")
 ]
 
-class PPath(pathlib.Path):
+class PPath(pathlib.Path):          # DOC OK !!
     """
-    hhhh
+prototype::
+    type = class ;
+           a hack is used so as to mimic subclassing of the standard class
+           ``pathlib.Path``
+    see  = pathlib.Path
     """
+
     def __new__(cls, *args):
         if cls is PPath:
             cls = pathlib.WindowsPath if os.name == 'nt' else pathlib.PosixPath
@@ -632,25 +1016,14 @@ class PPath(pathlib.Path):
         return cls._from_parts(args)
 
 
-
-
-
-
-
-
-
-
-
-
-
 # ----------------------- #
-# -- VIEWS OF A FOLDER -- #
+# -- VIEWS OF A FOLDER -- #                                    # DOC OK !!
 # ----------------------- #
+
+ELLIPSIS_PPATH = PPath('...')
 
 # Source: https://hg.python.org/cpython/file/default/Lib/functools.py#l210
 class K(object):
-    __slots__ = ['obj']
-
     def __init__(self, obj):
         self.obj = obj
 
@@ -669,16 +1042,35 @@ class K(object):
     def __ge__(self, other):
         return mycmp(self.obj, other.obj) >= 0
 
-    __hash__ = None
 
 class DirView:
     """
+prototype::
+    type = class ;
+           this class allows to display the tree structure of one directory
+           with the extra possibility to keep and show only some informations
+    see  = _ppath_regpath2meta
+    arg  = PPath: ppath ;
+           this argument is the path of the directory to analyze
+    arg  = str: regpath ;
+           this is a string that follows some rules named regpath rules (see
+           the documentation of the function ``_ppath_regpath2meta``)
+    arg  = str: display = "main short" in "long", "relative",
+                                          "short", "main", "found" ;
+           this string allows to give informations about the output to produce
+
+
+
+
+
+
+
+
 -----------------
 Small description
 -----------------
 
-This class displays the tree structure of one directory with the possibility to
-keep only some relevant informations like in the following example.
+example !
 
 code::
     + mistool_old
@@ -706,6 +1098,37 @@ code::
                 * ...
 
 
+ou bien possible
+
+code::
+    + mistool_old
+        * __init__.py
+        * latex_use.py
+        * LICENCE.txt
+        * os_use.py
+        * README.md
+        * ...
+
+    + mistool_old/change_log/2012
+        * 07.pdf
+        * 08.pdf
+        * 09.pdf
+
+    + mistool_old/debug
+        * debug_latex_use.py
+        * debug_os_use.py
+
+    + mistool_old/debug/debug_latex_use
+        * latex_test.pdf
+        * latex_test.tex
+        * latex_test_builder.py
+        * ...
+
+    + to_use/latex
+        * ...
+
+
+
 In this output no invisible directory or file has been printed, and ellipsis
 indicates visible files that do not match to a given pattern for the paths.
 All of this has been obtained with the following code.
@@ -715,7 +1138,7 @@ pyterm::
 
     DirView = os_use.DirView(
         ppath      = "/Users/projetmbc/python/mistool",
-        regpattern = "visible::*.(py|txt|tex|pdf)",
+        regpath = "visible::*.(py|txt|tex|pdf)",
         display    = "main short"
     )
 
@@ -727,8 +1150,8 @@ pyterm::
 
 
 warning::
-    You have to see the documentation of the function ``regpat2meta`` in the
-    submodule ``config.pattern`` so as to have informations on regpatterns
+    You have to see the documentation of the function ``regpath2meta`` in the
+    submodule ``config.pattern`` so as to have informations on regpaths
     (an homemade concept).
 
 
@@ -739,12 +1162,6 @@ The arguments
 -------------
 
 This class uses the following variables.
-
-    1) ``ppath`` is a path defined using the class ``PPath``.
-
-    2) ``regpattern`` is an optional string which is an almost regex pattern.
-    See the documentation of the method ``walk`` of the class ``PPath``. By
-    default, ``regpattern = "**"`` which indicates to look for anything.
 
     3) ``display`` is an optional string which can contains the following
     options separated by spaces. By default, ``format = "main short"``.
@@ -763,7 +1180,7 @@ This class uses the following variables.
         can use the shortcut ``m``.
 
         e) ``found`` asks to only display directories and files which path
-        matches the pattern ``regpattern``. You can use the shortcut ``f``.
+        matches the pattern ``regpath``. You can use the shortcut ``f``.
     """
     ASCII_DECOS = {
         'dir' : "+",
@@ -771,21 +1188,24 @@ This class uses the following variables.
         'tab' : " "*4
     }
 
-    _FORMATTERS = set(["found", "main", "long", "relative", "short"])
-    _PATH_FORMATTERS = set(["long", "relative", "short"])
-    _SHORT_FORMATTERS = {x[0]: x for x in _FORMATTERS}
+    _FORMATTERS = set(["found", "main", "long", _RELATIVE, "short"])
+    _PATH_FORMATTERS = set(["long", _RELATIVE, "short"])
+    _LONG_FORMATTERS = {x[0]: x for x in _FORMATTERS}
 
     def __init__(
         self,
         ppath,
-        regpattern = "**",
-        display    = "main short"
+        regpath = "**",
+        display = "main short"
     ):
-        self.ppath      = ppath
-        self.regpattern = regpattern
-        self.display    = display
+        if not ppath.is_dir():
+            raise ValueError(
+                "the argument ``ppath`` doesn't point to a directory"
+            )
 
-        self._ellipsis = PPath('...')
+        self.ppath   = ppath
+        self.regpath = regpath
+        self.display = display
 
         self.build()
 
@@ -798,7 +1218,7 @@ in alphabetic order with a depth walk.
 
 pyterm::
     {
-        'kind'   : "dir" or "file",
+        'kind'   : _DIR or _FILE,
         'depth'  : the depth level regarding to the main directory,
         'relpath': the relative path of one directory or file found
     }
@@ -808,15 +1228,15 @@ pyterm::
         self.options  = set()
         self.output   = {}
 
-        self.queries, _ = regpat2meta(
-            self.regpattern,
+        self.queries, _ = regpath2meta(
+            self.regpath,
             regexit = False
         )
 
 # What have to be displayed ?
         for opt in self.display.split(" "):
             opt = opt.strip()
-            opt = self._SHORT_FORMATTERS.get(opt, opt)
+            opt = self._LONG_FORMATTERS.get(opt, opt)
 
             if opt not in self._FORMATTERS:
                 raise ValueError("unknown option for displaying.")
@@ -828,7 +1248,7 @@ pyterm::
 
 # We must add all the folders except if the option "found" has been used.
         if "found" not in self.options:
-            if "visible" in self.queries:
+            if _VISIBLE in self.queries:
                 prefix = "visible-"
 
             else:
@@ -836,7 +1256,7 @@ pyterm::
 
             self.listview = [
                 {
-                    'kind'   : "dir",
+                    'kind'   : _DIR,
                     'depth'  : p.depth_in(self.ppath),
                     'relpath': p.relative_to(self.ppath)
                 }
@@ -844,8 +1264,8 @@ pyterm::
             ]
 
 # Unsorted flat version of the tree view.
-        for path in self.ppath.walk(self.regpattern):
-            kind = "file" if path.is_file() else "dir"
+        for path in self.ppath.walk(self.regpath):
+            kind = _FILE if path.is_file() else _DIR
 
             infos = {
                 'kind'   : kind,
@@ -854,7 +1274,7 @@ pyterm::
             }
 
 # We do not want to see twice a folder !
-            if kind == "file" or infos not in self.listview:
+            if kind == _FILE or infos not in self.listview:
                 self.listview.append(infos)
 
 # If the option "found" has been used, we must add folders of files found.
@@ -905,7 +1325,7 @@ directories contained in a folder.
                     firsts.append(infos)
 
                 elif infos['depth'] == depth:
-                    if infos['kind'] == "file":
+                    if infos['kind'] == _FILE:
                         firsts.append(infos)
 
                     else:
@@ -937,7 +1357,7 @@ add all their parent directories.
                     depth  += 1
 
                     infos = {
-                        'kind'   : "dir",
+                        'kind'   : _DIR,
                         'depth'  : depth,
                         'relpath': newdir
                     }
@@ -953,15 +1373,15 @@ materiealize unshown files.
         indexes = []
 
         for i, infos in enumerate(self.listview):
-            if infos['kind'] == "dir":
+            if infos['kind'] == _DIR:
                 for p in (self.ppath / infos['relpath']).iterdir():
                     if p.is_file() \
                     and (
-                        "visible" not in self.queries
+                        _VISIBLE not in self.queries
                         or not p.name.startswith('.')
                     ) \
                     and {
-                        'kind'   : "file",
+                        'kind'   : _FILE,
                         'depth'  : infos['depth'] + 1,
                         'relpath': p.relative_to(self.ppath)
                     } not in self.listview:
@@ -974,9 +1394,9 @@ materiealize unshown files.
             self.listview.insert(
                 i + delay,
                 {
-                    'kind'   : "file",
+                    'kind'   : _FILE,
                     'depth'  : depth,
-                    'relpath': self._ellipsis
+                    'relpath': ELLIPSIS_PPATH
                 }
             )
 
@@ -1000,7 +1420,7 @@ This attribut like method returns an ASCCI view of the tree structure.
                     mainpath = self.ppath.name
 
                 text = [
-                    "{0} {1}".format(self.ASCII_DECOS["dir"], mainpath)
+                    "{0} {1}".format(self.ASCII_DECOS[_DIR], mainpath)
                 ]
 
             for infos in self.listview:
@@ -1027,7 +1447,7 @@ This attribut like method returns an ASCCI view of the tree structure.
 
     def _pathprinted(self, path):
 # The path are stored relatively by default !
-        if path == self._ellipsis or  "relative" in self.options:
+        if path == ELLIPSIS_PPATH or  _RELATIVE in self.options:
             return str(path)
 
 # We have to rebuild the while path.
@@ -1042,17 +1462,23 @@ This attribut like method returns an ASCCI view of the tree structure.
 # -- GENERAL INFOS -- #
 # ------------------- #
 
-def pathenv():
+def pathenv():                        # DOC OK !!
     """
-This function simply returns the variable ``PATH`` that contains paths of some
-executables known by your OS.
+prototype::
+    type   = function
+    action = this function simply returns the variable ``PATH`` that contains
+             paths of some executables known by your OS
     """
     return os.getenv('PATH')
 
-def system():
+
+def system():                        # DOC OK !!
     """
-The purpose of this function is to give the name, in lower case, of the OS used.
-Possible names can be "windows", "mac", "linux" and also "java".
+prototype::
+    type   = function
+    action = the purpose of this function is to give the name, in lower case,
+             of the OS used (possible names can be "windows", "mac", "linux"
+             and also "java")
     """
     osname = platform.system()
 
