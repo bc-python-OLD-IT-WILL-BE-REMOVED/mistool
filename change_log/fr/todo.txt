@@ -30,21 +30,6 @@ misTool - TODO
 2015-05-      ????
 ==========
 
-???? ---------->    **¨Maj des modules impactés par la prise en compte de ``pathlib`` dans ``os_use``:** voici les modules concernés.
-
-    1) Dans le module ``python_use``, la fonction ``runpys`` ????
-
-    utilise juste un argument ``patterns`` en remplacement des arguments ``prefixes`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
-
-
-    1) Dans le module ``latex_use``, la fonction ``clean`` ????
-
-    utilise juste l'argument ``patterns`` en remplacement des arguments ``keep``, ``discard`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
-
-
-???? ---------->    **Amélioration des docstrings:** la syntaxe utilisée se base sur de nouvelles spécification de ¨pybadoc, un outil maison en cours de construction. Par exemple, on utilise des exemples "en console" pour rendre le propos plus clair et on peut indiquer via un bloc prh .
-
-
 ???? ---------->    **Amélioration et mise à jour des tests :** on utilise maintenant ¨pytest ce qui simplifie énormément les choses. On va enfin à l'essentiel !
 
 Ceci étant dit, le module ``pdt.mistool.orpyste`` du package maison ``pdt`` est encore utilisé (le nouveau module ``pathlib`` permet maintenant de travailler facilement avec des chemins de dossiers et de fichiers même si la classe ``PPath`` facilite encore plus les choses).

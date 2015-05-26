@@ -2,6 +2,28 @@
 2015-05-      ????
 ==========
 
+???? ---------->    **Petite amélioration de la classe ``DirView`` du module ``os_use``:** on peut maintenant obtenir.
+
+
+???? ---------->    **¨Maj des modules impactés par la prise en compte de ``pathlib`` dans ``os_use``:** voici les modules concernés.
+
+    1) Dans le module ``python_use``, la fonction ``runpys`` ????
+
+    utilise juste un argument ``patterns`` en remplacement des arguments ``prefixes`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
+
+
+    1) Dans le module ``latex_use``, la fonction ``clean`` ????
+
+    utilise juste l'argument ``patterns`` en remplacement des arguments ``keep``, ``discard`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
+
+
+???? ---------->    **Amélioration de toutes les docstrings :** on utilise la même ¨nelle syntaxe que celle qui a été introduite dans la dernière version de ``os_use``.
+
+
+==========
+2015-05-26
+==========
+
 **NON RÉTRO-COMPATIBILITÉ du code suite à la prise en compte de ``pathlib`` dans le module ``os_use``:** ajout d'une nouvelle classe ``PPath``, qui est grosso modo une sous-classe de ``pathlib.Path`` (voir le code pour comprendre la signification technique du "grosso modo"). Ceci implique tous les changements importants suivants.
 
     1) Concernant **les noms** de fichier ou de dossier, voici ce qui a évolué.
@@ -49,6 +71,8 @@
 
         a) La fonction ``relativedepth(main, sub)`` devient la méthode ``depth_in`` de la classe ``PPath``. Cette méthode demande un argument qui peut être un chemin de type ``PPath`` ou ``pathlib.Path``.
 
+        a) L'attribut ``depth`` donne le niveau de profondeur absolu.
+
     1) Pour **les manipulations physiques** de fichiers et de dossiers, les changements sont les suivants.
 
         a) Les fonctions ``readtxtfile`` et ``maketxtfile`` disparaissent car la classe ``pathlib.Path`` peut s'utilise via ``with mypath.open() as f: ...`` en utilisant les mêmes options que la fonction standard ``open``.
@@ -69,23 +93,27 @@
 
     1) La **recherche ciblée** de fichiers et de dossiers peut se faire via les méthodes ``glob`` et ``rglob`` des classes ``pathlib.PosixPath`` et ``pathlib.WindowsPath`` qui s'utilisent avec des motifs de type "Unix-glob" (voir cf::``cette page Wikipdéia ; http://en.wikipedia.org/wiki/Glob_(programming)``).
 
-    La classe ``PPath`` propose en plus la méthode ``walk`` qui utilise des motifs de type ¨regex_fr, mais pas exactement, qui offrent plus plus de flexibilité.
+    La classe ``PPath`` propose en plus la méthode ``walk`` qui utilise des motifs de type ¨regex_fr, mais pas exactement, afin d'offrir une syntaxe à la fois très naturelle et très puissante.
 
     Ceci implique **la disparition** des itérateurs ``nextfile`` et ``nextdir``, ainsi que des fonctions ``listfile`` et ``listdir``.
 
     info::
         La méthode ``match`` des classes ``pathlib.PosixPath`` et ``pathlib.WindowsPath`` permet de tester si un chemin correspond à un motif, tandis que la méthode ``iterdir`` permet de voir le contenu "direct" d'un dossier.
 
-???? ---------->    1) La classe ``DirView`` est la seule rescapée des anciennes fonctionnalités travaillant sur des chemins. Son utilisation et son implémentation ont été toutefois adaptées à la classe ``PPath``.
+    1) La classe ``DirView`` est la seule rescapée des anciennes fonctionnalités travaillant sur des chemins. Son utilisation et son implémentation ont été totalement adaptées à la classe ``PPath``. Ceci a permis d'améliorer la classe ``DirView`` qui propose maintenant différents types de sortie ainsi que la possibilité de personnaliser l'ordre d'affichage.
 
-    Au passage, des classes ont été ajoutées pour proposer différents types d'arbre ¨ascii.
+    info::
+        La refonte complète du code rend très simple l'ajout de nouveaux types de sortie.
 
-    1) La constante ``SEP`` a été supprimée car elle devient totalement inutile face à la facilité d'utilisation de ``pathlib`` et donc aussi de ``PPath``.
+    1) La constante ``SEP`` a été supprimée car elle devient totalement inutile face à la facilité d'utilisation de ``pathlib`` et donc aussi de ``PPath`` (on peut utiliser ``PPath("Users") / PPath("projetmbc")`` au lieu de ``PPath("Users/projetmbc")`` sous ¨unix ou ``PPath(r"Users\projetmbc")`` sous ¨win).
 
-    1) Les fonctions ``pathenv`` et ``system`` ont été gardées sans modification.
+    1) Les fonctions ``pathenv`` et ``system`` ont été gardées sans aucune modification.
 
 
-???? ---------->    **Amélioration côté développement interne :** voici ce qui a évolué.
+**Amélioration des docstrings de ``os_use``:** la syntaxe utilisée se base sur de nouvelles spécification de ¨pybadoc, un outil maison en cours de construction. Par exemple, on utilise des exemples "en console" pour rendre le propos plus clair et on peut indiquer les signatures des fonctions, des classes, ¨etc via le blob pybadoc::``prototype::...`` à placer en début de docstring. Très lisible et très efficace !
+
+
+**Amélioration côté développement interne :** voici ce qui a évolué.
 
     1) Dans un souci de développement serein, on utilise dorénavant une branche ``dev`` avec ¨git.
 

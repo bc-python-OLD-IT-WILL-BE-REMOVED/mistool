@@ -22,9 +22,42 @@ import platform
 from subprocess import check_call
 
 
-# ------------------------------------- #
-# -- SPECIAL FUNCTIONS FOR OUR CLASS -- #
-# ------------------------------------- #
+# ------------------- #
+# -- GENERAL INFOS -- #
+# ------------------- #
+
+def pathenv():                        # DOC OK !!
+    """
+prototype::
+    return = str ;
+             the variable ``PATH`` that contains paths of some executables
+             known by your OS
+    """
+    return os.getenv('ppath')
+
+
+def system():                        # DOC OK !!
+    """
+prototype::
+    return = str ;
+             the name, in lower case, of the OS used (possible names can be
+             "windows", "mac", "linux" and also "java")
+    """
+    osname = platform.system()
+
+    if not osname:
+        raise SystemError("the operating sytem can't be found.")
+
+    if osname == 'Darwin':
+        return "mac"
+
+    else:
+        return osname.lower()
+
+
+# --------------------------------------------- #
+# -- SPECIAL FUNCTIONS FOR THE SPECIAL CLASS -- #
+# --------------------------------------------- #
 
 # << Warning ! >>
 #
@@ -392,6 +425,34 @@ pyterm::
     return len(cls.relative_to(path).parts) - 1
 
 
+
+
+# DOC OK !!
+@property
+def _ppath_depth(cls):
+    """
+prototype::
+    type   = property ;
+             a hack is used so as to transform this function into a property
+             method ``depth`` of the class ``PPath`` (uggly but functional)
+    see    = PPath
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``parent`` of the class ``PPath``
+    return = int ;
+             the absolute depth of a path
+
+
+Here are an example of use.
+
+pyterm::
+    >>> from mistool.os_use import PPath
+    >>> path = PPath("/Users/projects/source/misTool/os_use.py")
+    >>> print(path.depth)
+    5
+    """
+    return len(cls.parents)
+
 # -------------- #
 # -- REGPATHS -- #
 # -------------- #
@@ -403,12 +464,13 @@ pyterm::
 #     * http://stackoverflow.com/a/817117/4589608
 #     * http://stackoverflow.com/questions/20294704/which-pattern-has-been-found/20294987
 
-_VISIBLE, _DIR, _FILE, _RELATIVE = "visible", "dir", "file", "relative"
+_ALL, _DIR, _ELLIPSIS, _FILE, _RELSEARCH \
+= "all", "dir", "ellipsis", "file", "relative"
 
-_PATH_QUERIES      = set([_VISIBLE, _DIR, _FILE, _RELATIVE])
+_PATH_QUERIES      = set([_ALL, _DIR, _ELLIPSIS, _FILE, _RELSEARCH])
 _LONG_PATH_QUERIES = {x[0]: x for x in _PATH_QUERIES}
-_FILE_DIR_QUERIES  = _PATH_QUERIES - set([_VISIBLE])
-_VISIBLE_QUERY     = set([_VISIBLE])
+_FILE_DIR_QUERIES  = set([_DIR, _FILE])
+_ALL_QUERY         = set([_ALL])
 
 _RE_SPECIAL_CHARS = pattern = re.compile(
     r"(?<!\\)((?:\\\\)*)((\*+)|(@)|(×)|(\.))"
@@ -425,6 +487,43 @@ _SPE_CHARS = list(_REPLACEMENTS) + ["*"]
 
 _REPLACEMENTS['\\'] = "[^\\]+"
 _REPLACEMENTS['/']  = "[^/]+"
+
+
+def _ppath_regexit(cls, pattern):      # DOC OK !!
+    """
+prototype::
+    type   = method ;
+             a hack is used so as to transform this function into a method
+             ``regexit`` of the class ``PPath`` (uggly but functional)
+    arg    = PPath: cls ;
+             this argument nearly refers to the ``self`` used by the associated
+             method ``regpath2meta`` of the class ``PPath``
+    arg    = str: pattern ;
+             ``pattern`` is a pattern using the regpath syntax which tries to
+             catch the best of the regex and the Unix-glob syntaxes (no special
+             queries here)
+    return = str ;
+             a regex uncompiled version of ``pattern``.
+    """
+    onestar2regex = _REPLACEMENTS[cls._flavour.sep]
+
+    newpattern = ""
+    lastpos    = 0
+
+    for m in _RE_SPECIAL_CHARS.finditer(pattern):
+        spechar = m.group()
+
+        if spechar not in _SPE_CHARS:
+            raise ValueError("too much consecutive stars ''*''")
+
+        spechar     = _REPLACEMENTS.get(spechar, onestar2regex)
+        newpattern += pattern[lastpos:m.start()] + spechar
+        lastpos     = m.end()
+
+    newpattern += pattern[lastpos:]
+
+    return newpattern
+
 
 def _ppath_regpath2meta(cls, regpath, regexit = True):      # DOC OK !!
     """
@@ -471,8 +570,8 @@ pyterm::
     >>> print(path.regpath2meta("*.(py|txt)", regexit = False))
     ({'dir', 'file'}, '*.(py|txt)')
 
-    >>> print(path.regpath2meta("file-visible::**.py"))
-    ({'visible', 'file'}, '.+\\.py')
+    >>> print(path.regpath2meta("all file::**.py"))
+    ({'all', 'file'}, '.+\\.py')
 
 
 In the outputs printed, `{'file', 'dir'}` indicates to look for any kind of
@@ -515,32 +614,29 @@ The regex version of this pattern is regex::``[^\\]+\.(py|txt)`` for a ¨unix
 ¨os. This is a little less user friendly as you can see.
 
 
-==================
-An addiitonal rule
-==================
-
-A regpath starting with the ¨os separator indicates that the search must be
-done relatively to the current directory.
-
-
 ==============
 The query part
 ==============
 
-Before two double points, you can use the following queries.
+Before two double points, you can use the following queries that will be used
+by the method ``walk``.
 
     a) ``file`` asks to keep only files. You can use the shortcut ``f``.
 
     b) ``dir`` asks to keep only folders. You can use the shortcut ``d``.
 
-    c) ``visible`` asks to keep only visible files and folders. This ones have
+    c) ``all`` asks to keep also the unvisible files and folders. This ones have
     a name begining with ``.``.
 
-    d) ``visible-file`` and ``visible-dir`` ask to respectively keep
-    only visible files, or only visible directories.
+    d) ``all file`` and ``all dir`` ask to respectively keep only visible
+    files, or only visible directories.
 
-    e) ``relative`` simply allows to do searches relatively to the current
-    directory if ``PPath`` points to a folder.
+    e) ``relative`` indicates that the pattern is relatively to the current
+    directory and not to a full path.
+
+    f) ``ellipsis`` add respectively special names path::``::...files...::``
+    and path::``::...empty...::`` whenever some files have been found but not
+    kept or a folder is empty (this feature is used by the class ``DirView``).
 
 
 For example, to keep only the Python files, in a folder or not, just use
@@ -550,8 +646,8 @@ folders with a name finishing by path::``.py``.
 
 info::
     For each query, you can only use the initial letter of the query. For
-    example, ``f`` is a shortcut for ``file``, and ``v-f`` is the same that
-    ``visible-file``.
+    example, ``f`` is a shortcut for ``file``, and ``a-f`` is the same that
+    ``all-file``.
     """
     queries, *pattern = regpath.split("::")
 
@@ -561,7 +657,11 @@ info::
 # Two pieces
     if pattern:
         pattern = pattern[0]
-        queries = set(_LONG_PATH_QUERIES.get(x, x) for x in queries.split("-"))
+
+        queries = set(
+            _LONG_PATH_QUERIES.get(x.strip(), x.strip())
+            for x in queries.split(" ")
+        )
 
         if not queries <= _PATH_QUERIES:
             raise ValueError("illegal filter in the regpath.")
@@ -570,8 +670,8 @@ info::
     else:
         queries, pattern = _FILE_DIR_QUERIES, queries
 
-# Just visible objects ?
-    if queries == _VISIBLE_QUERY:
+# The qeries "file" and "dir" are not used.
+    if _FILE not in queries and _DIR not in queries:
         queries |= _FILE_DIR_QUERIES
 
 # The regex uncompiled version : we just do replacing by taking care of
@@ -580,23 +680,7 @@ info::
 # << Warning : >> ***, ****, ... are not allowed !
 
     if regexit:
-        onestar2regex = _REPLACEMENTS[cls._flavour.sep]
-
-        newpattern = ""
-        lastpos    = 0
-
-        for m in _RE_SPECIAL_CHARS.finditer(pattern):
-            spechar = m.group()
-
-            if spechar not in _SPE_CHARS:
-                raise ValueError("too much consecutive stars ''*''")
-
-            spechar     = _REPLACEMENTS.get(spechar, onestar2regex)
-            newpattern += pattern[lastpos:m.start()] + spechar
-            lastpos     = m.end()
-
-        newpattern += pattern[lastpos:]
-        pattern     = newpattern
+        pattern = cls.regexit(pattern)
 
     return queries, pattern
 
@@ -604,6 +688,11 @@ info::
 # ------------------ #
 # -- WALK AND SEE -- #
 # ------------------ #
+
+OTHER_FILES = "::...files...::"
+EMPTY_OTHER_DIR   = "::...empty...::"
+
+_ELLIPSIS_NAMES = [EMPTY_OTHER_DIR, OTHER_FILES]
 
 def _ppath_walk(cls, regpath = "relative::**"):               # DOC OK !!
     """
@@ -632,13 +721,16 @@ dir::
         * code_2.py
         * file_1.txt
         * file_2.txt
+        + emptydir
         + subdir
             * slide_A.pdf
             * slide_B.pdf
             * subcode_A.py
             * subcode_B.py
+            + subsubdir
+                * doc.pdf
 
-Here is two examples of use where you can see that the repaths ``"*"`` and
+Here are three examples of use where you can see that the repaths ``"*"`` and
 ``"**"`` don't do the same thing : there are two much files with ``"**"``. Just
 go to the documentation of the function ``_ppath_regpath2meta`` so as to know
 why (you have to remember that by default the search is relative).
@@ -646,11 +738,12 @@ why (you have to remember that by default the search is relative).
 pyterm::
     >>> from mistool.os_use import PPath
     >>> folder = PPath("/Users/projects/dir")
-    >>> for p in folder.walk("*.py"):
+    >>> for p in folder.walk("dir::**"):
     ...     print("+", p)
     ...
-    + /Users/projects/dir/code_1.py
-    + /Users/projects/dir/code_2.py
+    + emptydir
+    + subdir
+    + subdir/subsubdir
     >>> for p in folder.walk("**.py"):
     ...     print("+", p)
     ...
@@ -658,6 +751,41 @@ pyterm::
     + /Users/projects/dir/code_2.py
     + /Users/projects/dir/subdir/code_A.py
     + /Users/projects/dir/subdir/code_B.py
+    >>> for p in folder.walk("relative file::*.py"):
+    ...     print("+", p)
+    ...
+    + /Users/projects/dir/code_1.py
+    + /Users/projects/dir/code_2.py
+
+
+If you want to see the existing files that do not match the regpath and also
+the empty folders, you will have to the query ``ellipsis`` (this feature is
+used  by the class ``DirView``).
+In the example above, that uses the same directory as before, you can see that
+there are special names ``::...files...::`` and ``::...empty...::`` which
+indicate the extra informations.
+
+
+pyterm::
+    >>> from mistool.os_use import PPath
+    >>> folder = PPath("/Users/projects/dir")
+    >>> for p in folder.walk("ellipsis file::**.py"):
+    ...     print("+", p)
+    ...
+    + /Users/projects/dir/code_1.py
+    + /Users/projects/dir/code_2.py
+    + /Users/projects/dir/::...files...::
+    + /Users/projects/dir/emptydir/::...empty...::
+    + /Users/projects/dir/subdir/subcode_A.py
+    + /Users/projects/dir/subdir/subcode_B.py
+    + /Users/projects/dir/subdir/::...files...::
+    + /Users/projects/dir/subdir/subsubdir/::...files...::
+
+
+info::
+    The special names are stored in the global variables ``OTHER_FILES`` and
+    ``EMPTY_OTHER_DIR`` which are strings. This can be useful to avoid mistypings
+    if you want to use the query ``ellipsis``.
     """
 # Do we have an existing directory ?
     if not cls.is_dir():
@@ -666,25 +794,29 @@ pyterm::
 # Metadatas and the normal regex
     queries, pattern = cls.regpath2meta(regpath)
 
+    maindir     = str(cls)
     keepdir     = _DIR in queries
     keepfile    = _FILE in queries
-    keepvisible = _VISIBLE in queries
-    relsearch   = _RELATIVE in queries
+    keepall     = _ALL in queries
+    relsearch   = _RELSEARCH in queries
+    addellipsis = _ELLIPSIS in queries
 
     regex_obj = re.compile("^{0}$".format(pattern))
 
 # Let's walk
     for root, dirs, files in os.walk(str(cls)):
+# Empty folders and unkept files
+        isdirempty       = not(bool(dirs) or bool(files))
+        unkeptfilesfound = False
 
 # Do the current directory must be added ?
         addthisdir = False
+        root_ppath = PPath(root)
 
         if keepdir \
-        and root != str(cls) \
+        and root != maindir \
         and regex_obj.match(root):
-            root_ppath = PPath(root)
-
-            if not keepvisible \
+            if keepall \
             or not any(
                 x.startswith('.')
                 for x in root_ppath.relative_to(cls).parts
@@ -694,7 +826,7 @@ pyterm::
 # A new file ?
         if keepfile:
             for file in files:
-                if keepvisible and file.startswith('.'):
+                if not keepall and file.startswith('.'):
                     continue
 
                 full_file = os.path.join(root, file)
@@ -706,12 +838,25 @@ pyterm::
                     if regex_obj.match(rel_file):
                         yield ppath_full_file
 
+                    else:
+                        unkeptfilesfound = True
+
                 elif regex_obj.match(full_file):
                     yield PPath(full_file)
+
+                else:
+                    unkeptfilesfound = True
 
 # A new directory ?
         if addthisdir:
             yield root_ppath
+
+        elif addellipsis:
+            if isdirempty:
+                yield root_ppath / PPath(EMPTY_OTHER_DIR)
+
+            elif unkeptfilesfound:
+                yield root_ppath / PPath(OTHER_FILES)
 
 
 def _ppath_see(cls):                        # DOC OK !!
@@ -794,11 +939,11 @@ pyterm::
     >>> path_1 = PPath("test/README")
     >>> path.is_file()
     False
-    >>> path_1.create(_FILE)
+    >>> path_1.create("file")
     >>> path.is_file()
     True
     >>> path_2 = PPath("test/README")
-    >>> path_2.create(_DIR)
+    >>> path_2.create("dir")
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
       File "/anaconda/lib/python3.4/site-packages/mistool/os_use.py", line 330, in _ppath_create
@@ -872,7 +1017,7 @@ prototype::
     type   = method ;
              a hack is used so as to transform this function into a method
              ``depth_in`` of the class ``PPath`` (uggly but functional)
-    see    = PPath , _ppath_regpath2meta
+    see    = PPath , _ppath_regpath2meta , _ppath_walk
     arg    = PPath: cls ;
              this argument nearly refers to the ``self`` used by the associated
              method ``depth_in`` of the class ``PPath``
@@ -884,7 +1029,7 @@ prototype::
 # We have to play with the queries and the pattern in ``regpath``.
     queries, pattern = regpath2meta(regpath, regexit = False)
 
-    if _VISIBLE in queries:
+    if _ALL in queries:
         prefix = "visible-"
 
     else:
@@ -940,7 +1085,7 @@ warning::
         shutil.copy(str(cls), str(path))
 
     elif cls.is_dir():
-        raise ValueError("copy of directories is not yet supported.")
+        raise ValueError("copying a directory is not yet supported.")
 
     else:
         raise OSError("path points nowhere.")
@@ -1017,47 +1162,31 @@ prototype::
 
 
 # ----------------------- #
-# -- VIEWS OF A FOLDER -- #                                    # DOC OK !!
+# -- VIEWS OF A FOLDER -- #
 # ----------------------- #
-
-ELLIPSIS_PPATH = PPath('...')
-
-# Source: https://hg.python.org/cpython/file/default/Lib/functools.py#l210
-class K(object):
-    def __init__(self, obj):
-        self.obj = obj
-
-    def __lt__(self, other):
-        return mycmp(self.obj, other.obj) < 0
-
-    def __gt__(self, other):
-        return mycmp(self.obj, other.obj) > 0
-
-    def __eq__(self, other):
-        return mycmp(self.obj, other.obj) == 0
-
-    def __le__(self, other):
-        return mycmp(self.obj, other.obj) <= 0
-
-    def __ge__(self, other):
-        return mycmp(self.obj, other.obj) >= 0
-
-
+                                    # DOC OK !!
 class DirView:
     """
 prototype::
     type = class ;
-           this class allows to display the tree structure of one directory
-           with the extra possibility to keep and show only some informations
-    see  = _ppath_regpath2meta
+           this class allows to display in different formats the tree
+           structure of one directory with the extra possibility to keep and
+           show only some informations, and to set a little the format of the
+           output
+    see  = _ppath_regpath2meta, _ppath_walk
     arg  = PPath: ppath ;
            this argument is the path of the directory to analyze
-    arg  = str: regpath ;
+    arg  = str: regpath = "**" ;
            this is a string that follows some rules named regpath rules (see
            the documentation of the function ``_ppath_regpath2meta``)
-    arg  = str: display = "main short" in "long", "relative",
-                                          "short", "main", "found" ;
+    arg  = str: display = "main short" in "all", "main",
+                                          "long", "relative", "short";
            this string allows to give informations about the output to produce
+           (you can just use the initials of the options)
+    arg  = str: sorting = "alpha" in "alpha", "filefirst" ;
+           this string indicates the way to sort the paths found (see the
+           documentation of the method ``self.sortit``)
+
 
 
 
@@ -1155,338 +1284,434 @@ warning::
     (an homemade concept).
 
 
+si ellipsis dans eregpâth alors équivament à all
 
+=====================
+Available formattings
+=====================
 
--------------
-The arguments
--------------
+The optional string argument ``display`` follows the following rules.
 
-This class uses the following variables.
+    a) ``long`` asks to display the whole paths of the
+    files and directories found. You can use the shortcut ``l``.
 
-    3) ``display`` is an optional string which can contains the following
-    options separated by spaces. By default, ``format = "main short"``.
+    b) ``relative`` asks to display relative paths comparing to the main
+    directory analysed. You can use the shortcut ``r``.
 
-        a) ``long`` asks to display the whole paths of the
-        files and directories found. You can use the shortcut ``l``.
+    c) ``short`` asks to only display names of directories found, and
+    names, with its extensions, of the files found. You can use the
+    shortcut ``s``.
 
-        b) ``relative`` asks to display relative paths comparing to the main
-        directory analysed. You can use the shortcut ``r``.
+    d) ``main`` asks to display the main directory which is analyzed. You
+    can use the shortcut ``m``.
 
-        c) ``short`` asks to only display names of directories found, and
-        names, with its extensions, of the files found. You can use the
-        shortcut ``s``.
-
-        d) ``main`` asks to display the main directory which is analyzed. You
-        can use the shortcut ``m``.
-
-        e) ``found`` asks to only display directories and files which path
-        matches the pattern ``regpath``. You can use the shortcut ``f``.
+    e) ``found`` asks to only display directories and files which path
+    matches the pattern ``regpath``. You can use the shortcut ``f``.
     """
+    FILE_KINDS = ['file', 'other_files']
+    DIR_KINDS  = ['dir', 'content_dir', 'empty_other_dir']
+
     ASCII_DECOS = {
-        'dir' : "+",
-        'file': "*",
-        'tab' : " "*4
+        k: v
+        for v, keys in {
+            "+"  : DIR_KINDS,
+            "*"  : FILE_KINDS,
+            " "*4: ['tab'],
+        }.items()
+        for k in keys
     }
 
-    _FORMATTERS = set(["found", "main", "long", _RELATIVE, "short"])
-    _PATH_FORMATTERS = set(["long", _RELATIVE, "short"])
-    _LONG_FORMATTERS = {x[0]: x for x in _FORMATTERS}
+# Additional paths
+    _ALL_PATHS, _MAIN_PATH = "all", "main"
+
+# Forrmattings of the paths
+    _LONG_PATH, _REL_PATH, _SHORT_PATH = "long", "relative", "short"
+
+    _FORMATS = set([
+        _ALL_PATHS, _LONG_PATH, _MAIN_PATH, _REL_PATH, _SHORT_PATH
+    ])
+    _LONG_FORMATS = {x[0]: x for x in _FORMATS}
+
+    _PATH_FORMATS = set([_LONG_PATH, _REL_PATH, _SHORT_PATH])
+
+    _INTERNAL_QUERIES = set([_ELLIPSIS, _FILE, _DIR])
+
 
     def __init__(
         self,
         ppath,
         regpath = "**",
-        display = "main short"
+        display = "main short",
+        sorting = "alpha"
     ):
-        if not ppath.is_dir():
-            raise ValueError(
-                "the argument ``ppath`` doesn't point to a directory"
-            )
-
+# Verifications are done by the build method !
         self.ppath   = ppath
         self.regpath = regpath
         self.display = display
+        self.sorting = sorting
 
+# The internal representations of the folder.
         self.build()
 
-
+                                    # DOC OK !!
     def build(self):
         """
-This method builds first one flat list ``self.listview`` of dictionaries of the
-following kind that will ease the making of the tree view. This list is sorted
-in alphabetic order with a depth walk.
+prototype::
+    action = one flat list ``self.listview`` of dictionaries is built so as to
+             store all the informations about the directory even the empty
+             folders and the unkept files.
+             This list is sorted using the attribut ``self.sort``.
 
-pyterm::
-    {
-        'kind'   : _DIR or _FILE,
-        'depth'  : the depth level regarding to the main directory,
-        'relpath': the relative path of one directory or file found
-    }
+
+info::
+    The dictionaries look like the following one. You must know this structure
+    if you want to define your own kind of sorting for the output.
+
+    python::
+        {
+            'kind' : "dir" or "file",
+            'ppath': the whole path of one directory or file found
+                     (this can also be an ellipsis path)
+        }
         """
-# Reset all things !
-        self.listview = []
-        self.options  = set()
-        self.output   = {}
+# Reset everything !
+        self.outputs = {}
 
-        self.queries, _ = regpath2meta(
+        if not self.ppath.is_dir():
+            raise ValueError(
+                "the argument ``ppath`` doesn't point to a directory."
+            )
+
+        queries, pattern = self.ppath.regpath2meta(
             self.regpath,
             regexit = False
         )
 
-# What have to be displayed ?
-        for opt in self.display.split(" "):
-            opt = opt.strip()
-            opt = self._LONG_FORMATTERS.get(opt, opt)
+        self.display = set(
+            self._LONG_FORMATS.get(x.strip(), x.strip())
+            for x in self.display.split(" ") if x.strip()
+        )
 
-            if opt not in self._FORMATTERS:
-                raise ValueError("unknown option for displaying.")
+        if not self.display <= self._FORMATS:
+            raise ValueError("illegal formatting rule (see ``display``).")
 
-            self.options.add(opt)
+        nb_path_formats = len(self.display & self._PATH_FORMATS)
 
-        if len(self._PATH_FORMATTERS & self.options) > 1:
-            raise ValueError("ambiguous option for printing the paths.")
+        if nb_path_formats == 0:
+            self.display.add(_SHORT_PATH)
 
-# We must add all the folders except if the option "found" has been used.
-        if "found" not in self.options:
-            if _VISIBLE in self.queries:
-                prefix = "visible-"
-
-            else:
-                prefix = ""
-
-            self.listview = [
-                {
-                    'kind'   : _DIR,
-                    'depth'  : p.depth_in(self.ppath),
-                    'relpath': p.relative_to(self.ppath)
-                }
-                for p in self.ppath.walk(prefix + "dir::**")
-            ]
-
-# Unsorted flat version of the tree view.
-        for path in self.ppath.walk(self.regpath):
-            kind = _FILE if path.is_file() else _DIR
-
-            infos = {
-                'kind'   : kind,
-                'depth'  : path.depth_in(self.ppath),
-                'relpath': path.relative_to(self.ppath)
-            }
-
-# We do not want to see twice a folder !
-            if kind == _FILE or infos not in self.listview:
-                self.listview.append(infos)
-
-# If the option "found" has been used, we must add folders of files found.
-        if "found" in self.options:
-            self._add_parentdir()
-
-
-
-
-
-
-
-
-        self.listview.sort(key = K)
-        return None
-
-
-# We build the alphabetic sorted version. This works because ``PPath`` does
-# better comparisons than the ones of ``pathlib``.
-        self.listview.sort(key = lambda x: x['relpath'])
-
-# If the option "found" has not been used, we must take care of folder with no
-# winning files so as to display ellipsis ``...``.
-        if "found" not in self.options:
-            self._add_ellipsis()
-
-# "Files first" sorting version of the flat version of the tree view.
-        if "alpha" not in self.options:
-            self._filefirst_sort()
-
-
-    def _filefirst_sort(self):
-        """
-This method sorts the list view so as to first show the files and then the
-directories contained in a folder.
-        """
-        maxdepth = 0
-        depth    = 0
-
-        while(depth <= maxdepth):
-            firsts = []
-            lasts  = []
-
-            for infos in self.listview:
-                if infos['depth'] < depth:
-                    firsts += lasts
-                    lasts = []
-                    firsts.append(infos)
-
-                elif infos['depth'] == depth:
-                    if infos['kind'] == _FILE:
-                        firsts.append(infos)
-
-                    else:
-                        lasts.append(infos)
-                else:
-                    if infos['depth'] > maxdepth:
-                        maxdepth = infos['depth']
-
-                    lasts.append(infos)
-
-            self.listview = firsts + lasts
-
-            depth += 1
-
-    def _add_parentdir(self):
-        """
-When the option ``found`` is used, we only show files found but we also have to
-add all their parent directories.
-        """
-        for x in self.listview:
-            parts = x['relpath'].parts
-
-            if len(parts) != 1:
-                newdir = PPath("")
-                depth  = -1
-
-                for part in parts[:-1]:
-                    newdir /= part
-                    depth  += 1
-
-                    infos = {
-                        'kind'   : _DIR,
-                        'depth'  : depth,
-                        'relpath': newdir
-                    }
-
-                    if infos not in self.listview:
-                        self.listview.append(infos)
-
-    def _add_ellipsis(self):
-        """
-When the option ``found`` is not used, we have to add ellipsis ``...`` so as to
-materiealize unshown files.
-        """
-        indexes = []
-
-        for i, infos in enumerate(self.listview):
-            if infos['kind'] == _DIR:
-                for p in (self.ppath / infos['relpath']).iterdir():
-                    if p.is_file() \
-                    and (
-                        _VISIBLE not in self.queries
-                        or not p.name.startswith('.')
-                    ) \
-                    and {
-                        'kind'   : _FILE,
-                        'depth'  : infos['depth'] + 1,
-                        'relpath': p.relative_to(self.ppath)
-                    } not in self.listview:
-                        indexes.append((i + 1, infos['depth'] + 1))
-                        break
-
-        delay = 0
-
-        for i, depth in indexes:
-            self.listview.insert(
-                i + delay,
-                {
-                    'kind'   : _FILE,
-                    'depth'  : depth,
-                    'relpath': ELLIPSIS_PPATH
-                }
+        elif nb_path_formats != 1:
+            raise ValueError(
+                "several in path formatting rules (see ``display``)."
             )
 
-            delay += 1
+
+        if _ELLIPSIS in queries:
+            self.display.add(self._ALL_PATHS)
+
+# All the infos using ellipsis.
+        allqueries = queries | self._INTERNAL_QUERIES
+        allregpath = "{0}::{1}".format(" ".join(allqueries), pattern)
+
+        self._all_listview = [
+            self._metadatas(x)
+            for x in self.ppath.walk(allregpath)
+        ]
+
+# We can know clean the list so as to only keep what the user wants.
+        self._filedir_queries = queries & _FILE_DIR_QUERIES
+        self._add_ppaths()
+
+                                    # DOC OK !!
+    def _metadatas(self, ppath):
+        """
+prototype::
+    return = a dictionnary build from a path found (this is for the attribut
+             ``self.listview``).
+        """
+        if ppath.name == EMPTY_OTHER_DIR or ppath.is_dir():
+            kind = "dir"
+
+        else:
+            kind = "file"
+
+        return {
+            'kind' : kind,
+            'ppath': ppath
+        }
+
+                                    # DOC OK !!
+    def _add_ppaths(self):
+        """
+prototype::
+    action = the attribut ``self.listview`` is build using the attribut
+             ``self._all_listview``.
+        """
+        _listview = []
+
+# Sub fles and folders found
+        for metadata in self._all_listview:
+            if metadata['kind'] in self._filedir_queries:
+                if self._ALL_PATHS in self.display:
+                    _listview.append(metadata)
+
+                elif metadata['ppath'].name not in _ELLIPSIS_NAMES:
+                    _listview.append(metadata)
+
+        _listview.sort(key = lambda x: str(x['ppath']))
+
+# We have to find folders with only unmacthing files or with matching and
+# unmacthing files, and also all the parent directories.
+        self.listview = []
+        lastreldirs   = []
+
+        for i, metadata in enumerate(_listview):
+            name    = metadata['ppath'].name
+            relpath = metadata['ppath'].relative_to(self.ppath)
+            parents = relpath.parents
+
+            if name == EMPTY_OTHER_DIR:
+                metadata['kind']  = "empty_other_dir"
+                metadata['ppath'] = metadata['ppath'].parent
+
+                lastreldirs.append(metadata['ppath'].relative_to(self.ppath))
+
+            elif name == OTHER_FILES:
+                metadata['kind']  = "other_files"
+                metadata['ppath'] = self.ppath / parents[0] / "..."
 
 
+# We have to add all the parent directories !
+            if metadata['kind'] == "dir":
+                lastreldirs.append(metadata['ppath'])
+
+            else:
+                for parent in reversed(parents):
+                    if parent not in lastreldirs:
+                        self.listview.append({
+                            'kind' : 'content_dir',
+                            'ppath': self.ppath / parent
+                        })
+
+                        lastreldirs.append(parent)
+
+
+            self.listview.append(metadata)
+
+# Main or not main, that is the question.
+        if self._MAIN_PATH not in self.display:
+            self.listview.pop(0)
+
+# Let's use the good sorting !
+        self.sortit()
+
+                                    # DOC OK !!
+    def sortit(self):
+        """
+prototype::
+    action = this method sorts the attribut ``self.listview`` regarding to the
+             value of the attribut ``self.sorting``
+        """
+# << Warning ! >> By default, ``self.listview`` uses the very natural
+# alphabetic order ("file::file.txt" < "dir::file")
+#
+# No tricky method using a special ordering class has not yet been found.
+# So we have to dirty a little our hands with a recursive method.
+        if self.sorting == "filefirst":
+            self.listview = self._filefirst(self.listview)
+
+                                    # DOC OK !!
+    def _filefirst(self, listview):
+        """
+prototype::
+    arg    = list(dict): listview
+    see    = self.build
+    return = a list of objects sorted with files before folders for a given
+             depth
+        """
+        mindepth = min(x['ppath'].depth for x in listview)
+        files    = []
+        dirs     = []
+
+        for metadata in listview:
+            if mindepth == metadata['ppath'].depth \
+            and metadata['kind'] in self.FILE_KINDS:
+                files.append(metadata)
+
+            else:
+                dirs.append(metadata)
+
+        if files and files[0]['ppath'].name == "...":
+            files = files[1:] + [files[0]]
+
+        listview = files
+
+        if dirs:
+            onedir  = dirs.pop(0)
+            content = []
+
+            while(dirs):
+# Content of min depth level folder
+                content = []
+
+                while(dirs):
+                    subobj = dirs.pop(0)
+
+                    if mindepth == subobj['ppath'].depth:
+                        if content:
+                            listview += [onedir] + self._filefirst(content)
+                            content = []
+
+                        else:
+                            listview += [onedir]
+
+                        onedir = subobj
+                        break
+
+                    else:
+                        content.append(subobj)
+
+            if content:
+                listview += [onedir] + self._filefirst(content)
+
+            else:
+                 listview.append(onedir)
+
+        return listview
+
+                                        # DOC OK !!
+    def pathtoprint(self, metadatas):
+        """
+prototype::
+    arg    = dict: metadatas
+    see    = self._metadatas
+    return = str
+        """
+# << Warning ! >> The paths are whole ones by default !
+        kind  = metadatas["kind"]
+        ppath = metadatas["ppath"]
+        name  = ppath.name
+
+        if name == "...":
+            return name
+
+        elif self._SHORT_PATH in self.display:
+            strpath = name
+
+        elif self._REL_PATH in self.display:
+            if ppath == self.ppath:
+                strpath = name
+
+            else:
+                strpath = str(ppath.relative_to(self.ppath))
+
+        else:
+            strpath = str(ppath)
+
+        return strpath
+
+                            # DOC OK !!
+    @property
+    def toc(self):
+        """
+prototype::
+    type   = property
+    return = the content only shows files and their direct parent folder like
+             a kind of table of content where the section are always relative
+             paths of parent directories and subsection are pathe of files
+             (empty flders are never displayed)
+        """
+# Source: http://en.wikipedia.org/wiki/Box-drawing_character
+
+# The job has to be done.
+        if 'toc' not in self.outputs:
+            text     = []
+            lastdir  = None
+            tab      = self.ASCII_DECOS["tab"]
+            decodir  = self.ASCII_DECOS["dir"]
+            decofile = self.ASCII_DECOS["file"]
+
+            for metadatas in self.listview:
+                if "file" in metadatas["kind"]:
+                    pathtoprint = self.pathtoprint(metadatas)
+
+                    if pathtoprint:
+                        if lastdir:
+                            dirpath = lastdir["ppath"].relative_to(self.ppath)
+
+                            text.append("")
+                            text.append("{0} {1}".format(decodir, dirpath))
+
+                            lastdir = None
+
+                        text.append(
+                            "{0}{1} {2}".format(tab, decofile, pathtoprint)
+                        )
+
+                else:
+                    lastdir = metadatas
+
+            self.outputs['toc'] = '\n'.join(text[1:])
+
+
+        # The job has been done.
+        return self.outputs['toc']
+
+                                    # DOC OK !!
     @property
     def ascii(self):
         """
-This attribut like method returns an ASCCI view of the tree structure.
+prototype::
+    type   = property
+    return = an ASCCI basic view using only basic characters
         """
-        if 'ascii' not in self.output:
-            seemain = "main" in self.options
-            text    = []
+# The job has to be done.
+        if 'ascii' not in self.outputs:
+            text       = []
+            extradepth = int(self._MAIN_PATH in self.display)
 
-            if seemain:
-                if "long" in self.options:
-                    mainpath = self._pathprinted(PPath(""))
+            for metadatas in self.listview:
+                depth = metadatas["ppath"].depth_in(self.ppath) + extradepth
+                tab   = self.ASCII_DECOS['tab']*depth
 
-                else:
-                    mainpath = self.ppath.name
+                decokind = self.ASCII_DECOS[metadatas["kind"]]
 
-                text = [
-                    "{0} {1}".format(self.ASCII_DECOS[_DIR], mainpath)
-                ]
+                pathtoprint = self.pathtoprint(metadatas)
 
-            for infos in self.listview:
-                depth = infos["depth"]
+                if pathtoprint:
+                    text.append(
+                        "{0}{1} {2}".format(tab, decokind, pathtoprint)
+                    )
 
-# Does the main directory must be displayed ?
-                if seemain:
-                    depth += 1
+            self.outputs['ascii'] = '\n'.join(text)
 
-                tab = self.ASCII_DECOS['tab']*depth
+# The job has been done.
+        return self.outputs['ascii']
 
-                decokind = self.ASCII_DECOS[infos["kind"]]
-
-                pathtoshow = self._pathprinted(infos["relpath"])
-
-                text.append(
-                    "{0}{1} {2}".format(tab, decokind, pathtoshow)
-                )
-
-            self.output['ascii'] = '\n'.join(text)
-
-        return self.output['ascii']
-
-
-    def _pathprinted(self, path):
-# The path are stored relatively by default !
-        if path == ELLIPSIS_PPATH or  _RELATIVE in self.options:
-            return str(path)
-
-# We have to rebuild the while path.
-        if "long" in self.options:
-            return str(self.ppath / path)
-
-# "short" is the default option for printing the paths.
-        return str(path.name)
-
-
-# ------------------- #
-# -- GENERAL INFOS -- #
-# ------------------- #
-
-def pathenv():                        # DOC OK !!
-    """
+                                    # DOC OK !!
+    @property
+    def tree(self):
+        """
 prototype::
-    type   = function
-    action = this function simply returns the variable ``PATH`` that contains
-             paths of some executables known by your OS
-    """
-    return os.getenv('PATH')
+    type   = property
+    return = a UNICODE treeview using special characters such as to draw
+             some rules
+        """
+# The job has to be done.
+        if 'tree' not in self.outputs:
+# Source for the rules: http://en.wikipedia.org/wiki/Box-drawing_character
+#
+#     * Horizontal and vertical rules
+            hrule = "\u2501" # or ━
+            vrule = "\u2503" # or ┃
+#     * First, last, horizontal and vertical nodes
+            fnode = "\u250F" # or ┏
+            lnode = "\u2517" # or ┗
+            vnode = "\u2523" # or ┣
+            hnode = "\u2533" # or ┳
 
 
-def system():                        # DOC OK !!
-    """
-prototype::
-    type   = function
-    action = the purpose of this function is to give the name, in lower case,
-             of the OS used (possible names can be "windows", "mac", "linux"
-             and also "java")
-    """
-    osname = platform.system()
+            TODO
 
-    if not osname:
-        raise SystemError("the operating sytem can not be found.")
-
-    if osname == 'Darwin':
-        return "mac"
-
-    else:
-        return osname.lower()
+# The job has been done.
+        return self.outputs['tree']
