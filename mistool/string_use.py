@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
 
 """
-Directory : mistool
-Name      : string_use
-Version   : 2014.10
-Author    : Christophe BAL
-Mail      : projetmbc@gmail.com
+???
 
+
+prototype::
+    date = 2014-10
+
+
+
+    
 This module contains some simple tools dealing with strings.
+
+
+
+
+string.capwords(s, sep=None)
+Split the argument into words using str.split(), capitalize each word using str.capitalize(), and join the capitalized words using str.join(). If the optional second argument sep is absent or None, runs of whitespace characters are replaced by a single space and leading and trailing whitespace are removed, otherwise sep is used to split and join the words.
 """
 
 from unicodedata import name as ucname

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 """
-Directory : mistool
-Name      : date_use
-Version   : 2014.08
-Author    : Christophe BAL
-Mail      : projetmbc@gmail.com
+???
+
+
+prototype::
+    date = 2014-08
+
 
 This script contains some functions to ease the use pof the standard package
 ``datetime``.

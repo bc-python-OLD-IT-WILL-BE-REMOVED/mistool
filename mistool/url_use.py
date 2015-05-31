@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 """
-Directory : mistool
-Name      : url_use
-Version   : 2014.08
-Author    : Christophe BAL
-Mail      : projetmbc@gmail.com
+???
+
+
+prototype::
+    date = 2014-08
 
 This script proposes some useful functions to manipulate urls.
 """

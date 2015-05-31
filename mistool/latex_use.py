@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
 
 """
-Directory : mistool
-Name      : latex_use
-Version   : 2015.03
-Author    : Christophe BAL
-Mail      : projetmbc@gmail.com
+???
+
+
+prototype::
+    date = 2014-08
 
 This script gives some useful functions in relation with the powerful LaTeX
 langage for typing scientific documents.
 """
 
+import os
 from subprocess import check_call, check_output, CalledProcessError
 
-from mistool.os_use import PPath
 from mistool.config import latex
 
-normpath = os_use.os.path.normpath
-join     = os_use.os.path.join
+# PPath
+
+
+normpath = os.path.normpath
+join     = os.path.join
 
 
 # ------------------------- #

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 """
-Directory : mistool
-Name      : python_use
-Version   : 2015.03
-Author    : Christophe BAL
-Mail      : projetmbc@gmail.com
+???
+
+
+prototype::
+    date = 2014-08
 
 This module contains some simple tools about the Python programming language.
 """

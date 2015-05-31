@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 """
-Directory : mistool
-Name      : log_test_use
-Version   : 2015.03
-Author    : Christophe BAL
-Mail      : projetmbc@gmail.com
+???
+
+
+prototype::
+    date = 2014-08
 
 This modules contains some utilities that can be useful for log messages.
 """

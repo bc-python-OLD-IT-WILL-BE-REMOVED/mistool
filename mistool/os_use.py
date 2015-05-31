@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2015-05-25
+    date = 2015-05-31
 
 
 The main feature of this module is the class ``PPath`` which is an enhanced
@@ -20,6 +20,8 @@ import re
 import shutil
 import platform
 from subprocess import check_call
+
+from mistool.latex_use import escape as latex_escape
 
 
 # ------------------- #
@@ -425,11 +427,8 @@ pyterm::
     return len(cls.relative_to(path).parts) - 1
 
 
-
-
-# DOC OK !!
 @property
-def _ppath_depth(cls):
+def _ppath_depth(cls):                  # DOC OK !!
     """
 prototype::
     type   = property ;
@@ -443,15 +442,16 @@ prototype::
              the absolute depth of a path
 
 
-Here are an example of use.
+Here is an example of use.
 
 pyterm::
     >>> from mistool.os_use import PPath
     >>> path = PPath("/Users/projects/source/misTool/os_use.py")
     >>> print(path.depth)
-    5
+    4
     """
-    return len(cls.parents)
+    return len(cls.parents) - 1
+
 
 # -------------- #
 # -- REGPATHS -- #
@@ -574,9 +574,9 @@ pyterm::
     ({'all', 'file'}, '.+\\.py')
 
 
-In the outputs printed, `{'file', 'dir'}` indicates to look for any kind of
-files and directories, whereas `{'file', 'visible'}` asks to only keep visible
-files, i.e. files without a name starting with a point.
+In the outputs printed, `{'dir', 'file'}` indicates to look only for visible
+files and directories, whereas `{'all', 'file'}` asks to keep also invisible
+files, i.e. files having a name starting with a point.
 
 
 =================================
@@ -625,8 +625,8 @@ by the method ``walk``.
 
     b) ``dir`` asks to keep only folders. You can use the shortcut ``d``.
 
-    c) ``all`` asks to keep also the unvisible files and folders. This ones have
-    a name begining with ``.``.
+    c) ``all`` asks to keep also the unvisible files and folders. This ones
+    have a name begining with ``.``.
 
     d) ``all file`` and ``all dir`` ask to respectively keep only visible
     files, or only visible directories.
@@ -641,7 +641,7 @@ by the method ``walk``.
 
 For example, to keep only the Python files, in a folder or not, just use
 ``"file::**.py"``. This is not the same that ``"**.py"`` which will also catch
-folders with a name finishing by path::``.py``.
+folders with a name finishing by path::``.py`` (that is legal).
 
 
 info::
@@ -689,8 +689,8 @@ info::
 # -- WALK AND SEE -- #
 # ------------------ #
 
-OTHER_FILES = "::...files...::"
-EMPTY_OTHER_DIR   = "::...empty...::"
+OTHER_FILES     = "::...files...::"
+EMPTY_OTHER_DIR = "::...empty...::"
 
 _ELLIPSIS_NAMES = [EMPTY_OTHER_DIR, OTHER_FILES]
 
@@ -791,7 +791,7 @@ info::
     if not cls.is_dir():
         raise OSError("the path doesn't point to a directory.")
 
-# Metadatas and the normal regex
+# metadatas and the normal regex
     queries, pattern = cls.regpath2meta(regpath)
 
     maindir     = str(cls)
@@ -1027,10 +1027,10 @@ prototype::
     action = every files and directories matching ``regpath`` are removed
     """
 # We have to play with the queries and the pattern in ``regpath``.
-    queries, pattern = regpath2meta(regpath, regexit = False)
+    queries, pattern = cls.regpath2meta(regpath, regexit = False)
 
     if _ALL in queries:
-        prefix = "visible-"
+        prefix = "all-"
 
     else:
         prefix = ""
@@ -1144,7 +1144,7 @@ _SPECIAL_FUNCS = [
 class PPath(pathlib.Path):          # DOC OK !!
     """
 prototype::
-    type = class ;
+    type = cls ;
            a hack is used so as to mimic subclassing of the standard class
            ``pathlib.Path``
     see  = pathlib.Path
@@ -1164,152 +1164,350 @@ prototype::
 # ----------------------- #
 # -- VIEWS OF A FOLDER -- #
 # ----------------------- #
-                                    # DOC OK !!
-class DirView:
-    """
+
+class DirView:                      # DOC OK !!
+    r"""
 prototype::
-    type = class ;
+    type = cls ;
            this class allows to display in different formats the tree
            structure of one directory with the extra possibility to keep and
-           show only some informations, and to set a little the format of the
-           output
+           show only some informations, and also to set a little the format of
+           the output
     see  = _ppath_regpath2meta, _ppath_walk
+
     arg  = PPath: ppath ;
            this argument is the path of the directory to analyze
     arg  = str: regpath = "**" ;
-           this is a string that follows some rules named regpath rules (see
-           the documentation of the function ``_ppath_regpath2meta``)
-    arg  = str: display = "main short" in "all", "main",
-                                          "long", "relative", "short";
-           this string allows to give informations about the output to produce
-           (you can just use the initials of the options)
-    arg  = str: sorting = "alpha" in "alpha", "filefirst" ;
-           this string indicates the way to sort the paths found (see the
-           documentation of the method ``self.sortit``)
+           this argument follows some rules named "regpath" rules (see the
+           documentation of ``_ppath_regpath2meta``)
+    arg  = str: display = "main short" in self._FORMATS;
+           this argument gives informations about the output to produce (you
+           can just use the initials of the options)
+    arg  = str: sorting = "alpha" in [x[0] for x in cls.LAMBDA_SORT]
+                                  or in [x[1] for x in cls.LAMBDA_SORT];
+           this argument inidcates the way to sort the paths found
+
+    clsattr = dict((str, str): (lambda, x)): LAMBDA_SORT ;
+              this attribut of class, and not of one of its instance, defines
+              how to sort the paths (see the end of the documentation above)
 
 
+===================================
+The directory used for the examples
+===================================
+
+All of the following examples will use a folder with the structure above and
+having the whole path path::``/Users/projetmbc/dir``.
+
+dir::
+    + dir
+        * code_1.py
+        * code_2.py
+        * file_1.txt
+        * file_2.txt
+        + emptydir
+        + subdir
+            * slide_A.pdf
+            * slide_B.pdf
+            * subcode_A.py
+            * subcode_B.py
+            + subsubdir
+                * doc.pdf
 
 
+==============
+The ascii tree
+==============
+
+Let's start with the default output for the ¨ascii tree. Here is a code to be
+launched in the terminal.
+
+python::
+    from mistool import os_use
+
+    DirView = os_use.DirView("/Users/projetmbc/dir")
+
+    print(DirView.ascii)
 
 
+This code will print the following text (indeed this is the syntax used to
+generate the documentation that you are reading). You can see that files and
+folders are sorting regarding their names.
+
+term::
+    + dir
+        * code_1.py
+        * code_2.py
+        + doc
+            * code_A.py
+            * code_B.py
+            + licence
+                * doc.pdf
+            * slide_A.pdf
+            * slide_B.pdf
+        + emptydir
+        * file_1.txt
+        * file_2.txt
 
 
+You can ask to have the files before the folders and also to have the relative
+paths instead of the names. This needs to use the arguments ``display`` and
+``sorting``. We have to add the option ``"main"`` for ``display`` if we also
+want to see the main folder.
 
------------------
-Small description
------------------
-
-example !
-
-code::
-    + mistool_old
-        * __init__.py
-        * latex_use.py
-        * LICENCE.txt
-        * os_use.py
-        * README.md
-        * ...
-        + change_log
-            + 2012
-                * 07.pdf
-                * 08.pdf
-                * 09.pdf
-        + debug
-            * debug_latex_use.py
-            * debug_os_use.py
-            + debug_latex_use
-                * latex_test.pdf
-                * latex_test.tex
-                * latex_test_builder.py
-                * ...
-        + to_use
-            + latex
-                * ...
-
-
-ou bien possible
-
-code::
-    + mistool_old
-        * __init__.py
-        * latex_use.py
-        * LICENCE.txt
-        * os_use.py
-        * README.md
-        * ...
-
-    + mistool_old/change_log/2012
-        * 07.pdf
-        * 08.pdf
-        * 09.pdf
-
-    + mistool_old/debug
-        * debug_latex_use.py
-        * debug_os_use.py
-
-    + mistool_old/debug/debug_latex_use
-        * latex_test.pdf
-        * latex_test.tex
-        * latex_test_builder.py
-        * ...
-
-    + to_use/latex
-        * ...
-
-
-
-In this output no invisible directory or file has been printed, and ellipsis
-indicates visible files that do not match to a given pattern for the paths.
-All of this has been obtained with the following code.
-
-pyterm::
-    from mistool.os_use import PPath
+python::
+    from mistool import os_use
 
     DirView = os_use.DirView(
-        ppath      = "/Users/projetmbc/python/mistool",
-        regpath = "visible::*.(py|txt|tex|pdf)",
-        display    = "main short"
+        path    = "/Users/projetmbc/dir",
+        display = "main relative",
+        sorting = "filefirst"
     )
 
     print(DirView.ascii)
 
 
+This will give the following output that is what we are looking for.
+
+term::
+    + dir
+        * code_1.py
+        * code_2.py
+        * file_1.txt
+        * file_2.txt
+        + doc
+            * doc/code_A.py
+            * doc/code_B.py
+            * doc/slide_A.pdf
+            * doc/slide_B.pdf
+            + doc/licence
+                * doc/licence/doc.pdf
+        + emptydir
 
 
+info::
+    All the available formattings are given later in this section of the
+    documentation.
+
+
+Let's see a last example using the argument ``regpath``. The following code
+asks to keep only the files with the extension path::``py``, and also to
+display the names of the files and the folders, see ``"short"``.
+
+python::
+    from mistool import os_use
+
+    DirView = os_use.DirView(
+        path    = "/Users/projetmbc/dir",
+        regpath = "f::**.py",
+        display = "main short",
+    )
+
+    print(DirView.ascii)
+
+
+Here is the output given by the class ``DirView``. You can see that the empty
+files are given, and that the other files than the ones wanted are indicated
+by ellipisis, this ellipsis being always sorted at the end of the files.
+
+term::
+    + dir
+        * code_1.py
+        * code_2.py
+        * ...
+        + doc
+            * code_A.py
+            * code_B.py
+            * ...
+            + licence
+                * ...
+        + emptydir
+
+
+If you use instead the option ``display = "main short found"``, then the
+output will only show the files found as above, and the empty folders are not
+given.
+
+term::
+    + dir
+        * code_1.py
+        * code_2.py
+        + doc
+            * code_A.py
+            * code_B.py
+
+
+info::
+    The documentation of the function ``_ppath_regpath2meta`` gives all the
+    ¨infos needed to use the regpaths.
+
+
+=======================
+The "ruled" tree output
+=======================
+
+By default, ``DirView.tree`` give a tree view using rules similar to the ones
+you can see in ¨gui applications displaying tree structure of a folder (we
+can't reproduce the output here because of font problems).
+
+
+=====================
+The "toc" like output
+=====================
+
+Using ``DirView.toc`` with the sorting option ``sorting = "namefilefirst"``,
+this is the better sorting option here, you will obtain the following output
+which looks like a kind of table of contents with sections for folders, and
+subsections for files.
+
+term::
+    + dir
+        * code_1.py
+        * code_2.py
+        * file_1.txt
+        * file_2.txt
+
+    + dir/doc
+        * code_A.py
+        * code_B.py
+
+    + dir/doc/licence
+        * doc.pdf
+        * slide_A.pdf
+        * slide_B.pdf
+
+    + dir/emptydir
 
 
 warning::
-    You have to see the documentation of the function ``regpath2meta`` in the
-    submodule ``config.pattern`` so as to have informations on regpaths
-    (an homemade concept).
+    Here all the paths for the folders will be always displayed as relative
+    ones to the parent directory of the folder analyzed, and not to the folder
+    analyzed.
 
 
-si ellipsis dans eregpâth alors équivament à all
+===================================================
+A ¨latex version for the package latex::``dirtree``
+===================================================
 
-=====================
-Available formattings
-=====================
+By default, using ``DirView.latex`` you will have the following ¨latex code
+than can be formated by the ¨latex package latex::``dirtree``.
 
-The optional string argument ``display`` follows the following rules.
+latex::
+    \dirtree{%
+      .1 {dir}.
+        .2 {code\_1.py}.
+        .2 {code\_2.py}.
+        .2 {doc}.
+          .3 {code\_A.py}.
+          .3 {code\_B.py}.
+          .3 {licence}.
+            .4 {doc.pdf}.
+          .3 {slide\_A.pdf}.
+          .3 {slide\_B.pdf}.
+        .2 {emptydir}.
+        .2 {file\_1.txt}.
+        .2 {file\_2.txt}.
+    }
 
-    a) ``long`` asks to display the whole paths of the
-    files and directories found. You can use the shortcut ``l``.
 
-    b) ``relative`` asks to display relative paths comparing to the main
-    directory analysed. You can use the shortcut ``r``.
+info::
+    As you can see, special ¨latex characters are managed by the class
+    ``DirView``. In our example, ``_`` becomes latex::``\_``.
 
-    c) ``short`` asks to only display names of directories found, and
-    names, with its extensions, of the files found. You can use the
-    shortcut ``s``.
 
-    d) ``main`` asks to display the main directory which is analyzed. You
-    can use the shortcut ``m``.
+=======================
+All the display options
+=======================
 
-    e) ``found`` asks to only display directories and files which path
-    matches the pattern ``regpath``. You can use the shortcut ``f``.
+The optional string argument ``display`` uses the following rules.
+
+    a) ``long`` or ``l`` asks to display the whole paths of the files and
+    directories found.
+
+    b) ``relative`` or ``r`` asks to display relative paths comparing to the
+    main directory analysed.
+
+    c) ``short`` or ``s`` asks to only display names of directories found, and
+    of the files found with their extensions.
+
+    d) ``main`` or ``m`` asks to display the main directory which is analyzed.
+
+    e) ``found`` or ``f`` asks to only display directories and files with a
+    path matching the pattern ``regpath``, and to not give the empty
+    directories.
+    If this value is not given, then ellipsis will be used to indicate
+    unmatching files and the empty directory will be always given.
+
+
+=======================
+All the sorting options
+=======================
+
+The optional string argument ``sorting`` can have one of the following values.
+
+    a) ``alpha`` or ``a`` is the alphabetic sorting on the strings representing
+    the paths.
+
+    b) ``filefirst`` or ``f`` gathers first the files and then the folders,
+    and in each of this category an alphabetic sorting is applied.
+
+    c) ``namefilefirst`` or ``nf`` first sorts the objects regarding their
+    name without the extension, and if a file and a folder have the same
+    position, then the file will be put before the directory.
+
+    d) ``date`` or ``d`` simply used the date of the last physical changes.
+
+
+info::
+    For all the options above, the unmatching files indicated with "..." are
+    always sorted at the end.
+
+
+info::
+    You can add sortings by redefining the attribut of class ``LAMBDA_SORT``
+    which by default is the following dictionary.
+
+    python::
+        LAMBDA_SORT = {
+            ("alpha", "a"): [
+                lambda x: str(x['ppath']),
+                'z'*500
+            ],
+            ("namefilefirst", "nf"): [
+                lambda x: (
+                    str(x['ppath'].stem),
+                    int("dir" in x['kind'])
+                ),
+                ('z'*500, 0)
+            ],
+            ("filefirst", "f"): [
+                lambda x: (
+                    int("dir" in x['kind']),
+                    str(x['ppath'])
+                ),
+                (0, 'z'*500)
+            ],
+            ("date", "d"): [
+                lambda x: -x['ppath'].stat().st_mtime,
+                float('inf')
+            ],
+        }
+
+     This dictionary uses the following conventions.
+
+        1) The keys are tuples ``(longname, shortname)`` of two strings.
+
+        2) The values are lists of two elements.
+
+            a) The ¨1ST element is a lambda function that will do the sorting.
+            Here ``x`` is a dictionary stored in ``self.listview`` (see the
+            documentation of the method ``self.build``).
+
+            b) The ¨2ND element is the alias to use instead of the ellipsis
+            ``"..."`` to sort this kind of special paths.
     """
     FILE_KINDS = ['file', 'other_files']
-    DIR_KINDS  = ['dir', 'content_dir', 'empty_other_dir']
+    DIR_KINDS  = ['dir', 'content_dir', 'empty_dir']
 
     ASCII_DECOS = {
         k: v
@@ -1321,19 +1519,57 @@ The optional string argument ``display`` follows the following rules.
         for k in keys
     }
 
+# Source for the rules:
+#     * http://en.wikipedia.org/wiki/Box-drawing_character#Unicode
+
+    UTF8_DECOS = {
+# Horizontal and vertical rules
+        'hrule': "\u2501", #--->  ━
+        'vrule': "\u2503", #--->  ┃
+# First, last, horizontal and vertical nodes
+        'fnode': "\u250F", #--->  ┏
+        'lnode': "\u2517", #--->  ┗
+        'vnode': "\u2523", #--->  ┣
+# Decorations
+        'deco': "\u2578",  #--->  ╸
+    }
+
+    LAMBDA_SORT = {
+        ("alpha", "a"): [
+            lambda x: str(x['ppath']),
+            'z'*500
+        ],
+        ("namefilefirst", "nf"): [
+            lambda x: (
+                str(x['ppath'].stem),
+                int("dir" in x['kind'])
+            ),
+            ('z'*500, 0)
+        ],
+        ("filefirst", "f"): [
+            lambda x: (
+                int("dir" in x['kind']),
+                str(x['ppath'])
+            ),
+            (0, 'z'*500)
+        ],
+        ("date", "d"): [
+            lambda x: -x['ppath'].stat().st_mtime,
+            float('inf')
+        ],
+    }
+
 # Additional paths
-    _ALL_PATHS, _MAIN_PATH = "all", "main"
+    _ONLY_FOUND_PATHS, _MAIN_PATH = "found", "main"
 
-# Forrmattings of the paths
+# Formattings of the paths
     _LONG_PATH, _REL_PATH, _SHORT_PATH = "long", "relative", "short"
-
     _FORMATS = set([
-        _ALL_PATHS, _LONG_PATH, _MAIN_PATH, _REL_PATH, _SHORT_PATH
+        _LONG_PATH, _MAIN_PATH, _ONLY_FOUND_PATHS, _REL_PATH, _SHORT_PATH
     ])
-    _LONG_FORMATS = {x[0]: x for x in _FORMATS}
-
     _PATH_FORMATS = set([_LONG_PATH, _REL_PATH, _SHORT_PATH])
 
+# Special query
     _INTERNAL_QUERIES = set([_ELLIPSIS, _FILE, _DIR])
 
 
@@ -1353,42 +1589,87 @@ The optional string argument ``display`` follows the following rules.
 # The internal representations of the folder.
         self.build()
 
-                                    # DOC OK !!
-    def build(self):
+
+# -------------------- #
+# -- INTERNAL VIEWS -- #
+# -------------------- #
+
+    def build(self):                    # DOC OK !!
         """
 prototype::
-    action = one flat list ``self.listview`` of dictionaries is built so as to
-             store all the informations about the directory even the empty
-             folders and the unkept files.
-             This list is sorted using the attribut ``self.sort``.
+    see    = self.ascii , self.latex , self.toc , self.tree , self.sort
+    action = this method builds one flat list ``self.listview`` of dictionaries
+             which stores all the informations about the directory even the
+             empty folders and the unmatching files,
+             and also ``self.treeview`` a list of dictionaries which is like
+             the natural tree structure of the folder analyzed
+             (both of this object are sorted regarding to the value of the
+             attribut ``self.sorting``)
+
+
+======================================
+Dictionaries used in ``self.listview``
+======================================
+
+The dictionaries look like the following one. You must know this structure if
+you want to define your own kind of sorting for the output.
+
+python::
+    {
+        'kind' : "dir" or "file",
+        'depth': relative depth,
+        'ppath': the whole path of one directory or file found
+                 (this can also be an ellipsis path)
+    }
 
 
 info::
-    The dictionaries look like the following one. You must know this structure
-    if you want to define your own kind of sorting for the output.
+    The property like method ``self.ascii`` works iteratively with the
+    argument ``self.listview``.
 
-    python::
-        {
-            'kind' : "dir" or "file",
-            'ppath': the whole path of one directory or file found
-                     (this can also be an ellipsis path)
-        }
+
+==================================
+The structure of ``self.treeview``
+==================================
+
+This list contains the dictionnaries of the only first level object but for
+folder a key ``'content'`` is added whose value is a list of dictionnaries
+associated to its content and so on...
+
+
+info::
+    The property like method ``self.tree`` works recursively with the argument
+    ``self.treeview``.
         """
-# Reset everything !
-        self.outputs = {}
-
+# Do we have a folder ?
         if not self.ppath.is_dir():
             raise ValueError(
                 "the argument ``ppath`` doesn't point to a directory."
             )
 
+# Regpath infos
         queries, pattern = self.ppath.regpath2meta(
             self.regpath,
             regexit = False
         )
 
+# Sorting: long names
+        self._LAMBDA_SORT_LONGNAMES = {
+            k[0]: v for k, v in self.LAMBDA_SORT.items()
+        }
+
+        _long_names = {x[1]: x[0] for x in self.LAMBDA_SORT}
+
+        self.sorting = _long_names.get(self.sorting, self.sorting)
+
+        if self.sorting not in self._LAMBDA_SORT_LONGNAMES:
+            raise ValueError("unknown sorting rule.")
+
+# Displaying
+        _long_names = {x[0]: x for x in self._FORMATS}
+
         self.display = set(
-            self._LONG_FORMATS.get(x.strip(), x.strip())
+            _long_names.get(x.strip(), x.strip())
             for x in self.display.split(" ") if x.strip()
         )
 
@@ -1402,16 +1683,14 @@ info::
 
         elif nb_path_formats != 1:
             raise ValueError(
-                "several in path formatting rules (see ``display``)."
+                "several path formatting rules (see ``display``)."
             )
-
-
-        if _ELLIPSIS in queries:
-            self.display.add(self._ALL_PATHS)
 
 # All the infos using ellipsis.
         allqueries = queries | self._INTERNAL_QUERIES
         allregpath = "{0}::{1}".format(" ".join(allqueries), pattern)
+
+        self._extradepth = int(self._MAIN_PATH in self.display)
 
         self._all_listview = [
             self._metadatas(x)
@@ -1420,43 +1699,63 @@ info::
 
 # We can know clean the list so as to only keep what the user wants.
         self._filedir_queries = queries & _FILE_DIR_QUERIES
-        self._add_ppaths()
 
-                                    # DOC OK !!
-    def _metadatas(self, ppath):
+        self._build_listview()
+        self._build_treeview()
+
+        self.sort()
+
+
+    def _metadatas(self, ppath):        # DOC OK !!
         """
 prototype::
-    return = a dictionnary build from a path found (this is for the attribut
-             ``self.listview``).
+    return = dict ;
+             the dictionnary stores the path, its depth and the kind of object
+             pointed by the path
+             (this is for the elements in ``self.listview`` and partially for
+             ``self.treeview``)
         """
-        if ppath.name == EMPTY_OTHER_DIR or ppath.is_dir():
+        if ppath.name == EMPTY_OTHER_DIR:
+            kind  = "empty_dir"
+            ppath = ppath.parent
+
+        elif ppath.name == OTHER_FILES:
+            kind  = "other_files"
+            ppath = ppath.parent / "..."
+
+        elif ppath.is_dir():
             kind = "dir"
 
         else:
             kind = "file"
 
-        return {
+        metadatas = {
             'kind' : kind,
+            'depth': ppath.depth_in(self.ppath) + self._extradepth,
             'ppath': ppath
         }
 
-                                    # DOC OK !!
-    def _add_ppaths(self):
+        return metadatas
+
+
+    def _build_listview(self):          # DOC OK !!
         """
 prototype::
+    see    = self.build
     action = the attribut ``self.listview`` is build using the attribut
-             ``self._all_listview``.
+             ``self._all_listview``
         """
+# Sub fles and folders found
+        addall    = bool(self._ONLY_FOUND_PATHS not in self.display)
         _listview = []
 
-# Sub fles and folders found
-        for metadata in self._all_listview:
-            if metadata['kind'] in self._filedir_queries:
-                if self._ALL_PATHS in self.display:
-                    _listview.append(metadata)
+        for metadatas in self._all_listview:
+            if metadatas['kind'] in ["empty_dir", "other_files"]:
+                if addall:
+                    _listview.append(metadatas)
 
-                elif metadata['ppath'].name not in _ELLIPSIS_NAMES:
-                    _listview.append(metadata)
+            elif metadatas['kind'] in self._filedir_queries:
+                _listview.append(metadatas)
 
         _listview.sort(key = lambda x: str(x['ppath']))
 
@@ -1465,137 +1764,202 @@ prototype::
         self.listview = []
         lastreldirs   = []
 
-        for i, metadata in enumerate(_listview):
-            name    = metadata['ppath'].name
-            relpath = metadata['ppath'].relative_to(self.ppath)
+        for i, metadatas in enumerate(_listview):
+            relpath = metadatas['ppath'].relative_to(self.ppath)
             parents = relpath.parents
 
-            if name == EMPTY_OTHER_DIR:
-                metadata['kind']  = "empty_other_dir"
-                metadata['ppath'] = metadata['ppath'].parent
-
-                lastreldirs.append(metadata['ppath'].relative_to(self.ppath))
-
-            elif name == OTHER_FILES:
-                metadata['kind']  = "other_files"
-                metadata['ppath'] = self.ppath / parents[0] / "..."
-
-
 # We have to add all the parent directories !
-            if metadata['kind'] == "dir":
-                lastreldirs.append(metadata['ppath'])
+            if "dir" in metadatas['kind']:
+                lastreldirs.append(metadatas['ppath'].relative_to(self.ppath))
 
             else:
                 for parent in reversed(parents):
                     if parent not in lastreldirs:
+                        ppath = self.ppath / parent
+
                         self.listview.append({
                             'kind' : 'content_dir',
-                            'ppath': self.ppath / parent
+                            'depth': ppath.depth_in(self.ppath) \
+                                     + self._extradepth,
+                            'ppath': ppath
                         })
 
                         lastreldirs.append(parent)
 
-
-            self.listview.append(metadata)
+            self.listview.append(metadatas)
 
 # Main or not main, that is the question.
         if self._MAIN_PATH not in self.display:
             self.listview.pop(0)
 
-# Let's use the good sorting !
-        self.sortit()
 
-                                    # DOC OK !!
-    def sortit(self):
+    def _build_treeview(self):                  # DOC OK !!
         """
 prototype::
-    action = this method sorts the attribut ``self.listview`` regarding to the
-             value of the attribut ``self.sorting``
+    see    = self.build , self._rbuild_treeview
+    action = this method returns the attribut ``self.treeview`` but all the
+             job is done recursively by the method ``self._rbuild_treeview``
         """
-# << Warning ! >> By default, ``self.listview`` uses the very natural
-# alphabetic order ("file::file.txt" < "dir::file")
-#
-# No tricky method using a special ordering class has not yet been found.
-# So we have to dirty a little our hands with a recursive method.
-        if self.sorting == "filefirst":
-            self.listview = self._filefirst(self.listview)
+        self.treeview = self._rbuild_treeview(self.listview)
 
-                                    # DOC OK !!
-    def _filefirst(self, listview):
+
+    def _rbuild_treeview(self, listview):       # DOC OK !!
         """
 prototype::
-    arg    = list(dict): listview
-    see    = self.build
-    return = a list of objects sorted with files before folders for a given
-             depth
+    action = the attribut ``self.treeview`` is build recursively using first
+             the attribut ``self.listview``
         """
-        mindepth = min(x['ppath'].depth for x in listview)
-        files    = []
-        dirs     = []
+        i    = 0
+        imax = len(listview)
 
-        for metadata in listview:
-            if mindepth == metadata['ppath'].depth \
-            and metadata['kind'] in self.FILE_KINDS:
-                files.append(metadata)
+        treeview = []
 
+        while(i < imax):
+            metadatas = listview[i]
+
+# Simply a file.
+            if 'file' in metadatas['kind']:
+                treeview.append(metadatas)
+                i += 1
+
+# For a directory, we have to catch its content that will be analyzed
+# recursively.
             else:
-                dirs.append(metadata)
-
-        if files and files[0]['ppath'].name == "...":
-            files = files[1:] + [files[0]]
-
-        listview = files
-
-        if dirs:
-            onedir  = dirs.pop(0)
-            content = []
-
-            while(dirs):
-# Content of min depth level folder
+                depth   = metadatas['depth']
                 content = []
+                i += 1
 
-                while(dirs):
-                    subobj = dirs.pop(0)
+                while(i < imax):
+                    submetadatas = listview[i]
+                    subdepth     = submetadatas['depth']
 
-                    if mindepth == subobj['ppath'].depth:
-                        if content:
-                            listview += [onedir] + self._filefirst(content)
-                            content = []
-
-                        else:
-                            listview += [onedir]
-
-                        onedir = subobj
-                        break
+                    if subdepth > depth:
+                        content.append(submetadatas)
+                        i += 1
 
                     else:
-                        content.append(subobj)
+                        break
 
-            if content:
-                listview += [onedir] + self._filefirst(content)
+                if content:
+                    metadatas['content'] = self._rbuild_treeview(content)
 
-            else:
-                 listview.append(onedir)
+                treeview.append(metadatas)
 
-        return listview
+        return treeview
 
-                                        # DOC OK !!
-    def pathtoprint(self, metadatas):
+
+# ------------- #
+# -- SORTING -- #
+# ------------- #
+
+    def _ellipsis_sort(self, metadatas):            # DOC OK !!
         """
 prototype::
     arg    = dict: metadatas
-    see    = self._metadatas
-    return = str
+    see    = self.build , self._metadatas
+    return = str ;
+             the value to use for the sorting
+        """
+        if metadatas['ppath'].name == "...":
+            return self._ellipsi_sort_value
+
+        else:
+            return self._lambda_sort(metadatas)
+
+
+    def sort(self):                     # DOC OK !!
+        """
+prototype::
+    see    = self._rsort
+    action = this method sorts the attribut ``self.treeview`` regarding to the
+             value of the attribut ``self.sorting``, this job being done
+             recursively by the method ``self._rsort``, and then the list
+             ``self.listview`` is rebuild using the new ``self.treeview``
+             (this is uggly but this allows to easily defined the methods of
+             sorting, and this is easy to code)
+        """
+        self._lambda_sort        = self._LAMBDA_SORT_LONGNAMES[self.sorting][0]
+        self._ellipsi_sort_value = self._LAMBDA_SORT_LONGNAMES[self.sorting][1]
+
+# Each new sorting
+        self.outputs = {}
+
+# We sort ifirst the treeview (that allows to define natural sorintgs).
+        self.treeview = self._rsort(self.treeview)
+
+# We have to go back to ``self.listview`` !
+        self.listview = self._rtree_to_list_view(self.treeview)
+
+
+    def _rsort(self, treeview):                 # DOC OK !!
+        """
+prototype::
+    arg    = list(dict): treeview
+    see    = self.build , self._metadatas , self._ellipsis_sort
+    return = list(dict) ;
+             the treeview sorting regarding to the value of ``self.sorting``
+             (the job is done recursively)
+        """
+        treeview.sort(key = self._ellipsis_sort)
+
+        for i, metadatas in enumerate(treeview):
+            if 'content' in metadatas:
+                metadatas['content'] = self._rsort(metadatas['content'])
+                treeview[i] = metadatas
+
+        return treeview
+
+
+    def _rtree_to_list_view(self, treeview):         # DOC OK !!
+        """
+prototype::
+    see    = self.sort
+    arg    = list(dict): treeview
+    return = list(dict) ;
+             the listview associated to ``self.treeview`` (the job is done
+             recursively)
+        """
+        listview = []
+
+        for metadatas in treeview:
+            if 'content' in metadatas:
+                content = metadatas['content']
+
+# << Warning ! >> We can't use ``del metadatas['content']`` because this will
+# always change self.treeview (we could have used a deepcopy but this  would
+# be not efficient).
+                newmetadatas = {}
+
+                for k, v in metadatas.items():
+                    if k != "content":
+                        newmetadatas[k] = v
+
+                listview.append(newmetadatas)
+                listview += self._tree_to_list_view(content)
+
+            else:
+                listview.append(metadatas)
+
+        return listview
+
+
+# ------------ #
+# -- OUPUTS -- #
+# ------------ #
+
+    def pathtoprint(self, metadatas):       # DOC OK !!
+        """
+prototype::
+    arg    = dict: metadatas
+    return = str ;
+             the string to print for a path
         """
 # << Warning ! >> The paths are whole ones by default !
         kind  = metadatas["kind"]
         ppath = metadatas["ppath"]
         name  = ppath.name
 
-        if name == "...":
-            return name
-
-        elif self._SHORT_PATH in self.display:
+        if name == "..." or self._SHORT_PATH in self.display:
             strpath = name
 
         elif self._REL_PATH in self.display:
@@ -1610,13 +1974,14 @@ prototype::
 
         return strpath
 
-                            # DOC OK !!
+
     @property
-    def toc(self):
+    def toc(self):          # DOC OK !!
         """
 prototype::
     type   = property
-    return = the content only shows files and their direct parent folder like
+    return = str ;
+             the content only shows files and their direct parent folder like
              a kind of table of content where the section are always relative
              paths of parent directories and subsection are pathe of files
              (empty flders are never displayed)
@@ -1630,88 +1995,190 @@ prototype::
             tab      = self.ASCII_DECOS["tab"]
             decodir  = self.ASCII_DECOS["dir"]
             decofile = self.ASCII_DECOS["file"]
+            mainname = self.ppath.name
 
             for metadatas in self.listview:
                 if "file" in metadatas["kind"]:
                     pathtoprint = self.pathtoprint(metadatas)
 
-                    if pathtoprint:
-                        if lastdir:
-                            dirpath = lastdir["ppath"].relative_to(self.ppath)
+                    if lastdir:
+                        dirpath \
+                        = mainname / lastdir["ppath"].relative_to(self.ppath)
 
-                            text.append("")
-                            text.append("{0} {1}".format(decodir, dirpath))
+                        text.append("")
+                        text.append("{0} {1}".format(decodir, dirpath))
 
-                            lastdir = None
+                        lastdir = None
 
-                        text.append(
-                            "{0}{1} {2}".format(tab, decofile, pathtoprint)
-                        )
+                    text.append(
+                        "{0}{1} {2}".format(tab, decofile, pathtoprint)
+                    )
 
                 else:
                     lastdir = metadatas
 
+            if "dir" in metadatas["kind"]:
+                dirpath \
+                = mainname / metadatas["ppath"].relative_to(self.ppath)
+
+                text.append("")
+                text.append("{0} {1}".format(decodir, dirpath))
+
             self.outputs['toc'] = '\n'.join(text[1:])
 
 
-        # The job has been done.
+# The job has been done.
         return self.outputs['toc']
 
-                                    # DOC OK !!
+
     @property
-    def ascii(self):
+    def ascii(self):                # DOC OK !!
         """
 prototype::
     type   = property
-    return = an ASCCI basic view using only basic characters
+    return = str ;
+             a basic tree using only ¨ascii characters
         """
 # The job has to be done.
         if 'ascii' not in self.outputs:
-            text       = []
-            extradepth = int(self._MAIN_PATH in self.display)
+            text = []
 
             for metadatas in self.listview:
-                depth = metadatas["ppath"].depth_in(self.ppath) + extradepth
+                depth = metadatas["depth"]
                 tab   = self.ASCII_DECOS['tab']*depth
 
-                decokind = self.ASCII_DECOS[metadatas["kind"]]
-
+                decokind    = self.ASCII_DECOS[metadatas["kind"]]
                 pathtoprint = self.pathtoprint(metadatas)
 
-                if pathtoprint:
-                    text.append(
-                        "{0}{1} {2}".format(tab, decokind, pathtoprint)
-                    )
+                text.append(
+                    "{0}{1} {2}".format(tab, decokind, pathtoprint)
+                )
 
             self.outputs['ascii'] = '\n'.join(text)
 
 # The job has been done.
         return self.outputs['ascii']
 
-                                    # DOC OK !!
+
     @property
-    def tree(self):
+    def tree(self):                 # DOC OK !!
         """
 prototype::
+    see    = self._rtree
     type   = property
-    return = a UNICODE treeview using special characters such as to draw
-             some rules
+    return = str ;
+             a tree using special ¨unicode characters such as to draw some
+             additional rules
         """
 # The job has to be done.
         if 'tree' not in self.outputs:
-# Source for the rules: http://en.wikipedia.org/wiki/Box-drawing_character
-#
-#     * Horizontal and vertical rules
-            hrule = "\u2501" # or ━
-            vrule = "\u2503" # or ┃
-#     * First, last, horizontal and vertical nodes
-            fnode = "\u250F" # or ┏
-            lnode = "\u2517" # or ┗
-            vnode = "\u2523" # or ┣
-            hnode = "\u2533" # or ┳
+# One dir or file alone (extra prossibilty)
+            if len(self.listview) == 1:
+                self.outputs['tree'] = "{0} {1}".format(
+                    self.UTF8_DECOS['hrule'],
+                    self.pathtoprint(self.listview[0])
+                )
 
-
-            TODO
+            else:
+# Ugly patch !!!
+                self.outputs['tree'] = "\n".join([
+                    x[4:]
+                    for x in self._rtree(self.treeview)
+                ])
 
 # The job has been done.
         return self.outputs['tree']
+
+
+    def _rtree(self, treeview):             # DOC OK !!
+        """
+prototype::
+    return = str ;
+             the lines of the tree that uses ¨unicode characters to draw some
+             additional rules
+        """
+        lines       = []
+        imax        = len(treeview) - 1
+        thisdepth   = treeview[0]['depth']
+
+        if thisdepth <= 3:
+            subtabdepth = 0
+
+        else:
+            subtabdepth = thisdepth - 2
+
+        for i, metadatas in enumerate(treeview):
+# Rule regarding the kind of object.
+            isdir = 'dir' in metadatas['kind']
+
+# Rule before any kind of rule.
+            if thisdepth == 0:
+                addvrule = False
+# Ugly patch !!!
+                before   = "  "
+
+            elif i == imax:
+                addvrule = False
+                before   = " " + self.UTF8_DECOS['lnode']
+
+            else:
+                addvrule = True
+                before   = " " + self.UTF8_DECOS['vnode']
+
+# Just add the object.
+            lines.append(
+                "{0}{1} {2}{3}".format(
+                    before,
+                    self.UTF8_DECOS['hrule'],
+                    self.UTF8_DECOS['deco'],
+                    self.pathtoprint(metadatas)
+                )
+            )
+
+# A new not empty directory
+            if isdir and metadatas['content']:
+                subbefore = " "*subtabdepth
+
+                if addvrule:
+                    subbefore += " " + self.UTF8_DECOS['vrule'] + "  "
+
+                else:
+                    subbefore += "    "
+
+                lines += [
+                    subbefore + x
+                    for x in self._rtree(metadatas['content'])
+                ]
+
+        return lines
+
+
+    @property
+    def latex(self):                # DOC OK !!
+        """
+prototype::
+    type   = property
+    return = str ;
+             a ¨latex code that can be used by the ¨latex package 
+             ¨latex::``dirtree``
+        """
+# The job has to be done.
+        if 'latex' not in self.outputs:
+            text = []
+
+            for metadatas in self.listview:
+                depth = metadatas["depth"] + 1
+                pathtoprint = latex_escape(self.pathtoprint(metadatas))
+
+                text.append(
+                    "{0}.{1} <{2}>.".format(
+                        "  "* depth,
+                        depth,
+                        pathtoprint
+                    ).replace('<', '{').replace('>', '}')
+                )
+
+            self.outputs['latex'] = "\dirtree{%\n" + '\n'.join(text) + "\n}"
+
+# The job has been done.
+        return self.outputs['latex']

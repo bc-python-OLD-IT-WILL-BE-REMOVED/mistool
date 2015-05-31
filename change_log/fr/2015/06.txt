@@ -1,0 +1,22 @@
+==========
+2015-06-01    ????
+==========
+
+???? ---------->    **¨Maj de TOUS les modules pour prendre en compte ``os_use.PPath``:** voici les modules concernés.
+
+
+    1) Dans le module ``python_use``, la fonction ``runpys`` ????
+
+    utilise juste un argument ``patterns`` en remplacement des arguments ``prefixes`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
+
+
+    1) Dans le module ``log_test_use``, la fonction ``clean`` ????
+
+
+
+    1) Dans le module ``latex_use``, la fonction ``clean`` ????
+
+    utilise juste l'argument ``patterns`` en remplacement des arguments ``keep``, ``discard`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
+
+
+???? ---------->    **Amélioration de TOUTES les docstrings:** on utilise la même ¨nelle syntaxe que celle qui a été introduite dans la dernière version de ``os_use``.

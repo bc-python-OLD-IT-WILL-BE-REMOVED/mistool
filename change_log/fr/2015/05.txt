@@ -1,30 +1,21 @@
 ==========
-2015-05-      ????
+2015-05-31
 ==========
 
-???? ---------->    **Petite amélioration de la classe ``DirView`` du module ``os_use``:** on peut maintenant obtenir.
+**Deux améliorations dans la classe ``os_use.DirView``:** voici ce qui est nouveau.
 
+    1) Ajout d'un nouvel attribut de classe ``LAMBDA_SORT`` qui est un dictionnaire stockant les types d'ordre pour les sorties.
+    Ceci permet à l'utilisateur, s'il le souhaite, d'ajouter d'autres ordres, relativement simples à définir.
+    Cette nouveauté a nécessité d'ajouter en interne une vue en arbre en plus de celle sous forme de liste "plate".
 
-???? ---------->    **¨Maj des modules impactés par la prise en compte de ``pathlib`` dans ``os_use``:** voici les modules concernés.
-
-    1) Dans le module ``python_use``, la fonction ``runpys`` ????
-
-    utilise juste un argument ``patterns`` en remplacement des arguments ``prefixes`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
-
-
-    1) Dans le module ``latex_use``, la fonction ``clean`` ????
-
-    utilise juste l'argument ``patterns`` en remplacement des arguments ``keep``, ``discard`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
-
-
-???? ---------->    **Amélioration de toutes les docstrings :** on utilise la même ¨nelle syntaxe que celle qui a été introduite dans la dernière version de ``os_use``.
+    2) Ajout de deux nouvelles représentations: l'une sous forme d'arbre ¨utf8 utilisant des lignes dans une console, comme dans les ¨gui_frs, et l'autre à destination du package latex::``dirtree`` pour ¨latex.
 
 
 ==========
 2015-05-26
 ==========
 
-**NON RÉTRO-COMPATIBILITÉ du code suite à la prise en compte de ``pathlib`` dans le module ``os_use``:** ajout d'une nouvelle classe ``PPath``, qui est grosso modo une sous-classe de ``pathlib.Path`` (voir le code pour comprendre la signification technique du "grosso modo"). Ceci implique tous les changements importants suivants.
+**NON RÉTRO-COMPATIBILITÉ du code du module ``os_use`` suite à la prise en compte de ``pathlib``:** ajout d'une nouvelle classe ``PPath``, qui est grosso modo une sous-classe de ``pathlib.Path`` (voir le code pour comprendre la signification technique du "grosso modo"). Ceci implique tous les changements importants suivants **en attendant de mettre à jour tous les autres modules**.
 
     1) Concernant **les noms** de fichier ou de dossier, voici ce qui a évolué.
 
@@ -32,7 +23,7 @@
 
         a) La fonction ``name`` n'existe plus car la classe ``pathlib.Path`` possède un attribut ``name``. Il faudra donc faire ``mypath.name``.
 
-        a) La fonction ``filename`` n'existe plus. Il faudra utiliser à la place ``mypath.stem`` en utilisant l'attribut ``stem`` présent dans la classe ``pathlib.Path``.
+        a) La fonction ``filename`` n'existe plus. Il faudra utiliser à la place ``mypath.stem`` où l'attribut ``stem`` vient de la classe ``pathlib.Path``.
 
         a) La classe ``PPath`` possède un attribut ``ext`` qui joue le même rôle que l'ancienne fonction ``ext``.
 
@@ -53,7 +44,7 @@
         a) La fonction ``realpath`` devient la méthode ``normpath`` de la classe ``PPath``.
         Cette méthode renvoie une classe ``PPath`` construite à partir du chemin obtenu en interprétant les raccourcis path::``~`` et path::``../``.
 
-        Noter que la classe ``pathlib.Path`` possède une méthode ``resolve()`` qui va chercher à trouver le chemin physique complet. Cette méthode renverra une erreur si le chemin pointe nulle part.
+        Noter que la classe ``pathlib.Path`` possède une méthode ``resolve()`` qui va chercher à trouver le chemin physique complet. Cette méthode renverra une erreur si le chemin pointe nulle part contrairement à la méthode ``normpath``.
 
         a) La classe ``PPath`` possède la méthode ``shortpath`` qui renvoie une classe ``PPath`` construite à partir d'un chemin obtenu en utilisant path::``~`` si possible, et en interprétant les raccourcis path::``../`` de remonter de dossier.
 
@@ -75,9 +66,9 @@
 
     1) Pour **les manipulations physiques** de fichiers et de dossiers, les changements sont les suivants.
 
-        a) Les fonctions ``readtxtfile`` et ``maketxtfile`` disparaissent car la classe ``pathlib.Path`` peut s'utilise via ``with mypath.open() as f: ...`` en utilisant les mêmes options que la fonction standard ``open``.
-
         a) La fonction ``watch`` devient la méthode ``see`` de la classe ``PPath``.
+
+        a) Les fonctions ``readtxtfile`` et ``maketxtfile`` disparaissent car la classe ``pathlib.Path`` peut s'utiliser via ``with mypath.open() as f: ...`` en utilisant les mêmes options que la fonction standard ``open``.
 
         a) La fonction ``makedir`` disparait car la classe ``PPath`` dispose d'une nouvelle méthode ``create`` qui permet au choix de créer un fichier ou un dossier via ``mypath.create("file")`` et ``mypath.create("dir")`` ¨resp.
 
@@ -100,7 +91,7 @@
     info::
         La méthode ``match`` des classes ``pathlib.PosixPath`` et ``pathlib.WindowsPath`` permet de tester si un chemin correspond à un motif, tandis que la méthode ``iterdir`` permet de voir le contenu "direct" d'un dossier.
 
-    1) La classe ``DirView`` est la seule rescapée des anciennes fonctionnalités travaillant sur des chemins. Son utilisation et son implémentation ont été totalement adaptées à la classe ``PPath``. Ceci a permis d'améliorer la classe ``DirView`` qui propose maintenant différents types de sortie ainsi que la possibilité de personnaliser l'ordre d'affichage.
+    1) La classe ``DirView`` est l'une des rescapées des anciennes fonctionnalités travaillant sur des chemins. Son utilisation et son implémentation ont été totalement adaptées à la classe ``PPath``. Ceci a permis d'améliorer la classe ``DirView`` qui propose maintenant différents types de sortie ainsi que la possibilité de personnaliser l'ordre d'affichage.
 
     info::
         La refonte complète du code rend très simple l'ajout de nouveaux types de sortie.
@@ -110,8 +101,12 @@
     1) Les fonctions ``pathenv`` et ``system`` ont été gardées sans aucune modification.
 
 
-**Amélioration des docstrings de ``os_use``:** la syntaxe utilisée se base sur de nouvelles spécification de ¨pybadoc, un outil maison en cours de construction. Par exemple, on utilise des exemples "en console" pour rendre le propos plus clair et on peut indiquer les signatures des fonctions, des classes, ¨etc via le blob pybadoc::``prototype::...`` à placer en début de docstring. Très lisible et très efficace !
+**Amélioration des docstrings de ``os_use``:** la syntaxe utilisée se base sur de nouvelles spécifications de ¨pybadoc, un outil maison en cours de construction: on utilise des exemples "en console" pour rendre le propos plus clair et on peut indiquer les signatures des fonctions, des classes, ¨etc via le bloc pybadoc::``prototype::...`` à placer en début de docstring. Très lisible et très efficace !
 
+
+==========
+2015-05-03
+==========
 
 **Amélioration côté développement interne :** voici ce qui a évolué.
 
