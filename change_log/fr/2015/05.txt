@@ -15,7 +15,7 @@
 2015-05-26
 ==========
 
-**NON RÉTRO-COMPATIBILITÉ du code du module ``os_use`` suite à la prise en compte de ``pathlib``:** ajout d'une nouvelle classe ``PPath``, qui est grosso modo une sous-classe de ``pathlib.Path`` (voir le code pour comprendre la signification technique du "grosso modo"). Ceci implique tous les changements importants suivants **en attendant de mettre à jour tous les autres modules**.
+**NON RÉTRO-COMPATIBILITÉ du code du module ``os_use`` suite à la prise en compte de ``pathlib``:** ajout d'une nouvelle classe ``PPath``, très facile à utiliser, qui est grosso modo une sous-classe de ``pathlib.Path`` (voir le code pour comprendre la signification technique du "grosso modo"). Ceci implique tous les changements importants suivants **en attendant de mettre à jour tous les autres modules**. 
 
     1) Concernant **les noms** de fichier ou de dossier, voici ce qui a évolué.
 

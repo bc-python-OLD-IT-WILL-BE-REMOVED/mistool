@@ -33,14 +33,20 @@ _WEEKDAYS = {
     "sunday"   : 6
 }
 
-def nextday(
-    date,
-    name
-):
+def nextday(date, name):
     """
------------------
-Small description
------------------
+prototype::
+    arg    = datetime.date: date ;
+             the date
+    arg    = str: name ;
+             the english long name of the day wanted
+    return = datetime.date ;
+             ????
+
+
+
+
+
 
 In some applications, you have a date and you want to find the nearest coming
 day given by its name, for example the next nearest sunday after november the
@@ -63,18 +69,6 @@ python::
 info::
     The simple but efficient method used in the code was found in cf::``this
     discussion ; http://stackoverflow.com/a/6558571/1054158``.
-
-
--------------
-The arguments
--------------
-
-This function uses two variables.
-
-    1) ``date`` is a date defined using the class ``datetime.date`` from the
-    standard package ``datetime``.
-
-    2) ``name`` is the english long name of the day wanted.
     """
     if name not in _WEEKDAYS:
         raise ValueError("unknown name << {0} >>.".format(name))
@@ -97,12 +91,35 @@ LANGS        = date_name.LANGS
 _POINTERS             = date_name._POINTERS
 _FORMATS_TRANSLATIONS = date_name._FORMATS_TRANSLATIONS
 
-def translate(
-    date,
-    format,
-    lang = DEFAULT_LANG
-):
+def translate(date, format, lang = DEFAULT_LANG):
     """
+prototype::
+    arg    = datetime.date: date ;
+             the date
+    arg    = str: format ;
+             ????
+    arg    = str: lang = DEFAULT_LANG ;
+             ????
+    return = str ;
+             ????
+
+
+
+
+This function uses three variables.
+
+    1) ``date`` is a date defined using the class ``datetime.date`` from the
+    standard package ``datetime``.
+
+    2) ``format`` is a string that uses the special formatters available with
+    the method ``strftime`` of the class ``datetime.date``.
+
+    3) ``lang`` is a language respecting the convention needed for the use of
+    the function ``locale.setlocale`` of the standard package ``locale``.
+
+    This optional variable used the default value ``DEFAULT_LANG`` which is a
+    module constant defined by ``DEFAULT_LANG = "en_GB"``.
+
 -----------------
 Small description
 -----------------
@@ -158,25 +175,6 @@ python::
 info::
     The mechanism used in backstage is very primitive : it never calls the
     standard package ``locale`` !
-
-
--------------
-The arguments
--------------
-
-This function uses three variables.
-
-    1) ``date`` is a date defined using the class ``datetime.date`` from the
-    standard package ``datetime``.
-
-    2) ``format`` is a string that uses the special formatters available with
-    the method ``strftime`` of the class ``datetime.date``.
-
-    3) ``lang`` is a language respecting the convention needed for the use of
-    the function ``locale.setlocale`` of the standard package ``locale``.
-
-    This optional variable used the default value ``DEFAULT_LANG`` which is a
-    module constant defined by ``DEFAULT_LANG = "en_GB"``.
 """
     if lang not in LANGS:
         raise ValueError(

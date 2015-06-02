@@ -23,7 +23,15 @@ CHAR_TO_KEEP = "/:#&?="
 
 def escape(url):
     """
-This function escapes no ASCII characters in urls. For example,
+        prototype::
+            arg    = str: lang = DEFAULT_LANG ;
+                     ????
+            return = str ;
+                     ????
+
+
+
+This function escapes not ASCII characters in urls. For example,
 ``escape("http://www.vivaespaña.com/camión/")`` is equal to
 ``http://www.vivaespa%C3%B1a.com/cami%C3%B3n/``.
 
@@ -40,11 +48,15 @@ characters that must not be escaped : ``"/:#&?="``.
 # -- TESTING -- #
 # ------------- #
 
-def test(
-    url,
-    timeout = -1
-):
+def test(url, timeout = -1):
     """
+        prototype::
+            arg    = str: lang = DEFAULT_LANG ;
+                     ????
+            return = str ;
+                     ????
+
+
 This function try to open the url given in the variable ``url`` so as to know if
 the url is a real one. If the connection works ``True`` is returned, if not that
 is ``False`` which is sent.

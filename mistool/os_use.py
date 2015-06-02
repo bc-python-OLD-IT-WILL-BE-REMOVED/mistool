@@ -28,7 +28,7 @@ from mistool.latex_use import escape as latex_escape
 # -- GENERAL INFOS -- #
 # ------------------- #
 
-def pathenv():                        # DOC OK !!
+def pathenv():
     """
 prototype::
     return = str ;
@@ -38,7 +38,7 @@ prototype::
     return os.getenv('ppath')
 
 
-def system():                        # DOC OK !!
+def system():
     """
 prototype::
     return = str ;
@@ -81,7 +81,7 @@ prototype::
 # ----------- #
 
 @property
-def _ppath_parent(cls):                     # DOC OK !!
+def _ppath_parent(cls):
     """
 prototype::
     type   = property ;
@@ -109,7 +109,7 @@ pyterm::
 
 
 @property
-def _ppath_ext(cls):                        # DOC OK !!
+def _ppath_ext(cls):
     """
 prototype::
     type   = property ;
@@ -139,7 +139,7 @@ pyterm::
     return cls.suffix[1:]
 
 
-def _ppath_with_ext(cls, ext):              # DOC OK !!
+def _ppath_with_ext(cls, ext):
     """
 prototype::
     type   = method ;
@@ -179,7 +179,7 @@ pyterm::
 # ----------------------- #
 
 @property
-def _ppath_normpath(cls):                   # DOC OK !!
+def _ppath_normpath(cls):
     """
 prototype::
     type   = property ;
@@ -213,7 +213,7 @@ pyterm::
 
 
 @property
-def _ppath_shortpath(cls):                  # DOC OK !!
+def _ppath_shortpath(cls):
     """
 prototype::
     type   = property ;
@@ -252,7 +252,7 @@ pyterm::
 # -- COMPARING PATHS -- #
 # --------------------- #
 
-def _ppath_common_with(cls, *args):         # DOC OK !!
+def _ppath_common_with(cls, *args):
     """
 prototype::
     type   = method ;
@@ -344,7 +344,7 @@ info::
     return commonpath
 
 
-def _ppath___and__(cls, paths):             # DOC OK !!
+def _ppath___and__(cls, paths):
     """
 prototype::
     type   = method ;
@@ -367,7 +367,7 @@ a list or a tuple of paths.
     return cls.common_with(paths)
 
 
-def _ppath___sub__(cls, path):              # DOC OK !!
+def _ppath___sub__(cls, path):
     """
 prototype::
     type   = method ;
@@ -389,7 +389,7 @@ version ``path.relative_to(anotherpath)`` given by ``pathlib.Path``.
     return cls.relative_to(path)
 
 
-def _ppath_depth_in(cls, path):             # DOC OK !!
+def _ppath_depth_in(cls, path):
     """
 prototype::
     type   = method ;
@@ -428,7 +428,7 @@ pyterm::
 
 
 @property
-def _ppath_depth(cls):                  # DOC OK !!
+def _ppath_depth(cls):
     """
 prototype::
     type   = property ;
@@ -464,10 +464,10 @@ pyterm::
 #     * http://stackoverflow.com/a/817117/4589608
 #     * http://stackoverflow.com/questions/20294704/which-pattern-has-been-found/20294987
 
-_ALL, _DIR, _ELLIPSIS, _FILE, _RELSEARCH \
-= "all", "dir", "ellipsis", "file", "relative"
+_ALL, _DIR, _EMPTY, _FILE, _RELSEARCH, _XTRA \
+= "all", "dir", "empty", "file", "relative", "xtra"
 
-_PATH_QUERIES      = set([_ALL, _DIR, _ELLIPSIS, _FILE, _RELSEARCH])
+_PATH_QUERIES      = set([_ALL, _DIR, _EMPTY, _FILE, _RELSEARCH, _XTRA])
 _LONG_PATH_QUERIES = {x[0]: x for x in _PATH_QUERIES}
 _FILE_DIR_QUERIES  = set([_DIR, _FILE])
 _ALL_QUERY         = set([_ALL])
@@ -489,7 +489,7 @@ _REPLACEMENTS['\\'] = "[^\\]+"
 _REPLACEMENTS['/']  = "[^/]+"
 
 
-def _ppath_regexit(cls, pattern):      # DOC OK !!
+def _ppath_regexit(cls, pattern):
     """
 prototype::
     type   = method ;
@@ -525,7 +525,7 @@ prototype::
     return newpattern
 
 
-def _ppath_regpath2meta(cls, regpath, regexit = True):      # DOC OK !!
+def _ppath_regpath2meta(cls, regpath, regexit = True):
     """
 prototype::
     type   = method ;
@@ -618,23 +618,29 @@ The regex version of this pattern is regex::``[^\\]+\.(py|txt)`` for a ¨unix
 The query part
 ==============
 
-Before two double points, you can use the following queries that will be used
-by the method ``walk``.
+Before two double points, you can use the following queries separated by
+spaces.
 
-    a) ``file`` asks to keep only files. You can use the shortcut ``f``.
+    a) ``file`` asks to keep only files.
 
-    b) ``dir`` asks to keep only folders. You can use the shortcut ``d``.
+    b) ``dir`` asks to keep only folders.
 
-    c) ``all`` asks to keep also the unvisible files and folders. This ones
-    have a name begining with ``.``.
+    c) ``all`` asks to keep also the hidden files and folders. This ones have
+    a name begining with a point.
 
-    d) ``all file`` and ``all dir`` ask to respectively keep only visible
-    files, or only visible directories.
+    d) ``all file`` asks to keep only files even the hidden ones. You can also
+    use ``all dir``.
 
-    e) ``relative`` indicates that the pattern is relatively to the current
-    directory and not to a full path.
+    e) ``empty`` allows to only look for empty folders which are by default the
+    ones with no visible content (this can be useful for some cleaning).
 
-    f) ``ellipsis`` add respectively special names path::``::...files...::``
+    By cons, you can target your research via ``all empty`` so that folders
+    containing only invisible objects are not considered empty.
+
+    f) ``relative`` indicates that the pattern after ``::`` is relatively to
+    the current directory and not to a full path.
+
+    g) ``xtra`` add respectively special names path::``::...files...::``
     and path::``::...empty...::`` whenever some files have been found but not
     kept or a folder is empty (this feature is used by the class ``DirView``).
 
@@ -645,9 +651,8 @@ folders with a name finishing by path::``.py`` (that is legal).
 
 
 info::
-    For each query, you can only use the initial letter of the query. For
-    example, ``f`` is a shortcut for ``file``, and ``a-f`` is the same that
-    ``all-file``.
+    For each query, you can only use its initial letter. For example, ``f`` is
+    a shortcut for ``file``, and ``a f`` is the same that ``all file``.
     """
     queries, *pattern = regpath.split("::")
 
@@ -664,14 +669,23 @@ info::
         )
 
         if not queries <= _PATH_QUERIES:
-            raise ValueError("illegal filter in the regpath.")
+            raise ValueError("illegal filter(s) in the regpath.")
 
 # One single piece
     else:
         queries, pattern = _FILE_DIR_QUERIES, queries
 
-# The qeries "file" and "dir" are not used.
-    if _FILE not in queries and _DIR not in queries:
+# The query "empty" is used.
+    if _EMPTY in queries:
+        if _FILE in queries:
+            raise ValueError(
+                'filters "empty" and "file" can\'t be used together.'
+            )
+
+        queries.add(_DIR)
+
+# The queries "file" and "dir" are not used.
+    elif _FILE not in queries and _DIR not in queries:
         queries |= _FILE_DIR_QUERIES
 
 # The regex uncompiled version : we just do replacing by taking care of
@@ -680,7 +694,7 @@ info::
 # << Warning : >> ***, ****, ... are not allowed !
 
     if regexit:
-        pattern = cls.regexit(pattern)
+        pattern = "^{0}$".format(cls.regexit(pattern))
 
     return queries, pattern
 
@@ -689,12 +703,12 @@ info::
 # -- WALK AND SEE -- #
 # ------------------ #
 
-OTHER_FILES     = "::...files...::"
-EMPTY_OTHER_DIR = "::...empty...::"
+OTHER_FILES_TAG = "::...files...::"
+EMPTY_DIR_TAG   = "::...empty...::"
 
-_ELLIPSIS_NAMES = [EMPTY_OTHER_DIR, OTHER_FILES]
+_ELLIPSIS_NAMES = [EMPTY_DIR_TAG, OTHER_FILES_TAG]
 
-def _ppath_walk(cls, regpath = "relative::**"):               # DOC OK !!
+def _ppath_walk(cls, regpath = "relative::**"):
     """
 prototype::
     type  = method ;
@@ -708,8 +722,8 @@ prototype::
             this is a string that follows some rules named regpath rules (see
             the documentation of the function ``_ppath_regpath2meta``)
     yield = PPath ;
-            files and subdirectories matching ``regpath`` are yield (for each
-            folder, the files are yield before the subdirectories)
+            files and directories matching ``regpath`` (for each folder, the
+            files are always yield before the sub folders)
 
 
 Let's suppose that we have the following directory having the full path
@@ -725,12 +739,12 @@ dir::
         + subdir
             * slide_A.pdf
             * slide_B.pdf
-            * subcode_A.py
-            * subcode_B.py
+            * code_A.py
+            * code_B.py
             + subsubdir
                 * doc.pdf
 
-Here are three examples of use where you can see that the repaths ``"*"`` and
+Here are three examples of use where you can see that the regpaths ``"*"`` and
 ``"**"`` don't do the same thing : there are two much files with ``"**"``. Just
 go to the documentation of the function ``_ppath_regpath2meta`` so as to know
 why (you have to remember that by default the search is relative).
@@ -758,9 +772,9 @@ pyterm::
     + /Users/projects/dir/code_2.py
 
 
-If you want to see the existing files that do not match the regpath and also
-the empty folders, you will have to the query ``ellipsis`` (this feature is
-used  by the class ``DirView``).
+If you want to see the existing files that do not match the regpath and also the
+empty folders, you will have to the query ``xtra`` (this feature is used  by the
+class ``DirView``).
 In the example above, that uses the same directory as before, you can see that
 there are special names ``::...files...::`` and ``::...empty...::`` which
 indicate the extra informations.
@@ -769,23 +783,24 @@ indicate the extra informations.
 pyterm::
     >>> from mistool.os_use import PPath
     >>> folder = PPath("/Users/projects/dir")
-    >>> for p in folder.walk("ellipsis file::**.py"):
+    >>> for p in folder.walk("xtra file::**.py"):
     ...     print("+", p)
     ...
     + /Users/projects/dir/code_1.py
     + /Users/projects/dir/code_2.py
     + /Users/projects/dir/::...files...::
     + /Users/projects/dir/emptydir/::...empty...::
-    + /Users/projects/dir/subdir/subcode_A.py
-    + /Users/projects/dir/subdir/subcode_B.py
+    + /Users/projects/dir/subdir/code_A.py
+    + /Users/projects/dir/subdir/code_B.py
     + /Users/projects/dir/subdir/::...files...::
     + /Users/projects/dir/subdir/subsubdir/::...files...::
 
 
 info::
-    The special names are stored in the global variables ``OTHER_FILES`` and
-    ``EMPTY_OTHER_DIR`` which are strings. This can be useful to avoid mistypings
-    if you want to use the query ``ellipsis``.
+    The special names are stored in the global variables ``OTHER_FILES_TAG`` and
+    ``EMPTY_DIR_TAG`` which are strings.
+    This is useful to avoid typing errors if you want to use the query ``xtra``
+    as the class ``DirView`` does.
     """
 # Do we have an existing directory ?
     if not cls.is_dir():
@@ -794,26 +809,31 @@ info::
 # metadatas and the normal regex
     queries, pattern = cls.regpath2meta(regpath)
 
-    maindir     = str(cls)
-    keepdir     = _DIR in queries
-    keepfile    = _FILE in queries
-    keepall     = _ALL in queries
-    relsearch   = _RELSEARCH in queries
-    addellipsis = _ELLIPSIS in queries
+    maindir   = str(cls)
+    keepdir   = _DIR in queries
+    keepfile  = _FILE in queries
+    keepempty = _EMPTY in queries
+    keepall   = _ALL in queries
+    relsearch = _RELSEARCH in queries
+    addextra  = _XTRA in queries
 
-    regex_obj = re.compile("^{0}$".format(pattern))
+    regex_obj = re.compile(pattern)
 
 # Let's walk
-    for root, dirs, files in os.walk(str(cls)):
+    for root, dirs, files in os.walk(maindir):
 # Empty folders and unkept files
-        isdirempty       = not(bool(dirs) or bool(files))
-        unkeptfilesfound = False
+        isdirempty         = not(bool(dirs) or bool(files))
+        nomatch_files_found = False
 
 # Do the current directory must be added ?
         addthisdir = False
         root_ppath = PPath(root)
 
-        if keepdir \
+        if keepempty:
+            if isdirempty:
+                addthisdir = True
+
+        elif keepdir \
         and root != maindir \
         and regex_obj.match(root):
             if keepall \
@@ -839,27 +859,31 @@ info::
                         yield ppath_full_file
 
                     else:
-                        unkeptfilesfound = True
+                        nomatch_files_found = True
 
                 elif regex_obj.match(full_file):
                     yield PPath(full_file)
 
                 else:
-                    unkeptfilesfound = True
+                    nomatch_files_found = True
 
 # A new directory ?
         if addthisdir:
-            yield root_ppath
-
-        elif addellipsis:
             if isdirempty:
-                yield root_ppath / PPath(EMPTY_OTHER_DIR)
+                yield root_ppath / PPath(EMPTY_DIR_TAG)
 
-            elif unkeptfilesfound:
-                yield root_ppath / PPath(OTHER_FILES)
+            else:
+                yield root_ppath
+
+        elif addextra:
+            if isdirempty:
+                yield root_ppath / PPath(EMPTY_DIR_TAG)
+
+            elif nomatch_files_found:
+                yield root_ppath / PPath(OTHER_FILES_TAG)
 
 
-def _ppath_see(cls):                        # DOC OK !!
+def _ppath_see(cls):
     """
 prototype::
     type   = method ;
@@ -915,7 +939,7 @@ prototype::
 _ALL_CREATE_KINDS  = set([_FILE, _DIR])
 _LONG_CREATE_KINDS = {x[0]: x for x in _ALL_CREATE_KINDS}
 
-def _ppath_create(cls, kind):               # DOC OK !!
+def _ppath_create(cls, kind):
     """
 prototype::
     type   = method ;
@@ -973,7 +997,7 @@ info::
         raise ValueError("path points to an existing directory.")
 
     elif not cls.is_file():
-        cls.parent().create(_DIR)
+        cls.parent.create(_DIR)
 
         with cls.open(mode = "w") as file:
             ...
@@ -983,7 +1007,7 @@ info::
 # -- REMOVE -- #
 # ------------ #
 
-def _ppath_remove(cls):                     # DOC OK !!
+def _ppath_remove(cls):
     """
 prototype::
     type   = method ;
@@ -1011,7 +1035,7 @@ warning::
         raise OSError("path points nowhere.")
 
 
-def _ppath_clean(cls, regpath):                         # DOC OK !!
+def _ppath_clean(cls, regpath):
     """
 prototype::
     type   = method ;
@@ -1030,14 +1054,17 @@ prototype::
     queries, pattern = cls.regpath2meta(regpath, regexit = False)
 
     if _ALL in queries:
-        prefix = "all-"
+        prefix = "all"
+
+    elif _EMPTY in queries:
+        prefix = "empty"
 
     else:
         prefix = ""
 
 # We must first remove the files. This is in case of folders to destroy.
     if _FILE in queries:
-        filepattern = "{0}file::{1}".format(prefix, pattern)
+        filepattern = "{0} file::{1}".format(prefix, pattern)
 
         for path in cls.walk(filepattern):
             path.remove()
@@ -1045,10 +1072,12 @@ prototype::
 # Now, we can destroy folders but we can use an iterator (because of sub
 # directories).
     if _DIR in queries:
-        dirpattern = "{0}dir::{1}".format(prefix, pattern)
+        dirpattern = "{0} dir::{1}".format(prefix, pattern)
 
+# << Warning ! >> We have to be carefull with directories and sub folders.
         sortedpaths = sorted(list(p for p in cls.walk(dirpattern)))
 
+# << Warning ! >> We have to be carefull with empty directories.
         for path in sortedpaths:
             path.remove()
 
@@ -1057,7 +1086,7 @@ prototype::
 # -- MOVE & COPY -- #
 # ----------------- #
 
-def _ppath_copy_to(cls, path):              # DOC OK !!
+def _ppath_copy_to(cls, path):
     """
 prototype::
     type   = method ;
@@ -1091,7 +1120,7 @@ warning::
         raise OSError("path points nowhere.")
 
 
-def _ppath_move_to(cls, path):              # DOC OK !!
+def _ppath_move_to(cls, path):
     """
 prototype::
     type   = method ;
@@ -1141,7 +1170,7 @@ _SPECIAL_FUNCS = [
     if x.startswith("_ppath_")
 ]
 
-class PPath(pathlib.Path):          # DOC OK !!
+class PPath(pathlib.Path):
     """
 prototype::
     type = cls ;
@@ -1165,14 +1194,13 @@ prototype::
 # -- VIEWS OF A FOLDER -- #
 # ----------------------- #
 
-class DirView:                      # DOC OK !!
+class DirView:
     r"""
 prototype::
     type = cls ;
-           this class allows to display in different formats the tree
-           structure of one directory with the extra possibility to keep and
-           show only some informations, and also to set a little the format of
-           the output
+           this class allows to display in different formats the tree structure
+           of one directory with the extra possibility to keep and show only
+           some informations, and also to set a little the format of the output
     see  = _ppath_regpath2meta, _ppath_walk
 
     arg  = PPath: ppath ;
@@ -1205,36 +1233,30 @@ dir::
         * code_2.py
         * file_1.txt
         * file_2.txt
-        + emptydir
-        + subdir
+        + doc
+            * code_A.py
+            * code_B.py
             * slide_A.pdf
             * slide_B.pdf
-            * subcode_A.py
-            * subcode_B.py
-            + subsubdir
+            + licence
                 * doc.pdf
+        + emptydir
 
 
 ==============
 The ascii tree
 ==============
 
-Let's start with the default output for the ¨ascii tree. Here is a code to be
-launched in the terminal.
+Let's start with the default output for the ¨ascii tree. In the following code,
+in the text printed, the files and the folders are sorting regarding their names
+(this text follows the syntax used to generate the view of the folders used in
+the documentation that you are reading).
 
-python::
-    from mistool import os_use
-
-    DirView = os_use.DirView("/Users/projetmbc/dir")
-
-    print(DirView.ascii)
-
-
-This code will print the following text (indeed this is the syntax used to
-generate the documentation that you are reading). You can see that files and
-folders are sorting regarding their names.
-
-term::
+pyterm::
+    >>> from mistool.os_use import DirView, PPath
+    >>> dir     = PPath("/Users/projetmbc/dir")
+    >>> dirview = DirView(dir)
+    >>> print(dirview.ascii)
     + dir
         * code_1.py
         * code_2.py
@@ -1252,24 +1274,18 @@ term::
 
 You can ask to have the files before the folders and also to have the relative
 paths instead of the names. This needs to use the arguments ``display`` and
-``sorting``. We have to add the option ``"main"`` for ``display`` if we also
-want to see the main folder.
+``sorting``. Here is an example of use where we must add the option ``"main"``
+for ``display`` so as to see the main folder.
 
-python::
-    from mistool import os_use
-
-    DirView = os_use.DirView(
-        path    = "/Users/projetmbc/dir",
-        display = "main relative",
-        sorting = "filefirst"
-    )
-
-    print(DirView.ascii)
-
-
-This will give the following output that is what we are looking for.
-
-term::
+pyterm::
+    >>> from mistool.os_use import DirView, PPath
+    >>> dir     = PPath("/Users/projetmbc/dir")
+    >>> dirview = DirView(
+    ...     ppath   = dir,
+    ...     display = "main relative",
+    ...     sorting = "filefirst"
+    ... )
+    >>> print(dirview.ascii)
     + dir
         * code_1.py
         * code_2.py
@@ -1291,44 +1307,44 @@ info::
 
 
 Let's see a last example using the argument ``regpath``. The following code
-asks to keep only the files with the extension path::``py``, and also to
-display the names of the files and the folders, see ``"short"``.
+asks to keep only the files with the extension path::``py``. You can see that
+the empty folders are given, and that the other files than the ones wanted are
+indicated by ellipsis, this ones being always sorted at the end of the files.
 
-python::
-    from mistool import os_use
-
-    DirView = os_use.DirView(
-        path    = "/Users/projetmbc/dir",
-        regpath = "f::**.py",
-        display = "main short",
-    )
-
-    print(DirView.ascii)
-
-
-Here is the output given by the class ``DirView``. You can see that the empty
-files are given, and that the other files than the ones wanted are indicated
-by ellipisis, this ellipsis being always sorted at the end of the files.
-
-term::
+pyterm::
+    >>> from mistool.os_use import DirView, PPath
+    >>> dir     = PPath("/Users/projetmbc/dir")
+    >>> dirview = DirView(
+    ...     ppath   = dir,
+    ...     regpath = "file::**.py"
+    ... )
+    >>> print(dirview.ascii)
     + dir
         * code_1.py
         * code_2.py
-        * ...
         + doc
             * code_A.py
             * code_B.py
-            * ...
             + licence
                 * ...
+            * ...
         + emptydir
+        * ...
 
 
-If you use instead the option ``display = "main short found"``, then the
-output will only show the files found as above, and the empty folders are not
-given.
+If you use the option ``display = "main short found"`` instead of the default
+one ``display = "main short"``, then the output will only show the files found
+as above, and the empty folders will not be given.
 
-term::
+pyterm::
+    >>> from mistool.os_use import DirView, PPath
+    >>> dir     = PPath("/Users/projetmbc/dir")
+    >>> dirview = DirView(
+    ...     ppath   = dir,
+    ...     regpath = "file::**.py",
+    ...     display = "main short found"
+    ... )
+    >>> print(dirview.ascii)
     + dir
         * code_1.py
         * code_2.py
@@ -1347,18 +1363,33 @@ The "ruled" tree output
 =======================
 
 By default, ``DirView.tree`` give a tree view using rules similar to the ones
-you can see in ¨gui applications displaying tree structure of a folder (we
-can't reproduce the output here because of font problems).
+you can see in ¨gui applications displaying tree structure of a folder. Here we
+use only ¨utf8 characters.
+
+term::
+    ╸dir
+     ┣━ ╸code_1.py
+     ┣━ ╸code_2.py
+     ┣━ ╸file_1.txt
+     ┣━ ╸file_2.txt
+     ┣━ ╸doc
+     ┃   ┣━ ╸code_A.py
+     ┃   ┣━ ╸code_B.py
+     ┃   ┣━ ╸slide_A.pdf
+     ┃   ┣━ ╸slide_B.pdf
+     ┃   ┗━ ╸licence
+     ┃       ┗━ ╸doc.pdf
+     ┗━ ╸emptydir
 
 
 =====================
 The "toc" like output
 =====================
 
-Using ``DirView.toc`` with the sorting option ``sorting = "namefilefirst"``,
-this is the better sorting option here, you will obtain the following output
-which looks like a kind of table of contents with sections for folders, and
-subsections for files.
+Using ``DirView.toc`` with the sorting option ``sorting = "filefirst"``, this is
+the better sorting option here, you will obtain the following output which looks
+like a kind of table of contents with sections for folders, and subsections for
+files.
 
 term::
     + dir
@@ -1382,7 +1413,7 @@ term::
 warning::
     Here all the paths for the folders will be always displayed as relative
     ones to the parent directory of the folder analyzed, and not to the folder
-    analyzed.
+    analyzed. Paths formatting options apply only to files.
 
 
 ===================================================
@@ -1419,43 +1450,44 @@ info::
 All the display options
 =======================
 
-The optional string argument ``display`` uses the following rules.
+The optional string argument ``display`` can be made of one or several of the
+following values separated by spaces where each name can be replaced by its
+initial.
 
-    a) ``long`` or ``l`` asks to display the whole paths of the files and
-    directories found.
+    a) ``long`` asks to display the whole paths of the files and directories
+    found.
 
-    b) ``relative`` or ``r`` asks to display relative paths comparing to the
-    main directory analysed.
+    b) ``relative`` asks to display relative paths comparing to the main
+    directory analysed.
 
-    c) ``short`` or ``s`` asks to only display names of directories found, and
-    of the files found with their extensions.
+    c) ``short`` asks to only display names of directories found, and of the
+    files found with their extensions.
 
-    d) ``main`` or ``m`` asks to display the main directory which is analyzed.
+    d) ``main`` asks to display the main directory which is analyzed.
 
-    e) ``found`` or ``f`` asks to only display directories and files with a
-    path matching the pattern ``regpath``, and to not give the empty
-    directories.
-    If this value is not given, then ellipsis will be used to indicate
-    unmatching files and the empty directory will be always given.
+    e) ``found`` asks to only display directories and files with a path matching
+    the pattern ``regpath``. If ``found`` is not given, then ellipsis will be
+    used to indicate unmatching files and the empty directory will be always
+    given.
 
 
 =======================
 All the sorting options
 =======================
 
-The optional string argument ``sorting`` can have one of the following values.
+The optional string argument ``sorting`` can be one of the following values
+(each name can be replaced by its initial).
 
-    a) ``alpha`` or ``a`` is the alphabetic sorting on the strings representing
-    the paths.
+    a) ``alpha`` is the alphabetic sorting on the strings representing the paths.
 
-    b) ``filefirst`` or ``f`` gathers first the files and then the folders,
-    and in each of this category an alphabetic sorting is applied.
+    b) ``filefirst`` gathers first the files and then the folders, and in each
+    of this category an alphabetic sorting is applied.
 
-    c) ``namefilefirst`` or ``nf`` first sorts the objects regarding their
-    name without the extension, and if a file and a folder have the same
-    position, then the file will be put before the directory.
+    c) ``name`` first sorts the objects regarding only their name without the
+    extension, and if a file and a folder have the same position, then the file
+    will be put before the directory.
 
-    d) ``date`` or ``d`` simply used the date of the last physical changes.
+    d) ``date`` simply used the date of the last physical changes.
 
 
 info::
@@ -1473,7 +1505,7 @@ info::
                 lambda x: str(x['ppath']),
                 'z'*500
             ],
-            ("namefilefirst", "nf"): [
+            ("name", "n"): [
                 lambda x: (
                     str(x['ppath'].stem),
                     int("dir" in x['kind'])
@@ -1495,16 +1527,18 @@ info::
 
      This dictionary uses the following conventions.
 
-        1) The keys are tuples ``(longname, shortname)`` of two strings.
+        1) The keys are tuples ``(name, shortcut)`` of two strings.
 
         2) The values are lists of two elements.
 
-            a) The ¨1ST element is a lambda function that will do the sorting.
+            a) The ¨1ST element is a lambda function that will give the values
+            used for the sorting.
             Here ``x`` is a dictionary stored in ``self.listview`` (see the
             documentation of the method ``self.build``).
 
-            b) The ¨2ND element is the alias to use instead of the ellipsis
-            ``"..."`` to sort this kind of special paths.
+            b) The ¨2ND element is the special value used for the sorting when
+            special ellipsis ``"..."`` is met (ellipsis are used to indicate
+            unmatching files).
     """
     FILE_KINDS = ['file', 'other_files']
     DIR_KINDS  = ['dir', 'content_dir', 'empty_dir']
@@ -1539,7 +1573,7 @@ info::
             lambda x: str(x['ppath']),
             'z'*500
         ],
-        ("namefilefirst", "nf"): [
+        ("name", "n"): [
             lambda x: (
                 str(x['ppath'].stem),
                 int("dir" in x['kind'])
@@ -1570,8 +1604,7 @@ info::
     _PATH_FORMATS = set([_LONG_PATH, _REL_PATH, _SHORT_PATH])
 
 # Special query
-    _INTERNAL_QUERIES = set([_ELLIPSIS, _FILE, _DIR])
-
+    _INTERNAL_QUERIES = set([_XTRA, _FILE, _DIR])
 
     def __init__(
         self,
@@ -1594,16 +1627,16 @@ info::
 # -- INTERNAL VIEWS -- #
 # -------------------- #
 
-    def build(self):                    # DOC OK !!
+    def build(self):
         """
 prototype::
-    see    = self.ascii , self.latex , self.toc , self.tree , self.sort
-    action = this method builds one flat list ``self.listview`` of dictionaries
-             which stores all the informations about the directory even the
-             empty folders and the unmatching files,
-             and also ``self.treeview`` a list of dictionaries which is like
-             the natural tree structure of the folder analyzed
-             (both of this object are sorted regarding to the value of the
+    see    = self.sort , self.ascii , self.latex , self.toc , self.tree
+    action = this method builds one flat list ``self.listview`` of dictionaries,
+             that store all the informations about the directory even the empty
+             folders and the unmatching files,
+             and also ``self.treeview`` another list of dictionaries which is
+             like the natural tree structure of the folder analyzed
+             (both of this objects are sorted regarding to the value of the
              attribut ``self.sorting``)
 
 
@@ -1619,7 +1652,7 @@ python::
         'kind' : "dir" or "file",
         'depth': relative depth,
         'ppath': the whole path of one directory or file found
-                 (this can also be an ellipsis path)
+                 (this can also be an extra path)
     }
 
 
@@ -1668,18 +1701,18 @@ info::
 # Displaying
         _long_names = {x[0]: x for x in self._FORMATS}
 
-        self.display = set(
+        self._display = set(
             _long_names.get(x.strip(), x.strip())
             for x in self.display.split(" ") if x.strip()
         )
 
-        if not self.display <= self._FORMATS:
+        if not self._display <= self._FORMATS:
             raise ValueError("illegal formatting rule (see ``display``).")
 
-        nb_path_formats = len(self.display & self._PATH_FORMATS)
+        nb_path_formats = len(self._display & self._PATH_FORMATS)
 
         if nb_path_formats == 0:
-            self.display.add(_SHORT_PATH)
+            self._display.add(_SHORT_PATH)
 
         elif nb_path_formats != 1:
             raise ValueError(
@@ -1690,7 +1723,7 @@ info::
         allqueries = queries | self._INTERNAL_QUERIES
         allregpath = "{0}::{1}".format(" ".join(allqueries), pattern)
 
-        self._extradepth = int(self._MAIN_PATH in self.display)
+        self._extradepth = int(self._MAIN_PATH in self._display)
 
         self._all_listview = [
             self._metadatas(x)
@@ -1706,7 +1739,7 @@ info::
         self.sort()
 
 
-    def _metadatas(self, ppath):        # DOC OK !!
+    def _metadatas(self, ppath):
         """
 prototype::
     return = dict ;
@@ -1715,11 +1748,11 @@ prototype::
              (this is for the elements in ``self.listview`` and partially for
              ``self.treeview``)
         """
-        if ppath.name == EMPTY_OTHER_DIR:
+        if ppath.name == EMPTY_DIR_TAG:
             kind  = "empty_dir"
             ppath = ppath.parent
 
-        elif ppath.name == OTHER_FILES:
+        elif ppath.name == OTHER_FILES_TAG:
             kind  = "other_files"
             ppath = ppath.parent / "..."
 
@@ -1738,7 +1771,7 @@ prototype::
         return metadatas
 
 
-    def _build_listview(self):          # DOC OK !!
+    def _build_listview(self):
         """
 prototype::
     see    = self.build
@@ -1746,7 +1779,7 @@ prototype::
              ``self._all_listview``
         """
 # Sub fles and folders found
-        addall    = bool(self._ONLY_FOUND_PATHS not in self.display)
+        addall    = bool(self._ONLY_FOUND_PATHS not in self._display)
         _listview = []
 
         for metadatas in self._all_listview:
@@ -1789,11 +1822,11 @@ prototype::
             self.listview.append(metadatas)
 
 # Main or not main, that is the question.
-        if self._MAIN_PATH not in self.display:
+        if self._MAIN_PATH not in self._display:
             self.listview.pop(0)
 
 
-    def _build_treeview(self):                  # DOC OK !!
+    def _build_treeview(self):
         """
 prototype::
     see    = self.build , self._rbuild_treeview
@@ -1803,7 +1836,7 @@ prototype::
         self.treeview = self._rbuild_treeview(self.listview)
 
 
-    def _rbuild_treeview(self, listview):       # DOC OK !!
+    def _rbuild_treeview(self, listview):
         """
 prototype::
     action = the attribut ``self.treeview`` is build recursively using first
@@ -1843,6 +1876,9 @@ prototype::
                 if content:
                     metadatas['content'] = self._rbuild_treeview(content)
 
+                else:
+                    metadatas['content'] = []
+
                 treeview.append(metadatas)
 
         return treeview
@@ -1852,7 +1888,7 @@ prototype::
 # -- SORTING -- #
 # ------------- #
 
-    def _ellipsis_sort(self, metadatas):            # DOC OK !!
+    def _ellipsis_sort(self, metadatas):
         """
 prototype::
     arg    = dict: metadatas
@@ -1867,7 +1903,7 @@ prototype::
             return self._lambda_sort(metadatas)
 
 
-    def sort(self):                     # DOC OK !!
+    def sort(self):
         """
 prototype::
     see    = self._rsort
@@ -1891,7 +1927,7 @@ prototype::
         self.listview = self._rtree_to_list_view(self.treeview)
 
 
-    def _rsort(self, treeview):                 # DOC OK !!
+    def _rsort(self, treeview):
         """
 prototype::
     arg    = list(dict): treeview
@@ -1910,7 +1946,7 @@ prototype::
         return treeview
 
 
-    def _rtree_to_list_view(self, treeview):         # DOC OK !!
+    def _rtree_to_list_view(self, treeview):
         """
 prototype::
     see    = self.sort
@@ -1935,7 +1971,7 @@ prototype::
                         newmetadatas[k] = v
 
                 listview.append(newmetadatas)
-                listview += self._tree_to_list_view(content)
+                listview += self._rtree_to_list_view(content)
 
             else:
                 listview.append(metadatas)
@@ -1947,7 +1983,7 @@ prototype::
 # -- OUPUTS -- #
 # ------------ #
 
-    def pathtoprint(self, metadatas):       # DOC OK !!
+    def pathtoprint(self, metadatas):
         """
 prototype::
     arg    = dict: metadatas
@@ -1959,10 +1995,10 @@ prototype::
         ppath = metadatas["ppath"]
         name  = ppath.name
 
-        if name == "..." or self._SHORT_PATH in self.display:
+        if name == "..." or self._SHORT_PATH in self._display:
             strpath = name
 
-        elif self._REL_PATH in self.display:
+        elif self._REL_PATH in self._display:
             if ppath == self.ppath:
                 strpath = name
 
@@ -1976,63 +2012,7 @@ prototype::
 
 
     @property
-    def toc(self):          # DOC OK !!
-        """
-prototype::
-    type   = property
-    return = str ;
-             the content only shows files and their direct parent folder like
-             a kind of table of content where the section are always relative
-             paths of parent directories and subsection are pathe of files
-             (empty flders are never displayed)
-        """
-# Source: http://en.wikipedia.org/wiki/Box-drawing_character
-
-# The job has to be done.
-        if 'toc' not in self.outputs:
-            text     = []
-            lastdir  = None
-            tab      = self.ASCII_DECOS["tab"]
-            decodir  = self.ASCII_DECOS["dir"]
-            decofile = self.ASCII_DECOS["file"]
-            mainname = self.ppath.name
-
-            for metadatas in self.listview:
-                if "file" in metadatas["kind"]:
-                    pathtoprint = self.pathtoprint(metadatas)
-
-                    if lastdir:
-                        dirpath \
-                        = mainname / lastdir["ppath"].relative_to(self.ppath)
-
-                        text.append("")
-                        text.append("{0} {1}".format(decodir, dirpath))
-
-                        lastdir = None
-
-                    text.append(
-                        "{0}{1} {2}".format(tab, decofile, pathtoprint)
-                    )
-
-                else:
-                    lastdir = metadatas
-
-            if "dir" in metadatas["kind"]:
-                dirpath \
-                = mainname / metadatas["ppath"].relative_to(self.ppath)
-
-                text.append("")
-                text.append("{0} {1}".format(decodir, dirpath))
-
-            self.outputs['toc'] = '\n'.join(text[1:])
-
-
-# The job has been done.
-        return self.outputs['toc']
-
-
-    @property
-    def ascii(self):                # DOC OK !!
+    def ascii(self):
         """
 prototype::
     type   = property
@@ -2061,7 +2041,7 @@ prototype::
 
 
     @property
-    def tree(self):                 # DOC OK !!
+    def tree(self):
         """
 prototype::
     see    = self._rtree
@@ -2090,7 +2070,7 @@ prototype::
         return self.outputs['tree']
 
 
-    def _rtree(self, treeview):             # DOC OK !!
+    def _rtree(self, treeview):
         """
 prototype::
     return = str ;
@@ -2154,7 +2134,7 @@ prototype::
 
 
     @property
-    def latex(self):                # DOC OK !!
+    def latex(self):
         """
 prototype::
     type   = property
@@ -2182,3 +2162,63 @@ prototype::
 
 # The job has been done.
         return self.outputs['latex']
+
+
+    @property
+    def toc(self):
+        """
+prototype::
+    type   = property
+    return = str ;
+             the content only shows files and their direct parent folder like in
+             a table of content where the section are always relative paths of
+             parent directories and subsection are path of files
+        """
+# The job has to be done.
+        if 'toc' not in self.outputs:
+            text       = []
+            lastparent = ""
+            tab        = self.ASCII_DECOS["tab"]
+            decodir    = self.ASCII_DECOS["dir"]
+            decofile   = self.ASCII_DECOS["file"]
+            mainname   = self.ppath.name
+
+            for metadatas in self.listview:
+# One file
+                if "file" in metadatas["kind"]:
+                    thisparent = str(
+                        metadatas["ppath"].parent.relative_to(self.ppath)
+                    )
+
+                    if lastparent != thisparent:
+                        dirpath \
+                        = mainname / metadatas["ppath"].parent.relative_to(self.ppath)
+
+                        text.append("")
+                        text.append("{0} {1}".format(decodir, dirpath))
+
+                        lastparent = thisparent
+
+                    text.append(
+                        "{0}{1} {2}".format(
+                            tab,
+                            decofile,
+                            self.pathtoprint(metadatas)
+                        )
+                    )
+
+# One empty directory
+                elif metadatas["kind"] == "empty_dir":
+                    dirpath = mainname / metadatas["ppath"].relative_to(
+                        self.ppath
+                    )
+
+                    text.append("")
+                    text.append("{0} {1}".format(decodir, dirpath))
+
+# "Lines to text" transformation can be done
+            self.outputs['toc'] = '\n'.join(text[1:])
+
+
+# The job has been done.
+        return self.outputs['toc']

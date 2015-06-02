@@ -9,7 +9,7 @@ prototype::
 
 
 
-    
+
 This module contains some simple tools dealing with strings.
 
 
@@ -31,11 +31,16 @@ from mistool.config.pattern import PATTERNS_WORDS
 # -- REPLACE -- #
 # ------------- #
 
-def replace(
-    text,
-    replacements
-):
+def replace(text, replacements):
     """
+prototype::
+    arg    = str: lang = DEFAULT_LANG ;
+             ????
+    return = str ;
+             ????
+
+
+
 -----------------
 Small description
 -----------------
@@ -99,6 +104,15 @@ This function uses the following variables.
 
 class MultiReplace:
     """
+prototype::
+    arg    = str: lang = DEFAULT_LANG ;
+             ????
+    return = str ;
+             ????
+
+
+
+
 -----------------
 Small description
 -----------------
@@ -197,6 +211,16 @@ The instanciation of this class uses the following variables.
 
     def update(self):
         """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
+
 This method simply launches methods so as to verify that there is no cyclic
 replacements, and then to build the direct replacements dictionary
 ``self.replaceasit``.
@@ -207,6 +231,16 @@ replacements, and then to build the direct replacements dictionary
 
     def _lookforcycle(self):
         """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
+
 This method verifies that there is no cyclic replacements.
 
 Indeed all the job is done by the hidden method ``self._noviciouscycle``.
@@ -227,6 +261,19 @@ Indeed all the job is done by the hidden method ``self._noviciouscycle``.
         visitedwords = [],
         nextwords    = None
     ):
+        """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
+
+
+        """
         if nextwords == None:
             nextwords = self._oldwords
 
@@ -260,6 +307,16 @@ Indeed all the job is done by the hidden method ``self._noviciouscycle``.
 
     def _replace_recursively(self):
         """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
+
 This method builds ``self.replaceasit`` the direct replacements dictionary.
 
 Indeed all the job is done by the hidden method ``self._replace_oneword``.
@@ -294,6 +351,16 @@ Indeed all the job is done by the hidden method ``self._replace_oneword``.
         match
     ):
         """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
+
 This method is used to does the replacements corresponding the matching groups.
         """
         return self.replacements.get(match.group(1), match.group(0))
@@ -303,6 +370,16 @@ This method is used to does the replacements corresponding the matching groups.
         text
     ):
         """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
+
 This method does the replacements in one text (indeed it simply calls the
 function ``replace`` with the attribut ``self.replaceasit``).
         """
@@ -318,6 +395,16 @@ function ``replace`` with the attribut ``self.replaceasit``).
 
 def _ascii_report(text):
     """
+prototype::
+    arg    = str: lang = DEFAULT_LANG ;
+             ????
+    return = str ;
+             ????
+
+
+
+
+
 The function is to use to increase the list of the characters. A complete example
 of use is given in the documentation of ``ascii``.
     """
@@ -360,6 +447,16 @@ def ascii(
     strict       = True
 ):
     """
+prototype::
+    arg    = str: lang = DEFAULT_LANG ;
+             ????
+    return = str ;
+             ????
+
+
+
+
+
 ---------
 Basic use
 ---------
@@ -530,6 +627,16 @@ This function uses the following variables.
 
 def isascii(text):
     """
+prototype::
+    arg    = str: lang = DEFAULT_LANG ;
+             ????
+    return = str ;
+             ????
+
+
+
+
+
 This function simply return a boolean to know if a text contain only ASCII
 characters.
     """
@@ -544,6 +651,16 @@ characters.
 
 class AutoComplete:
     """
+prototype::
+    arg    = str: lang = DEFAULT_LANG ;
+             ????
+    return = str ;
+             ????
+
+
+
+
+
 -----------------
 Small description
 -----------------
@@ -694,6 +811,16 @@ The instanciation of this class uses the following variables.
 
     def build(self):
         """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
+
 This method builds the "magical" dictionary that will ease the auto completions.
 Indeed, if you create a class ``AutoComplete`` without giving a "magical"
 dictionary ``dict``, the method ``build`` is automatically called.
@@ -738,6 +865,13 @@ info::
         prefix
     ):
         """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
 This method looks for words given in the list ``words`` that start with the
 string variable ``prefix``.
         """
@@ -755,6 +889,13 @@ string variable ``prefix``.
         word
     ):
         """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
 -----------------
 Small description
 -----------------
@@ -793,6 +934,13 @@ def joinand(
     andtext = None
 ):
     """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
 -----------------
 Small description
 -----------------
@@ -853,6 +1001,13 @@ def split(
     strip  = False
 ):
     """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
 -----------------
 Small description
 -----------------
@@ -982,6 +1137,13 @@ This function uses the following variables.
 
 class _SplitKind:
     """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
 This class is simply an object like class used by the method ``__iter__`` of
 the class ``MultiSplit``.
     """
@@ -996,6 +1158,13 @@ the class ``MultiSplit``.
 
 class MultiSplit:
     """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
 -----------------
 Small description
 -----------------
@@ -1204,6 +1373,12 @@ def between(
     keep = False
 ):
     """
+PLUS UTILE !!!!!
+
+
+
+
+
 -----------------
 Small description
 -----------------
@@ -1294,11 +1469,16 @@ This function uses the following variables.
 
 _CASE_VARIANTS = ['lower', 'upper', 'sentence', 'title', 'firstLast']
 
-def case(
-    text,
-    kind
-):
+def case(text, kind):
     """
+        prototype::
+            arg    = str: lang = DEFAULT_LANG ;
+                     ????
+            return = str ;
+                     ????
+
+
+
 -----------------
 Small description
 -----------------
@@ -1413,11 +1593,17 @@ This function uses the following variables.
                 .format(kind)
         )
 
-def camelto(
-    text,
-    kind
-):
+def camelto(text, kind):
     """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
 -----------------
 Small description
 -----------------
@@ -1464,11 +1650,16 @@ This function uses the following variables.
 # -- CASE TESTING -- #
 # ------------------ #
 
-def iscase(
-    text,
-    kind
-):
+def iscase(text, kind):
     """
+        prototype::
+            arg    = str: lang = DEFAULT_LANG ;
+                     ????
+            return = str ;
+                     ????
+
+
+
 -----------------
 Small description
 -----------------
@@ -1533,6 +1724,16 @@ def _draw_hrule(
     nbspace
 ):
     """
+    prototype::
+            arg    = str: lang = DEFAULT_LANG ;
+                     ????
+            return = str ;
+                     ????
+
+
+
+
+
 -----------------
 Small description
 -----------------
@@ -1586,6 +1787,16 @@ def frame(
     center = True
 ):
     """
+
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
 --------------
 Default frames
 --------------
@@ -1896,6 +2107,17 @@ This function uses the following variables.
 
 class Step:
     """
+
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
+
 -----------------
 Small description
 -----------------
@@ -1931,6 +2153,15 @@ There are two optional variables.
         deco
     ):
         """
+            prototype::
+                arg    = str: lang = DEFAULT_LANG ;
+                         ????
+                return = str ;
+                         ????
+
+
+
+
 -----------------
 Small description
 -----------------
@@ -1963,6 +2194,15 @@ This method uses the following variables.
         text
     ):
         """
+
+            prototype::
+                arg    = str: lang = DEFAULT_LANG ;
+                         ????
+                return = str ;
+                         ????
+
+
+
 -----------------
 Small description
 -----------------

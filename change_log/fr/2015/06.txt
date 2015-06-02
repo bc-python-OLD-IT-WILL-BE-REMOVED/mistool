@@ -1,5 +1,12 @@
 ==========
-2015-06-01    ????
+2015-06-      ????
+==========
+
+???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer.
+
+
+==========
+2015-06-    ????
 ==========
 
 ???? ---------->    **¨Maj de TOUS les modules pour prendre en compte ``os_use.PPath``:** voici les modules concernés.
@@ -20,3 +27,18 @@
 
 
 ???? ---------->    **Amélioration de TOUTES les docstrings:** on utilise la même ¨nelle syntaxe que celle qui a été introduite dans la dernière version de ``os_use``.
+
+
+
+==========
+2015-06-02          ???????
+==========
+
+**Amélioration de ``os_use.DirView``:** système de getter et stter pour display et sorting TOP !!!!.
+
+
+==========
+2015-06-01
+==========
+
+**Amélioration des ``regpaths`` dans ``os_use``:** une nouvelle requête ``empty`` permet de retrouver les dossiers vides. La requête ``ellipsis`` a dû être renommée ``xtra`` pour "extra" (ce nouveau nom est meilleur).

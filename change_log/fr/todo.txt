@@ -1,5 +1,5 @@
 LES 100 Saison 2
-    --> jusqu'à 13 (sauf fin)
+    --> jusqu'à 15
 
 
 ==============
@@ -10,9 +10,6 @@ misTool - TODO
 ==========
 2015-05-      ????
 ==========
-
-???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer.
-
 
 ???? ---------->    **Noms des versions :** les numéros de version deviennent standards en suivant la convention ``majeur.mineur.patch``, cette version ayant pour numéro ``0.0.0`` car le projet ¨mistool reste à l'état très `¨beta`. Cette norme étant suivie par tout le monde, soyons grégaire pour devenir clair...
 
@@ -42,6 +39,10 @@ En attendant la nouvelle version de ¨orpyste, qui ne sera plus du tout dépenda
 
 
 
+> ---------------------------- <
+
+**Abandon de la prise en charge du module ¨unittest dans le module ``log_test_use``:** dorénavant, ce sera le module ¨pytest qui sera privilégié.
+
 
 
 
@@ -58,22 +59,9 @@ Utilisation de __slots__ , __version__ ... Voir ce qu'il faut ajouter.
 
     2) ¨pep8py et ¨pylint sont consultés pour améliorer le code de ¨mistool lorsque cela paraît pertinent.
 
-	3) Le module ``pdt.mistool.orpyste`` du package maison ``pdt`` n'est plus utilisé. C'est la mort de cet étrange ``pdt``. À la place, on utilise tout simplement ¨orpyste qui est devenu titalement indépendant de ¨mistool. Et oui, on se professionnalise... ;-)
+	3) Le module ``pdt.mistool.orpyste`` du package maison ``pdt`` n'est plus utilisé. C'est la mort de cet étrange ``pdt``. À la place, on utilise tout simplement ¨orpyste qui est devenu totalement indépendant de ¨mistool. Et oui, on se professionnalise... ;-)
 
     Ceci permet au passage de rendre les tests disponibles sur ¨github uniquement (pas sur ¨pypi par choix).
-
-
-> ---------------------------- <
-
-**Amélioration de la fonction ``DirView`` du module ``os_use`` :**
-
-
-limiter nbre de fichiers/dossiers trouvés visibles via  * ... [etc]   et  * ... [autres]   avec choix de langues (angalis par défaut mais définissable)
-    ---> via query
-
-
-limiter laprofondeur de recherche via    + nomdir [...]
-    ---> via query
 
 
 > ---------------------------- <
@@ -82,11 +70,6 @@ Gestion de tous les types d'importation
     * from mistool import os_use
     * from mistool.os_use import DirView
     * AUTRES ?
-
-
-> ---------------------------- <
-
-**Amélioration de la classe ``regpat2meta`` du module ``config.pattern`` :** utilisation du module ¨dare pour une gestion fine des différences entre les "regpatterns" et les ¨reg_frs de ¨python.
 
 
 > ---------------------------- <
@@ -107,16 +90,6 @@ A VOIR ????
 
     -----> type input securisé  via regex  ????
     			* int_input
-
-
-> ---------------------------- <
-
-**Mise à jour de la documentation on technique en français:** la nouvelle fçaon d'utiliser le moddule ``os_use`` est maintenant documentée en français.
-
-
-> ---------------------------- <
-
-**Abandon de la prise en charge du module ¨unittest dans le module ``log_test_use``:** dorénavant, ce sera le module ¨pytest qui sera privilégié.
 
 
 > ---------------------------- <
