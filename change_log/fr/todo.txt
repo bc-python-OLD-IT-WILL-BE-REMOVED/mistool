@@ -1,31 +1,29 @@
-LES 100 Saison 2
-    --> jusqu'à 15
-
-
 ==============
 misTool - TODO
 ==============
 
+???? ---------->    **Publication de la nouvelle version de ``mistool`` :** cette nouvelle version casse la rétro-compatibilité (voir les ¨chgts depuis le date::``2015-05-26``).
 
-==========
-2015-05-      ????
-==========
+
+???? ---------->    **Amélioration du fichier ``README.md`` :** des exemples "en console" ont été ajoutés afin de rendre le package plus "bankable".
+
 
 ???? ---------->    **Noms des versions :** les numéros de version deviennent standards en suivant la convention ``majeur.mineur.patch``, cette version ayant pour numéro ``0.0.0`` car le projet ¨mistool reste à l'état très `¨beta`. Cette norme étant suivie par tout le monde, soyons grégaire pour devenir clair...
-
-
-???? ---------->    **Amélioration du fichier ``README.md`` :** des exemples "en console" ont été ajoutés afin de rendre le package plus "bankable" tout en restant par endroit très bancal. Ok, je sors...
 
 
 ???? ---------->    **Ajout d'une licence :** le projet est maintenant sous licence ???.
 
 
+???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer.
 
 
+> ---------------------------- <
 
-==========
-2015-05-      ????
-==========
+**Une nouvelle méthode de tri pour la classe ``os_use.DirView``:**  ????
+    ---> trier par type d'application:  on trie en fait par extesnion et on regroupe les extensions par thème
+
+
+> ---------------------------- <
 
 ???? ---------->    **Amélioration et mise à jour des tests :** on utilise maintenant ¨pytest ce qui simplifie énormément les choses. On va enfin à l'essentiel !
 
@@ -34,16 +32,9 @@ Ceci étant dit, le module ``pdt.mistool.orpyste`` du package maison ``pdt`` est
 En attendant la nouvelle version de ¨orpyste, qui ne sera plus du tout dépendante de ¨mistool, on continue encore à utiliser l'affreux ``pdt.mistool.orpyste`` mais plus pour très longtemps... Une fois ceci fait, les tests seront disponibles sur ¨github et ¨pypi (afin que les utilisateurs puissent tester leur installation).
 
 
-
-
-
-
-
 > ---------------------------- <
 
 **Abandon de la prise en charge du module ¨unittest dans le module ``log_test_use``:** dorénavant, ce sera le module ¨pytest qui sera privilégié.
-
-
 
 
 > ---------------------------- <
@@ -84,7 +75,6 @@ A VOIR ????
     https://github.com/mahmoud/boltons ???
 
     string
-    	---> befor after = amount, space, currency = "123.45 USD".partition(" ")
     	---> S.expandtabs(tabsize=8)
 
 

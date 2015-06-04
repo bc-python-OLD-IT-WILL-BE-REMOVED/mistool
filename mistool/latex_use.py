@@ -1,26 +1,18 @@
 #!/usr/bin/env python3
 
 """
-???
-
-
 prototype::
-    date = 2014-08
+    date = 2015-06-04
 
-This script gives some useful functions in relation with the powerful LaTeX
-langage for typing scientific documents.
+
+This script gives a lot of useful functions in relation with the powerful langage
+¨latex for typing scientific documents.
 """
 
-import os
-from subprocess import check_call, check_output, CalledProcessError
+from subprocess import CalledProcessError
 
 from mistool.config import latex
-
-# PPath
-
-
-normpath = os.path.normpath
-join     = os.path.join
+from mistool.os_use import canmodify, pathenv, PPath, runthis, system
 
 
 # ------------------------- #
@@ -29,31 +21,38 @@ join     = os.path.join
 
 class LatexError(ValueError):
     """
-Base class for errors specific to LaTeX.
+prototype::
+    type = cls ;
+           base class for errors specific to ¨latex.
     """
     pass
 
 def _raise_ioerror(
-    kind,
-    path,
-    action
+    kind   = None,
+    ppath  = None,
+    action = None
 ):
     """
-This function simply eases the raising of some specific errors.
+prototype::
+    arg    = str: kind
+    arg    = PPath: ppath
+    arg    = str: action in 'access' , 'exist' , 'notatex', 'superuser'
+    return = str ;
+             this function simply eases the raising of some specific OS errors.
     """
+    if action == 'superuser':
+        raise OSError("you must be a super user")
+
     if action == 'access':
         action = 'needs the "Super User\'s rights"'
-
-    elif action == 'create':
-        action = "can't be created"
 
     elif action == 'exist':
         action = "doesn't exist"
 
-    elif action == 'notTeX':
+    elif action == 'notatex':
         action = "is not a TeX one"
 
-    raise IOError(
+    raise OSError(
         "the following {0} {1}.\n\t<< {2} >>".format(kind, action, path)
     )
 
@@ -70,44 +69,39 @@ def escape(
     mode = "text"
 ):
     """
------------------
-Small description
------------------
-
-In LaTeX language, somme character has one meaning. The purpose of this function
-is to escape all this special charcaters so as to see them in the output
-produced by LaTeX.
-
-For example, ``escape("\OH/ & ...")`` is equal to ``"\textbackslash{}OH/ \&
-..."``, whereas ``escape(text = "\OH/ & ...", mode = "math")`` is equal to
-``"\backslash{}OH/ \& ..."``. Just notice the difference coming from the use of
-``mode = "math"``. In math formulas and in simple text, the backslash is
-indicated by using two different LaTeX commands.
+prototype::
+    arg    = str: text ;
+             the text to be escaped
+    arg    = str: mode = "text" in "text" , "math" ;
+             the ¨latex mode where the text will be used.
+    return = str ;
+             the text with all specific ¨latex characters escaped so as to be
+             used verbatim in either a math formula or a text regarding ot the
+             value of ``mode``.
 
 
--------------
-The arguments
--------------
+Here is an example of use.
 
-This function uses the following variables.
-
-    1) ``text`` is simply the text to change.
-
-    2) ``mode`` indicate which kind of text is analysed. By default, ``mode =
-    "text"`` is for one content that will be simply text in the document
-    produced by LaTeX. You can also use ``mode = "math"`` to indicate something
-    that appears in one formula.
+pyterm::
+    >>> from mistool.latex_use import escape
+    >>> onetext = "\OH/ & ..."
+    >>> print(escape(onetext))
+    \textbackslash{}OH/ \& ...
+    >>> print(escape(text = onetext, mode = "math"))
+    \backslash{}OH/ \& ...
 
 
 info::
-    Two global dictionaries are used : ``CHARS_TO_ESCAPE`` indicates only
-    characters that must be escaped whit one backslash ``\``, and
-    ``CHARS_TO_LATEXIFY`` is for expressions that needs one LaTeX command.
+    Two global dictionaries are used.
+
+        1) ``CHARS_TO_ESCAPE`` indicates only characters that must be escaped
+        with one backslash ``\``.
+
+        2) ``CHARS_TO_LATEXIFY`` is for expressions that needs one ¨latex
+        command.
     """
     if mode not in CHARS_TO_ESCAPE:
-        raise ValueError(
-            "unknown mode : << {0} >>.".format(mode)
-        )
+        raise ValueError("unknown mode.")
 
     tolatexify = CHARS_TO_LATEXIFY[mode].items()
     toescape   = CHARS_TO_ESCAPE[mode]
@@ -148,118 +142,148 @@ info::
 
 class Build:
     """
------------------
-Small description
------------------
+prototype::
+    arg = os_use.PPath: ppath ;
+          the path of the ¨latex file to compile.
+    arg = int: repeat = 1 ;
+          the number of compilations to be done (for example, if the ¨latex
+          document has one table of content, several compilations are needed).
+    arg = bool: showinfos = False ;
+          by default, ``showinfos = False`` asks to not show the informations
+          sent by ¨latex when it is compiling
 
-This class defines methods related to the compilation of LaTeX documents.
+
+This class gives methods for compilate a ¨latex document. Let's consider the
+following ¨latex file with the path path::``/Users/projetmbc/latex/file.tex``.
+
+latex::
+    \documentclass[11pt, oneside]{article}
+
+    \begin{document}
+
+    \section{Un petit test}
+
+    Une formule toute simple : $E = mc^2$.
+
+    \end{document}
 
 
--------------
-The arguments
--------------
+In the lines above, we have added call to the class ``term_use.DirView``
+so as to see the new files made by ¨latex (the ellipsis terminal::``[...]``
+indicates some lines not reproduced here).
 
-This class uses the following variables.
+pyterm::
+    >>> from mistool.os_use import PPath
+    >>> from mistool.latex_use import Build
+    >>> from mistool.term_use import DirView
+    >>> latexdir = PPath("/Users/projetmbc/latex/file.tex")
+    >>> print(DirView(latexdir.parent).ascii)
+    + latex
+        * file.tex
+    >>> builder   = Build(latexdir)
+    >>> builder.pdf()
+    # -- Start of compilation Nb.1 -- #
 
-    1) ``path`` is the path of the LaTeX file to compile.
+    This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded
+    format=pdflatex)
+     restricted \write18 enabled.
+    entering extended mode
 
-    2) ``repeat`` indicates how many compilations must be done (for example, if
-    the document has one table of content, several compilations are needed). By
-    default, ``repeat = 1``.
+    [...]
 
-    3) ``isverbose`` is a boolean with default value ``True``. Use ``isverbose``
-    if you want to see, or not to see, the informations sent by LaTeX when it
-    does the compilation.
+    Output written on file.pdf (1 page, 36666 bytes).
+    Transcript written on file.log.
+
+    # -- End of compilation Nb.1 -- #
+    >>> print(DirView(latexdir.parent).ascii)
+    + latex
+        * file.aux
+        * file.log
+        * file.pdf
+        * file.tex
+
+
+info::
+    Take a look at the function ``clean`` of this module which can automatically
+    remove the extra files path::``file.aux`` et path::``file.log`` that ¨latex
+    makes.
     """
-# Source :
-#    * http://docs.python.org/py3k/library/subprocess.html
-    SUBPROCESS_METHOD = {
-# ``check_call`` prints informations given during the compilation.
-        True : check_call ,
-# ``check_output`` does not print informations given during the
-# compilation. Indeed it returns all this stuff in one string.
-        False: check_output
-    }
 
     def __init__(
         self,
-        path,
+        ppath,
         repeat    = 1,
-        isverbose = True
+        showinfos = True
     ):
 # Does the file to compile exist ?
-        if not os_use.isfile(path):
+        if not ppath.is_file():
             _raise_ioerror(
                 kind   = "file",
-                path   = path,
+                path   = ppath,
                 action = "exist"
             )
 
 # Do we have TEX file ?
-        if os_use.ext(path) != "tex":
+        if ppath.ext != "tex":
             _raise_ioerror(
                 kind   = "file",
                 path   = path,
-                action = "notTeX"
+                action = "notatex"
             )
 
 # Infos given by the user.
-        self.path      = path
-        self.pathnoext = os_use.filename(path)
-
+        self.ppath     = ppath
         self.repeat    = repeat
-        self.isverbose = isverbose
+        self.showinfos = showinfos
 
-# General infos about the LaTeX distribution and the OS.
-        self.aboutlatex = about()
+        self.cmd = None
 
-# The directory where to put the "paper" files.
-        self.directory = os_use.parentdir(path)
 
-    def _compile(
-        self,
-        arguments,
-        repeat
-    ):
+    def compile(self):
         """
-This method launches the compilation in verbose mode or not.
+prototype::
+    action = this method launches the compilation defined via ``self.cmd``
+             in verbose mode or not the number of times that is indicated
+             in ``self.repeat``.
         """
-        subprocess_method = self.SUBPROCESS_METHOD[self.isverbose]
+        imax = self.repeat + 1
 
-        for i in range(1, repeat + 1):
-            if self.isverbose:
-                print('\t+ Start of compilation Nb.{0} +'.format(i))
+        if imax == 1:
+            start_compile = '# -- Start of the compilation -- #\n'
+            end_compile   = '\n# -- End of the compilation -- #'
 
-            subprocess_method(
-# We go in the directory of the file to compile.
-                cwd = self.directory,
-# We use the terminal actions.
-                args = arguments
+        else:
+            start_compile = '# -- Start of compilation Nb.{0} -- #\n'
+            end_compile   = '\n# -- End of compilation Nb.{0} -- #'
+
+        for i in range(1, imax):
+            if self.showinfos:
+                if i != 1:
+                    print("")
+
+                print(start_compile.format(i))
+
+            runthis(
+                ppath     = self.ppath,
+                cmd       = self.cmd,
+                showinfos = self.showinfos
             )
 
-            if self.isverbose:
-                print('\t+ End of compilation Nb.{0} +'.format(i))
+            if self.showinfos:
+                print(end_compile.format(i))
 
-    def pdf(
-        self,
-        repeat = None
-    ):
-        """
-This method calls LaTeX so as to build the PDF output.
-        """
-        if repeat == None:
-            repeat = self.repeat
+        self.cmd = None
 
+
+    def pdf(self):
+        """
+prototype::
+    action = this method calls ¨latex so as to build the ¨pdf output.
+        """
 # The option "-interaction=nonstopmode" don't stop the terminal even if there is
 # an error found by ¨latex.
-        self._compile(
-            arguments = [
-                'pdflatex',
-                '-interaction=nonstopmode',
-                self.path
-            ],
-            repeat = repeat
-        )
+        self.cmd = 'pdflatex -interaction=nonstopmode'
+        self.compile()
 
 
 # -------------- #
@@ -270,100 +294,82 @@ TEMP_EXTS     = latex.TEMP_EXTS
 EXTS_TO_CLEAN = latex.EXTS_TO_CLEAN
 
 def clean(
-    main,
-    keep      = [],
-    discard   = EXTS_TO_CLEAN,
-    depth     = 0,
-    isverbose = False
+    ppath,
+    exts      = EXTS_TO_CLEAN,
+    showinfos = False
 ):
     """
------------------
-Small description
------------------
+prototype::
+    arg    = os_use.PPath: ppath ;
+             the path of either one ¨latex file or a directory
+    arg    = list(str): exts = EXTS_TO_CLEAN ;
+             the list of extensions of the special files made by ¨latex that
+             have to be removed
+    arg    = bool: showinfos = False ;
+             by default, ``showinfos = False`` asks to not show the informations
+             about the cleaning
+    action = this function removes extra files build during a ¨latex compilation
+             that are associated to a file, or the ones corresponding to all the
+             ¨latex files in a directory.
 
-This function removes extra files build during a LaTeX compilation.
+
+In the following example, we use the class ``term_use.DirView`` so as to show
+the changes in the folder path::``/Users/projetmbc/latex`` of the ¨latex file
+path::``file.tex`` for which we want to do some cleanings.
+
+pyterm::
+    >>> from mistool.latex_use import clean
+    >>> from mistool.os_use import PPath
+    >>> from mistool.term_use import DirView
+    >>> latexdir = PPath("/Users/projetmbc/latex")
+    >>> print(DirView(latexdir.parent).ascii)
+    + latex
+        * file.aux
+        * file.log
+        * file.pdf
+        * file.synctex.gz
+        * file.tex
+    >>> clean(ppath = latexdir, showinfos = True)
+    * Cleaning for "/Users/projetmbc/latex/file.tex"
+    >>> print(DirView(latexdir.parent).ascii)
+    + latex
+        * file.pdf
+        * file.tex
 
 
--------------
-The arguments
--------------
-
-This function uses the following variables.
-
-    1) ``main`` will be either one instance of the class ``Build`` or the path
-    of one file or of one directory.
-
-    In the case of one instance of the class ``Build`` or of one file, only the
-    file having the same name of the file build, or indicated, will be
-    removed.
-
-    If ``main`` is the path of one directory, then the function will look for
-    all files with path::``tex`` extension, and then the eventual extra files
-    associated will be removed. In that case, you can use the two arguments
-    ``depth`` and ``isverbose``.
-
-    2) ``keep`` is for indicate the list of extensions to keep. This can be very
-    usefull if you use the default value of the argument ``discard``.
-
-    3) ``discard`` is for indicate the list of extensions to discard. By
-    default, the extensions to clean are defined in the constant
-    ``EXTS_TO_CLEAN``.
-
-    info::
-        If you want to build your own list of extensions you can use the
-        dictionary ``TEMP_EXTS``.
-
-    4) ``depth`` is the maximal depth for the research of the path::``tex``
-    files when ``main`` is the path of one directory. The very special value
-    ``(-1)`` indicates that there is no maximum. The default value is ``0``
-    which asks to only look for in the direct content of the main directory to
-    analyse.
-
-    5) ``isverbose`` is a boolean which asks to print in one terminal the
-    path::``tex`` files found when one search is made inside one directory. This
-    argument is usefull only if ``main`` is the path of one directory.
+info::
+    If you want to build your own list of extensions you can take a look both at
+    the list ``EXTS_TO_CLEAN`` and the dictionary ``TEMP_EXTS``.
     """
-# One instance of ``Build()``
-    if isinstance(main, Build):
-        allpathsnoext = [main.pathnoext]
-
 # One file
-    elif os_use.isfile(main):
-        if os_use.ext(main) != "tex":
+    if ppath.is_file():
+        if ppath.ext != "tex":
             _raise_ioerror(
                 kind   = "file",
                 path   = main,
-                action = "notTeX"
+                action = "notatex"
             )
 
-        allpathsnoext = [main[:-4]]
+        texpaths = [ppath]
 
-# One directory
-    elif os_use.isdir(main):
-        allpathsnoext = [
-            file[:-4]
-            for file in os_use.nextfile(
-                main  = main,
-                exts  = {'keep': ["tex"]},
-                depth = depth
-            )
-        ]
+# One directory : we use an iterator so as to see changes in live.
+    elif ppath.is_dir():
+        texpaths = ppath.walk("file::**.tex")
 
 # Nothing existing
     else:
-        allpathsnoext = []
+        raise OSError("path points to nowhere.")
 
 # Clean now !
-    for pathnoext in allpathsnoext:
-        if isverbose:
-            print('---> "{0}.tex"'.format(pathnoext))
+    for p in texpaths:
+        if showinfos:
+            print('* Cleaning for "{0}"'.format(p))
 
-        for ext in [x for x in discard if x not in keep]:
-            if '¨' in ext:
-                print("TODO  --->  ", ext)
+        for ext in exts:
+            file = p.with_ext(ext)
 
-            else:
-                os_use.destroy(pathnoext + '.' + ext)
+            if file.is_file():
+                file.remove()
 
 
 # ---------------------------------- #
@@ -375,67 +381,59 @@ This function uses the following variables.
 #    * http://tex.stackexchange.com/questions/69483/create-a-local-texmf-tree-in-miktex
 #    * https://groups.google.com/forum/?hl=fr&fromgroups=#!topic/fr.comp.text.tex/ivuCnUlW7i8
 
-def localdir_miketex():
+# << Warning ! >> The following path is the recommended one for the folder to
+# use for homemade packages.
+
+MIKETEX_LOCALDIR = PPath('C:/texmf-local')
+
+def _localdir_texlive(osname = ""):
     """
-You can redefine this function to choose another path than
-path::``C:/texmf-local`` for the directory where we'll put special LaTeX
-packages.
-
-
-warning::
-    Customize this function only if you know what you are doing !
+prototype::
+    arg    = str: osname = "" in "windows" , "linux" , "mac";
+             the name of the ¨os (logical, isn't it ?), that can be found
+             automatically if you use the default value ``osname = ""``
+    return = PPath ;
+             the path of the ¨texlive directory where we have to put special
+             ¨latex packages.
     """
-    return 'C:/texmf-local'
+    if osname == "":
+        osname = system()
 
-def _localdir_texlive(
-    osname = None
-):
-    """
-This function returns the path of the TeX Live directory where we'll put special
-LaTeX packages.
-    """
-    if osname == None:
-        osname = os_use.system()
+    if osname == "windows":
+        localdir = runthis("kpsexpand '$TEXMFLOCAL'")
+        localdir = PPath(localdir.strip()).normpath
 
-# "check_output" is a byte string, so we have to use the method
-# "decode" so as to obtain an "utf-8" string.
-    try:
-        if osname == "windows":
-            localdir = check_output(
-                args = ['kpsexpand',"'$TEXMFLOCAL'"]
-            ).decode('utf8')
+    elif osname in ["linux", "mac"]:
+        localdir = runthis('kpsewhich --var-value=TEXMFLOCAL')
+        localdir = PPath(localdir.strip()).normpath
 
-            return normpath(localdir.strip())
+    else:
+        raise OSError("unsupported OS << {0} >>.".format(osname))
 
-        elif osname in ["linux", "mac"]:
-            localdir = check_output(
-                args = ['kpsewhich','--var-value=TEXMFLOCAL']
-            ).decode('utf8')
+    return localdir
 
-            return normpath(localdir.strip())
-
-    except:
-        ...
 
 def about():
     """
-The aim of this function is to give critical informations so to use the function
-``install`.
+prototype::
+    return = dict ;
+             this function gives informations needed by the function ``install`.
 
-This function returns the following kind of dictionary. This example has been
-obtained with a Mac computer where TeXlive is installed.
+
+The dictionary returned looks like the following one. In this example, we are on
+a ¨mac computer where ¨texlive has been installed by ¨mactex.
 
 python::
     {
         'osname'    : 'mac',
         'latexname' : 'texlive',
         'latexfound': True,
-        'localdir'  : '/usr/local/texlive/texmf-local'
+        'localdir'  : PosixPath('/usr/local/texlive/texmf-local')
     }
 
 The key ``'localdir'`` contains the path to use to install special packages.
     """
-    osname = os_use.system()
+    osname = system()
 
     latexfound = False
     latexname  = ''
@@ -443,15 +441,15 @@ The key ``'localdir'`` contains the path to use to install special packages.
 
 # Windows
     if osname == "windows":
-        winpath = os_use.pathenv()
+        winpath = pathenv()
 
 # Is MiKTeX installed ?
         if '\\miktex\\' in winpath:
             latexfound = True
             latexname  = 'miktex'
 
-            if os_use.isdir(localdir_miketex()):
-                localdir = localdir_miketex()
+            if MIKETEX_LOCALDIR.is_dir():
+                localdir = MIKETEX_LOCALDIR
 
 # Is TeX Live installed ?
         elif '\\texlive\\' in winpath:
@@ -463,7 +461,7 @@ The key ``'localdir'`` contains the path to use to install special packages.
     elif osname in ["linux", "mac"]:
 # Is LaTeX installed ?
         try:
-            if check_output(args = ['which', 'pdftex']).strip():
+            if runthis('which pdftex'):
                 latexfound = True
                 latexname  = 'texlive'
                 localdir   = _localdir_texlive(osname)
@@ -473,9 +471,7 @@ The key ``'localdir'`` contains the path to use to install special packages.
 
 # Unknown method...
     else:
-        raise OSError(
-            "the OS << {0} >> is not supported. ".format(osname)
-        )
+        raise OSError("unsupported OS << {0} >>.".format(osname))
 
 # The job has been done...
     return {
@@ -490,39 +486,102 @@ The key ``'localdir'`` contains the path to use to install special packages.
 # -- INSTALLING -- #
 # ---------------- #
 
-def _issu(localdir_latex):
-    """
-This function tests if the script has been launched by the "Super User".
-    """
-    tempfile = join(
-        localdir_latex,
-        '-p-y-t-o-o-l-t-e-s-t-.t-x-t-x-t'
-    )
+# For the infos shown.
+_TAB      = ' '*4
+_DECO_1 = '{0}* '.format(_TAB)
+_DECO_2 = '{0}+ '.format(_TAB*2)
 
-    try:
-        os_use.maketxtfile(tempfile)
-        os_use.destroy(tempfile)
 
-    except:
-        _raise_ioerror(
-            kind   = "directory",
-            path   = localdir_latex,
-            action = "access"
+def _must_be_su(aboutlatex):
+    """
+    see    = about
+    arg    = dict: aboutlatex = {} ;
+             one dictionary similar to the one sent by the function ``about``
+    action = this function tests if we have "Super User" permissions
+    """
+    if not canmodify(aboutlatex['localdir']):
+        _raise_ioerror(action = "superuser")
+
+
+def _can_install(aboutlatex):
+    """
+    see    = about
+    arg    = dict: aboutlatex = {} ;
+             one dictionary similar to the one sent by the function ``about``
+    action = this function tests if we have ¨latex local directory that we can
+             act on it
+    """
+# We must have a local directory
+    if aboutlatex['localdir'] == None:
+        message = "no local directory for special packages has been found."
+
+        if aboutlatex['latexname'] == "miktex":
+            message += "You can use the function << make_miktex_localdir >>."
+
+        raise LatexError(message)
+
+# Installation suported only on Mac O$, Linux and Windows
+    if aboutlatex['osname'] not in ['mac', 'linux', 'windows']:
+        raise LatexError(
+            'the installation of local packages is not yet supported '
+            'with the OS << {0} >>.'.format(aboutlatex['osname'])
         )
 
-def make_localdir_miktex():
+# We must be a super user !
+    _must_be_su(aboutlatex)
+
+
+def refresh(aboutlatex = {}):
     """
-This function creates one local directory and add it to the list of directories
-analysed by MiKTeX when it looks for packages.
+prototype::
+    see    = about
+    arg    = dict: aboutlatex = {} ;
+             one dictionary similar to the one sent by the function ``about``
+    action = the list of packages directly known by the ¨latex distribution is
+             refreshed
 
-The path of the local directory is given by ``localdir_miketex()``
-because this variable is also used by the function ``about`` and ``install``.
 
-Even it is a really bad idea, you can change this path just after the
-importation of the module ``latexUse``.
+warning::
+    You have to be in super user mode if you want this function to work.
     """
-    aboutlatex = about()
+# We have to build infos about the ¨latex distribution.
+    if aboutlatex == {}:
+        aboutlatex = about()
 
+# We must be a super user !
+    _must_be_su(aboutlatex)
+
+# TeX Live
+    if aboutlatex['latexname'] == 'texlive':
+        runthis('mktexlsr')
+
+# MiKTex
+    elif aboutlatex['latexname'] == 'miktex':
+        runthis('initexmf --update-fndb --verbose')
+
+# Unkonwn !!!
+    else:
+        raise LatexError(
+            'refreshing the list of LaTeX packages is not '
+            'supported with your LaTeX distribution.'
+        )
+
+
+def make_miktex_localdir(aboutlatex):
+    """
+prototype::
+    see    = about
+    arg    = dict: aboutlatex ;
+             one dictionary similar to the one sent by the function ``about``
+    action = this function creates one local directory and add it to the list
+             of directories automatically analysed by MiKTeX when it looks for
+             packages.
+
+
+info::
+    Even it is a really bad idea, you can change the path ``MIKETEX_LOCALDIR``
+    to put your homemade packages where you want.
+    """
     if aboutlatex['osname'] != "windows" \
     or aboutlatex['latexname'] != "miktex":
         raise OSError(
@@ -531,224 +590,243 @@ importation of the module ``latexUse``.
         )
 
 # Creation of the directory
-    try:
-        os_use.makedir(localdir_miketex())
-
-    except:
-        _raise_ioerror(
-            kind   = "directory",
-            path   = localdir_miketex(),
-            action = "create"
-        )
+    MIKETEX_LOCALDIR.create("dir")
 
 # Adding the directory to the ones analysed by MiKTex.
-    check_output(
-        args = [
-            'initexmf',
-            '--admin',
-            '--user-roots=' + localdir_miketex(),
-#           '--register-root=' + localdir_miketex(),
-            '--verbose'
-        ]
+    runthis(
+        cmd = 'initexmf --admin --user-roots={0} --verbose'.format(
+            MIKETEX_LOCALDIR
+        )
     )
 
-    check_output(
-        args = [
-            'initexmf',
-            '--update-fndb',
-            '--verbose'
-            ]
-        )
+    runthis(cmd = 'initexmf --update-fndb --verbose')
 
     print(
         '',
         'The following local directory for MiKTeX has been created.',
-        '\t<< {0} >>'.format(localdir_miketex()),
+        '\t<< {0} >>'.format(MIKETEX_LOCALDIR),
         sep = "\n"
     )
 
-def refresh(
-    aboutlatex = None
-):
-    """
-This function refreshes the list of packages directly known by the LaTeX
-distribution. This always works in verbose mode (LaTeX is not very talkative
-when it refreshes).
-
-The only variable used is ``aboutlatex`` which is simply the informations
-returned by the function ``about``.
-    """
-    if aboutlatex == None:
-        aboutlatex = about()
-
-# TeX Live
-    if aboutlatex['latexname'] == 'texlive':
-        check_call(args = ['mktexlsr'])
-
-# MiKTex
-    elif aboutlatex['latexname'] == 'miktex':
-        check_call(args = ['initexmf', '--update-fndb', '--verbose'])
-
-# Unkonwn !!!
-    else:
-        raise LatexError(
-            'the refresh of the list of LaTeX packages is not supported '
-            'with your LaTeX distribution.'
-        )
 
 def install(
-    paths,
-    name,
-    clean = False
+    ppath,
+    regpath = "file::**",
+    name    = "",
+    clean   = True
 ):
     """
------------------
-Small description
------------------
-
-This function helps you to easily install unofficial packages to your LaTeX
-distribution.
+prototype::
+    see    = os_use._ppath_regpath2meta , about
+    arg    = os_use.PPath: ppath;
+             the path of folder containg the package
+    arg    = str: name = "" ;
+             you can use this variable so as to give explicitly the name of the
+             package, otherwise that will be the name of the folder that will
+             choosen
+    arg    = str: regpath = "file::**" ;
+             this is a string that follows some rules named regpath rules (see
+             the documentation of the function ``os_use._ppath_regpath2meta``)
+    arg    = bool: clean = True ;
+             by default, ``clean = True`` asks to remove first an old version of
+             the package
+    action = this function install an homemade package in a dedicated folder
+             known by your ¨latex distribution.
 
 
 warning::
-    This function can only be called by one script launched by the super user.
+    This function can only be used with the "Super User" mode.
 
 
--------------
-The arguments
--------------
+Let's suppose that we a package named latex::``lyxam`` stored in a folder having the path path::``/Users/projetmbc/latex/lyxam`` and whose structure is the following one.
 
-This function uses the following variables.
+dir::
+    + lyxam
+        + change_log
+            + 2012
+                * 02.txt
+                * 03.txt
+                * 04.txt
+                * 10.txt
+            * todo.txt
+        * lyxam.sty
+        + config
+            * settings.tex
+            + lang
+                * en.tex
+                * fr.tex
+                + special
+                    * fr.config
+                + standard
+                    * en.config
+                    * fr.config
+            + style
+                * apmep.tex
+                * default.tex
 
-    1) ``name`` is the name of the LaTeX package to build.
 
-    2) ``paths`` is the list of all the paths of the files to copy. This
-    variable can be easily build with the function ``listFile`` from the module
-    ``os_use`` contained in the ¨python package ``Mistool``. The tree structure
-    will be similar to the one corresponding to the files to copy.
+You can easily install this package locally in your ¨latex distribution like it
+is done in the lines of code above.
 
-    3) ``clean`` is boolean variable to delete or not an eventual package
-    directory named ``name`` in the local directory of the LaTeX distribution.
-    The default value of ``clean`` is ``False``.
+pyterm::
+    >>> from mistool.os_use import PPath
+    >>> from mistool.latex_use import install
+    >>> package = PPath("/Users/projetmbc/latex/lyxam")
+    >>> install(package)
+    Starting installation of the package locally.
+        * Deletion of the old << lyxam >> package in the local LaTeX directory.
+        * Creation of a new << lyxam >> package in the local LaTeX directory.
+            + Adding the new file << lyxam.sty >>
+            + Adding the new file << change_log/todo.txt >>
+            + Adding the new file << change_log/2012/02.txt >>
+            + Adding the new file << change_log/2012/03.txt >>
+            + Adding the new file << change_log/2012/04.txt >>
+            + Adding the new file << change_log/2012/10.txt >>
+            + Adding the new file << config/settings.tex >>
+            + Adding the new file << config/lang/en.tex >>
+            + Adding the new file << config/lang/fr.tex >>
+            + Adding the new file << config/lang/special/fr.config >>
+            + Adding the new file << config/lang/standard/en.config >>
+            + Adding the new file << config/lang/standard/fr.config >>
+            + Adding the new file << config/style/apmep.tex >>
+            + Adding the new file << config/style/default.tex >>
+        * Refreshing the list of LaTeX packages.
+
+
+In this example we have used some default settings.
+
+    1) ``regpath = "file::**"`` asks to copy all the files.
+
+    2) ``name = ""`` tell to use the same name for the ¨latex package and the folder.
+
+    3) ``clean = True`` is for removing first an old version if there is one
+    (that is the case in our example).
+
+
+Let's suppose now that we do not want to install al the path::``TXT`` files.
+It is easy with "regptahs" as you can see in the following example (see the
+documentation of the special function ``os_use._ppath_regpath2meta``).
+
+pyterm::
+    >>> from mistool.os_use import PPath
+    >>> from mistool.latex_use import install
+    >>> package = PPath("/Users/projetmbc/latex/lyxam")
+    >>> install(ppath = package, regpath = "file not::**.txt")
+    Starting installation of the package locally.
+        * Deletion of the old << lyxam >> package in the local LaTeX directory.
+        * Creation of a new << lyxam >> package in the local LaTeX directory.
+            + Adding the new file << lyxam.sty >>
+            + Adding the new file << config/settings.tex >>
+            + Adding the new file << config/lang/en.tex >>
+            + Adding the new file << config/lang/fr.tex >>
+            + Adding the new file << config/lang/special/fr.config >>
+            + Adding the new file << config/lang/standard/en.config >>
+            + Adding the new file << config/lang/standard/fr.config >>
+            + Adding the new file << config/style/apmep.tex >>
+            + Adding the new file << config/style/default.tex >>
+        * Refreshing the list of LaTeX packages.
     """
 # Sources :
 #    * http://www.commentcamarche.net/forum/affich-7670740-linux-supprimer-le-contenu-d-un-repertoire
 #    * http://stackoverflow.com/questions/185936/delete-folder-contents-in-python
 
-# Directories
+# Let's talk about...
+    print("Starting installation of the package locally.")
+
+# About the package
+    if not ppath.is_dir():
+        raise OSError("``ppath`` doesn't point to a directory.")
+
+    if name == "":
+        name = ppath.stem
+
+# Can we do the job ?
     aboutlatex = about()
+    _can_install(aboutlatex)
 
-    localdir_latex = aboutlatex['localdir']
+# The local directory of the package
+    localdir = aboutlatex['localdir'] / 'tex' / 'latex'
+    print(
+        '{0}Local installation made in << {1} >>.'.format(_DECO_1, localdir)
+    )
 
-    if localdir_latex == None:
-        message = "no local directory for special packages has been found."
+    packagedir = localdir / name
 
-        if aboutlatex['latexname'] == "miktex":
-            message += "You can use the function << make_localdir_miktex >>."
-
-        raise LatexError(message)
-
-    localdir_latex = os_use.SEP.join([
-        localdir_latex,
-        'tex',
-        'latex',
-        name
-    ])
-
-# We must have the super user's rights with the local Latex directory.
-    _issu(localdir_latex)
-
-# We must find the smaller directory that contains all the files so as to
-# respect the original tree directory structure.
-    maindir = os_use.commonpath(listFile)
-
-# Directories to add
-    directories_and_files = {}
-
-    for onepath in paths:
-        if not os_use.isfile(onepath):
-            _raise_ioerror(
-                kind   = "file",
-                path   = onepath,
-                action = "exist"
-            )
-
-        localsubdir_latex = localdir_latex + os_use.parentDir(
-            os_use.relativePath(maindir, onepath)
-        ).strip()
-
-        if localsubdir_latex in directories_and_files:
-            directories_and_files[localsubdir_latex].append(onepath)
-        else:
-            directories_and_files[localsubdir_latex] = [onepath]
-
-# Installation on Mac O$, Linux and Windows
-    if aboutlatex['osname'] in ['mac', 'linux', 'windows']:
-# Actions to do are...
-        actions      = []
-        decotab      = '    * '
-        decotab_plus = '        + '
-        decotab_more = '            - '
-
-# Creation of directories and copy of the files
-#
-#    1) Deletion of a local package named ``name``
-        if clean and os_use.isdir(localdir_latex):
-            print(
-                decotab + 'Deletion of the old << {0} >> '.format(name) \
-                + 'package in the local LaTeX directory.'
-            )
-
-            os_use.destroy(localdir_latex)
-
-#    2) Creation of the new local package named ``name``
+# We have to clean an old version.
+    if clean and packagedir.is_dir():
         print(
-            decotab + 'Creation of the new << {0} >> '.format(name) \
+            '{0}Deletion of the old "{1}" '.format(_DECO_1, name) \
             + 'package in the local LaTeX directory.'
         )
 
-#    3) Creation of the new directories with their contents
-        for newdir in sorted(directories_and_files.keys()):
-            print(
-                decotab_plus + 'Adding new directory --> << {0} >> '.format(
-                    newdir
-                )
-            )
+        packagedir.remove()
 
-            os_use.makedir(newdir)
+# Creation of the new local package.
+    print(
+        '{0}Creation of a new "{1}" '.format(_DECO_1, name) \
+        + 'package in the local LaTeX directory.'
+    )
 
-            for onepath in directories_and_files[newdir]:
-                if not os_use.isfile(onepath):
-                    _raise_ioerror(
-                        kind   = "file",
-                        path   = onepath,
-                        action = "exist"
-                    )
+    fileadded = False
 
-                print(
-                    decotab_more + 'Adding new file  --> << {0} >> '.format(
-                        os_use.fileName(onepath) \
-                        + "." \
-                        + os_use.ext(onepath)
-                    )
-                )
+    for pathfrom in ppath.walk(regpath):
+        fileadded = True
+        pathto = pathfrom.relative_to(ppath)
 
-                localsubdir_latex = localdir_latex + os_use.parentDir(
-                    os_use.relativePath(maindir, onepath)
-                ).strip()
+        print('{0}Adding the new file << {1} >>.'.format(_DECO_2, pathto))
 
-                os_use.copy(onepath, localsubdir_latex)
+        pathto = packagedir / pathto
 
-#   We must refresh of the list of LaTeX packages.
-        print(
-            decotab + 'Refreshing the list of LaTeX packages.'
-        )
+        pathfrom.copy_to(pathto)
+
+# We must refresh of the list of LaTeX packages.
+    if fileadded:
+        print('{0}Refreshing the list of LaTeX packages.'.format(_DECO_1))
 
         refresh(aboutlatex)
 
-# Unsupported OS
     else:
-        raise LatexError(
-            'the installation of local packages is not yet supported '
-            'with the OS << {0} >>.'.format(aboutlatex['osname'])
+        print('{0}<< Warning ! >> The package is empty !'.format(_DECO_1))
+
+
+
+def remove(name):
+    """
+prototype::
+    arg    = str: name ;
+             the name of a local ¨latex package
+    action = the package is reoved from the local ¨latex distribution
+
+
+warning::
+    This function can only be used with the "Super User" mode.
+    """
+    print("Deletion of the package locally.")
+
+# Can we do the job ?
+    aboutlatex = about()
+    _can_install(aboutlatex)
+
+# The local directory of the package
+    localdir = aboutlatex['localdir'] / 'tex' / 'latex'
+    print(
+        '{0}Local installation made in << {1} >>.'.format(_DECO_1, localdir)
+    )
+
+    packagedir = localdir / name
+
+# We remive the old version.
+    if packagedir.is_dir():
+        packagedir.remove()
+
+        print('{0}Refreshing the list of LaTeX packages.'.format(_DECO_1))
+
+        refresh(aboutlatex)
+
+    else:
+        print(
+            '{0}<< Warning ! >> No local package "{1}" !'.format(
+                _DECO_1,
+                name
+            )
         )

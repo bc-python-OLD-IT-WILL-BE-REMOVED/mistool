@@ -1,44 +1,73 @@
 ==========
-2015-06-      ????
+2015-06-04
 ==========
 
-???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer.
+**Du nouveau dans le module ``os_use``:** voici les ¨chgts.
+
+    1) Pour des raisons d'organisation du code de ¨mistool, la classe ``DirView`` a été déplacée dans un nouveau module ``term_use`` proposant des outils principalement destinés au terminal.
+
+    1) Une nouvelle méthode ``runthis`` permet de lancer des processus très naturellement.
+
+    1) Ajout de la fonction ``canmodify`` pour savoir si l'on tus
+
+    1) Comme l'utilisation de négation dans les ¨regex_frs ¨python fait mal à la tpete, et que de plsu concrètement on cherche soir des chemins qui va  lident un motif, soit au contraire qui ne le valide pas, il a été ajouté une nouvelle requête ``not`` pour le ¨2nd cas.
+
+
+**Un tout nouveau module ``term_use``:** ce module contient la classe ``DirView`` anciennement présente dans le module ``os_use``.
+
+À cette occasion, un bug, idiot comme souvent, a été repéré et corrigé : le dossier principal n'était pas traité à part dans ``self.listview``.
+
+
+**¨MAJ DE TOUS LES MODULES:** il a fallu prendre en compte ``os_use.PPath``. Ceci a été aussi l'occasion de revoir certaines choses. Voici ce qui a été modifié.
+
+    1) Dans le module ``date_use``, il y a eu juste eu la suppression de la fonction ``now`` car de toute façon on doit faire appel au module ``datetime`` pour utiliser les fonctions ``nextday`` et ``translate`` qui elles restent inchangées.
+
+    1) Dans le module ``latex_use``, il a fallu faire les ¨chgts suivants.
+
+        a) Toutes les fonctions qui le nécessitaient et la classe ``Build`` ont été adaptées à l'utilisation de ``os_use.PPath``.
+
+        a) L'étrange fonction ``localdir_miketex`` a été remplacée plus logiquement par la constante de module ``MIKETEX_LOCALDIR``.
+
+        a) La fonction ``make_localdir_miktex`` a été renommée ``make_miktex_localdir``.
+
+        a) Une nouvelle fonction ``remove``, petite soeur énemie de ``install``, a été ajoutée.
+
+???? ---------->        1) Dans le module ``log_test_use``, la fonction ``clean`` ????
+
+
+
+
+
+
+    1) Dans le module ``python_use``, il y a eu les disparitions suivantes.
+
+        a) La fonction ``_escape`` ne servant à rien, elle a été supprimée. Vive le darwinisme.
+
+        a) La fonction ``runpys`` cède sa place à la fonction ``runthis`` du module ``os_use``.
+
+???? ---------->        1) Dans le module ``string_use``,
+
+        a) Correction d'un bug dans la classe ``MultiReplace`` qui n'utilisait pas l'regex_fr pour le remplacement.
+
+
+
+
+
+    1) Dans le module ``url_use``, la fonction ``test`` a été renommée ``islinked`` (on comprend ainsi directement ce que fait cette fonction).
+
+
+**Amélioration de TOUTES LES DOCSTRINGS:** on utilise la même ¨nelle syntaxe que celle qui a été introduite dans la dernière version de ``os_use``.
 
 
 ==========
-2015-06-    ????
+2015-06-02
 ==========
 
-???? ---------->    **¨Maj de TOUS les modules pour prendre en compte ``os_use.PPath``:** voici les modules concernés.
-
-
-    1) Dans le module ``python_use``, la fonction ``runpys`` ????
-
-    utilise juste un argument ``patterns`` en remplacement des arguments ``prefixes`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
-
-
-    1) Dans le module ``log_test_use``, la fonction ``clean`` ????
-
-
-
-    1) Dans le module ``latex_use``, la fonction ``clean`` ????
-
-    utilise juste l'argument ``patterns`` en remplacement des arguments ``keep``, ``discard`` et ``depth`` (voir ce qui a été dit pour les fonctions ``nextfile`` et ``listfile`` du module ``os_use``).
-
-
-???? ---------->    **Amélioration de TOUTES les docstrings:** on utilise la même ¨nelle syntaxe que celle qui a été introduite dans la dernière version de ``os_use``.
-
-
-
-==========
-2015-06-02          ???????
-==========
-
-**Amélioration de ``os_use.DirView``:** système de getter et stter pour display et sorting TOP !!!!.
+**Amélioration de ``os_use.DirView``:** tous les arguments d'initialisation sont tous associés à des attributs de même nom qui sont modifiables à souhait pour un usage en temps réel simplifié (on utilise en interne des décorateurs du type ``@name.setter``).
 
 
 ==========
 2015-06-01
 ==========
 
-**Amélioration des ``regpaths`` dans ``os_use``:** une nouvelle requête ``empty`` permet de retrouver les dossiers vides. La requête ``ellipsis`` a dû être renommée ``xtra`` pour "extra" (ce nouveau nom est meilleur).
+**Amélioration des ``regpaths`` dans ``os_use``:** une nouvelle requête ``empty`` permet de retrouver les dossiers vides. La requête ``ellipsis`` a dû être renommée ``xtra``.

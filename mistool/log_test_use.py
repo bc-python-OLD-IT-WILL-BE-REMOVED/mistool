@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
 """
-???
-
-
 prototype::
-    date = 2014-08
+    date = 2015-06-05    ???
 
 This modules contains some utilities that can be useful for log messages.
 """

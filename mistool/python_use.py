@@ -1,19 +1,11 @@
 #!/usr/bin/env python3
 
 """
-???
-
-
 prototype::
-    date = 2014-08
+    date = 2015-06-03
 
-This module contains some simple tools about the Python programming language.
+This module contains some simple tools about the ¨python programming language.
 """
-
-from subprocess import check_call, check_output
-
-from mistool.os_use import filename, nextfile, parentdir, relativepath
-
 
 # ------------- #
 # -- QUOTING -- #
@@ -21,36 +13,43 @@ from mistool.os_use import filename, nextfile, parentdir, relativepath
 
 QUOTE_SYMBOLS = ["'", '"']
 
-def _escape(data):
-    """
-This small function escapes all the characters that must be escaped in one
-python-like string.
-    """
-    if isinstance(data, str):
-        return data.replace('\\', '\\\\')
-
-    else:
-        return data
-
 def quote(
     text,
     symbol = "'"
 ):
     """
-This function put the content of the string variable ``text`` into quotes and
-escapes the eventual quote symbols in ``text``.
+prototype::
+    arg    = str: text ;
+             the text to be quoted
+    symbol = str: symbol = "'" ;
+             the prefered quoting symbol
+    return = str ;
+             the text quoted (the quote symbols in ``text`` are escaped if it is
+             necessary)
 
-This function has one optional variable ``symbol`` which indicates the prefered
-quoting symbol which is the single quote ``'`` by default.
+
+Here is a some examples where you can see that the function tries to use the
+less escaped quoting symbols, and when there is a choice that is the value of
+``symbol`` which is used.
+
+pyterm::
+    >>> from mistool.python_use import quote
+    >>> print(quote('First example.'))
+    'First example.'
+    >>> print(quote("Same example."))
+    'Same example.'
+    >>> print(quote('One "small" example.'))
+    'One "small" example.'
+    >>> print(quote("The same kind of 'example'."))
+    "The same kind of 'example'."
+    >>> print(quote("An example a 'little' more \"problematic\"."))
+    'An example a \'little\' more "problematic".'
 
 
-This function uses the global constant ``QUOTE_SYMBOLS`` which is defined by
-``QUOTE_SYMBOLS = ["'", '"']``. This indicates the list of the possible quoting
-symbols.
-
-For example, ``quote("one \"small\" example")`` is equal to the text ``'one
-"small" example``, and ``quote('another \'example\' to "see" more")``` is equal
-to ``'another \'example\' to "see" more'``.
+info::
+    This function uses the global constant ``QUOTE_SYMBOLS`` which is defined
+    by ``QUOTE_SYMBOLS = ["'", '"']``. This indicates the list of the possible
+    quoting symbols.
     """
     if all(x in text for x in QUOTE_SYMBOLS):
         text = text.replace(symbol , '\\' + symbol)
@@ -67,97 +66,25 @@ to ``'another \'example\' to "see" more'``.
 # -- DICTIONARIES -- #
 # ------------------ #
 
-def dictvalues(obj):
+def dictvalues(onedict):
     """
-This function returns a list of all the values stored in one dictionary without
-any repetition.
+prototype::
+    arg    = dict: onedict ;
+             a dictionary
+    return = list ;
+             a list of the values used in the dictionary ``onedict`` without
+             repetition
+
+
+Here is an example showing a difference with the method ``values`` of the
+dictionaries.
+
+pyterm::
+    >>> from mistool.python_use import dictvalues
+    >>> onedict = {"a": 1, "b": 2, "c": 1}
+    >>> print(dictvalues(onedict))
+    [1, 2]
+    >>> print(list(onedict.values()))
+    [2, 1, 1]
     """
-    return list(set(obj.values()))
-
-
-# --------------- #
-# -- LAUNCHING -- #
-# --------------- #
-
-# Source :
-#    * http://docs.python.org/py3k/library/subprocess.html
-_SUBPROCESS_METHOD = {
-# ``check_call`` prints informations given during the compilation.
-    True : check_call ,
-# ``check_output`` does not print informations given during the
-# compilation. Indeed it returns all this stuff in one string.
-    False: check_output
-}
-
-def runpys(
-    main,
-    prefixes  = {},
-    depth     = 0,
-    version   = 3,
-    isverbose = False
-):
-    """
------------------
-Small description
------------------
-
-This function helps to launch easily several ¨python files.
-
-
--------------
-The arguments
--------------
-
-This function uses the following variables.
-
-    1) The arguments ``main``, ``prefixes`` and``depth`` have exactly the same
-    meaning than the ones of the function ``nextfile`` in the module ``os_use``.
-    See the documentation of this function ``nextfile`` for more precisions.
-
-    2) ``version`` can be either an integer, or a string.
-
-        a) If ``version`` is an integer, even in string format, let's say ``2``
-        for example, the function will use the command terminal::``python2`` so
-        as to launch the ¨python files.
-
-        b) If ``version`` is a string, the function will use it as the command
-        so as to launch the ¨python files.
-
-    By default we have ``version = 3`` which indicates that the command to launch
-    ¨python is just terminal::``python3``.
-
-    3) ``isverbose`` is a boolean argument to see or not all the stuffs printed
-    in the terminal by every single ¨python script launched.
-
-    The default value is ``False`` so as to only see in a terminal the names of
-    the ¨python scripts launched.
-    """
-    if isinstance(version, int) or version.isdigit():
-        pycommand = "python{0}".format(version)
-
-    else:
-        pycommand = version
-
-    subprocess_method = _SUBPROCESS_METHOD[isverbose]
-
-    for onefile in nextfile(
-        main     = main,
-        exts     = "py",
-        prefixes = prefixes,
-        depth    = depth
-    ):
-        print(
-            '\t+ Launching "{0}"'.format(
-                relativepath(
-                    main = main,
-                    sub  = onefile,
-                )
-            )
-        )
-
-        subprocess_method(
-# We go in the directory of the file to compile.
-            cwd = parentdir(onefile),
-# We use the terminal actions.
-            args = [pycommand, onefile]
-        )
+    return list(set(onedict.values()))

@@ -1,22 +1,11 @@
 #!/usr/bin/env python3
 
 """
-???
-
-
 prototype::
-    date = 2014-10
+    date = 2015-06-05    ?????
 
 
-
-
-This module contains some simple tools dealing with strings.
-
-
-
-
-string.capwords(s, sep=None)
-Split the argument into words using str.split(), capitalize each word using str.capitalize(), and join the capitalized words using str.join(). If the optional second argument sep is absent or None, runs of whitespace characters are replaced by a single space and leading and trailing whitespace are removed, otherwise sep is used to split and join the words.
+This module contains tools dealing with the manipulation of strings.
 """
 
 from unicodedata import name as ucname
@@ -34,62 +23,36 @@ from mistool.config.pattern import PATTERNS_WORDS
 def replace(text, replacements):
     """
 prototype::
-    arg    = str: lang = DEFAULT_LANG ;
-             ????
-    return = str ;
-             ????
+    arg-attr = str: text ;
+               the text where to do the replacements
+    arg-attr = {str: str}: replacements ;
+               the keys are strings to be found and the values are strings used
+               to do replacements
+    return   = str ;
+               the text with the replacements done starting from the longest to
+               the shortest strings to replace
 
 
+Here is one example.
 
------------------
-Small description
------------------
-
-This function does replacements in the argument ``text`` using the assos
-defined in the dictionary ``replacement``.
+pyterm::
+    >>> from mistool.string_use import replace
+    >>> text = "one, two, three,..."
+    >>> replacements = {
+    ...     'one'  : "1",
+    ...     'two'  : "2",
+    ...     'three': "3"
+    ... }
+    >>> print(replace(text = text, replacements = replacements))
+    1, 2, 3,...
 
 
 warning::
-    The function does the replacements sequentially from the longer word to the
-    shorter one.
-
-
-Here is a small example.
-
-python::
-    from mistool import string_use
-
-    littleExample = string_use.replace(
-            text         = "one, two, three,...",
-            replacements = {
-                'one'  : "1",
-                'two'  : "2",
-                'three': "3"
-            }
-        )
-    )
-
-
-In that code, ``littleExample`` is equal to ``"1, 2, 3,..."``.
-
-
-info::
-    This function has not been build for texts to be replaced that contains some
-    other texts to also replace. If you need this kind of feature, take a look
-    at the class ``MultiReplace``.
-
-
--------------
-The arguments
--------------
-
-This function uses the following variables.
-
-    1) ``text`` is a string argument corresponding to the text where the
-    replacements must be done.
-
-    2) ``replacements`` is a dictionary where each couple ``(key, value)`` is of
-    the kind ``(text to find, replacement)``.
+    The function does the replacements sequentially from the longer string to the
+    shorter one. It doesn't manage either replacing words rather than strings.
+    So it has not been build for words to be replaced, that contains some other
+    words to also replace and so on... If you are looking for this kind of
+    feature, take a look at the class ``MultiReplace``.
     """
     sortedkeys = sorted(
         replacements.keys(),
@@ -102,97 +65,144 @@ This function uses the following variables.
     return text
 
 
+
+
+
+
+
+
 class MultiReplace:
     """
 prototype::
-    arg    = str: lang = DEFAULT_LANG ;
-             ????
-    return = str ;
-             ????
+    see = config.pattern
+    arg = {str: str}: replacements ;
+          the keys are strings to be found and the values are strings used to
+          do replacements, but here this replacements can contain also text with
+          pieces to be replaced
+    arg = regex: pattern = PATTERNS_WORDS["en"] ;
+          by default, this regex is for finding english words that are only made
+          of ¨acscii letters (see ``config.pattern`` where ``PATTERNS_WORDS`` is
+          defined)
 
 
 
 
------------------
-Small description
------------------
-
-The purpose of this class is to replace texts that can contain some other texts
-to also be replaced. Here is an example of use.
-
-python::
-    from mistool import string_use
-    from mistool.config.pattern import PATTERNS_WORDS
-
-    myReplace = string_use.MultiReplace(
-        replacements = {
-            'W1' : "word #1",
-            'W2' : "word #2",
-            'W12': "W1 and W2"
-        },
-        pattern = PATTERNS_WORDS["var"]
-    )
-
-    print(myReplace.replace("W1 and W2 = W12"))
 
 
-Launched in a terminal, the preceding code will produce the following output.
-
-terminal::
-    word #1 and word #2 = word #1 and word #2
 
 
-The only technical thing is the use of ``PATTERNS_WORDS["var"]`` which is
-a regex grouping pattern. You can use directly the following patterns or use
-your own grouping pattern.
+The purpose of this class is to give a method so as to replace piece of texts
+that can contain some other pieces to be replaced... Here is an example of use.
 
-    1) ``PATTERNS_WORDS["en"]`` is for words only made of ¨ascii letters.
-
-    2) ``PATTERNS_WORDS["fr"]`` is for words only made of ¨ascii letters and
-    the special letters "â", "à", "é", "è", "ê", "ë", "î", "ï", "ô", "ù", "ü",
-    and "ç".
-
-    3) ``PATTERNS_WORDS["var"]`` is for words only starting with one ¨ascii
-    letter followed eventually by other ¨ascii letters, digits and underscores.
+pyterm::
+    >>> from mistool.string_use import MultiReplace
+    >>> replacements = {
+    ...     'one' : "1",
+    ...     'two' : "2",
+    ...     'both': "one and two"
+    ... }
+    >>> multireplace = MultiReplace(replacements)
+    >>> print(multireplace.replace("one, two, both"))
+    1, 2, 1 and 2
 
 
 info::
     Before doing the replacements in a text, the class first build the
-    dictionary ``self.replaceasit`` for which the replacements has been
-    changed so to not contain text to be replaced. With the preceeding code,
-    this dictionary is equal to the following one.
+    dictionary ``self.replaceasit`` for which the replacements have been changed
+    so that to not contain text to be replaced. For the preceeding code, this
+    dictionary is equal to the following one.
 
     python::
         {
-            'W1' : "word #1",
-            'W2' : "word #2",
-            'W12': "word #1 and word #2"
+            'one' : "1",
+            'two' : "2",
+            'both': "1 and 2"
         }
 
 
-warning::
-    In the following dictionnary defining replacements, there are cyclic
-    definitions. In that case, the class will raise an error.
+Hre we have used the default pattern for words. Sometims you will have to use another pattern like ine the following example where ``PATTERNS_WORDS["var"]`` is for words only starting with one ¨ascii letter followed eventually by other ¨ascii letters, digits and underscores. As you can see, without changing the pattern, the re^lacemnt will fail.
+
+python::
+    >>> from mistool.string_use import MultiReplace
+    >>> from mistool.config.pattern import PATTERNS_WORDS
+    >>> replacements = {
+    ...     'W1' : "word #1",
+    ...     'W2' : "word #2",
+    ...     'W12': "W1 and W2"
+    ... }
+    >>> multireplace = MultiReplace(replacements)
+    >>> print(multireplace.replace("W1 and W2 = W12"))
+    W1 and W2 = W12
+    >>> multireplace = MultiReplace(
+    ...     replacements = replacements,
+    ...     pattern      = PATTERNS_WORDS['var']
+    ... )
+    >>> print(multireplace.replace("W1 and W2 = W12"))
+    word #1 and word #2 = word #1 and word #2
+
+
+
+
+
+
+
+The new thing is the use of ``PATTERNS_WORDS["var"]`` which is a regex grouping
+pattern. You can use directly the following patterns or use your own grouping
+pattern.
+
+
+info::
 
     python::
-        replacements = {
-            'WRONG_1': "one small text and  WRONG_2",
-            'WRONG_2': "one small text, and then WRONG_3",
-            'WRONG_3': "with WRONG_1, there is one problem here"
+        FR_ACCENTUED_LETTERS = "âàéèêëîïôùüç"
+
+        PATTERNS_WORDS = {
+            'en': re.compile("([a-zA-Z]+)"),
+            'fr': re.compile(
+                "([a-z{0}A-Z{1}]+)".format(
+                    FR_ACCENTUED_LETTERS,
+                    FR_ACCENTUED_LETTERS.upper()
+                )
+            ),
+            'var': re.compile("([a-zA-Z][\d_a-zA-Z]*)"),
         }
 
+        utiliser iun grupe regex::``(...)``
 
--------------
-The arguments
--------------
 
-The instanciation of this class uses the following variables.
 
-    1) ``replacements`` is a dictionary where each couple ``(key, value)`` is of
-    the kind ``(text to find, replacement)``. Here the replacements can contain
-    also text to be replaced.
 
-    2) ``pattern`` is a regex grouping pattern indicating the kind of words to be replaced. By default, ``pattern = PATTERNS_WORDS["en"]`` where ``PATTERNS_WORDS`` is a renaming of ``config.pattern.PATTERNS_WORDS`` (see the the file ``config/pattern`` for more informations).
+
+
+
+
+
+
+
+
+One last thing to know is that the class looks for viscious circle in the dictionnary ``replacements``. Here is such an example.
+
+pytrem::
+>>> from mistool.string_use import MultiReplace
+>>> from mistool.config.pattern import PATTERNS_WORDS
+>>> replacements = {
+...     'WRONG1': "one small text and  WRONG2",
+...     'WRONG2': "one small text, and then WRONG3",
+...     'WRONG3': "with WRONG1, there is one problem here"
+... }
+>>> multireplace = MultiReplace(
+...     replacements = replacements,
+...     pattern      = PATTERNS_WORDS['var']
+... )
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+  File "/anaconda/lib/python3.4/site-packages/mistool/string_use.py", line 207, in __init__
+    self,
+
+  [...]
+
+ValueError: the following viscious circle has been found.
+    + WRONG1 ---> WRONG2 ---> WRONG3 ---> WRONG1
     """
 
     def __init__(
@@ -202,12 +212,9 @@ The instanciation of this class uses the following variables.
     ):
         self.pattern      = pattern
         self.replacements = replacements
-        self.replaceasit  = None
-
-        self._crossreplace = None
-        self._oldwords     = None
 
         self.update()
+
 
     def update(self):
         """
@@ -225,11 +232,11 @@ This method simply launches methods so as to verify that there is no cyclic
 replacements, and then to build the direct replacements dictionary
 ``self.replaceasit``.
         """
-        self._crossreplace = {}
-        self._lookforcycle()
-        self._replace_recursively()
+        self._search_cycles()
+        self._build_replaceasit()
 
-    def _lookforcycle(self):
+
+    def _search_cycles(self):
         """
     prototype::
         arg    = str: lang = DEFAULT_LANG ;
@@ -246,7 +253,8 @@ This method verifies that there is no cyclic replacements.
 Indeed all the job is done by the hidden method ``self._noviciouscycle``.
         """
 # Building the crossing replacements.
-        self._oldwords = list(self.replacements.keys())
+        self._crossreplace = {}
+        self._oldwords     = list(self.replacements.keys())
 
         for old, new in self.replacements.items():
             self._crossreplace[old] = [
@@ -254,12 +262,12 @@ Indeed all the job is done by the hidden method ``self._noviciouscycle``.
                 if x in self._oldwords
             ]
 
-        self._noviciouscycle()
+        self._recu_search_cycles(oldwords = self._oldwords)
 
-    def _noviciouscycle(
+    def _recu_search_cycles(
         self,
-        visitedwords = [],
-        nextwords    = None
+        oldwords,
+        oldvisited = []
     ):
         """
     prototype::
@@ -267,45 +275,38 @@ Indeed all the job is done by the hidden method ``self._noviciouscycle``.
                  ????
         return = str ;
                  ????
-
-
-
-
-
-
         """
-        if nextwords == None:
-            nextwords = self._oldwords
-
-        for old in nextwords:
+        for old in oldwords:
             oldinnew = self._crossreplace[old]
 
+# Autoreference
             if old in oldinnew:
                 raise ValueError(
                     "<< {0} >> is used in its associated replacement." \
                         .format(old)
                 )
 
-            elif old in visitedwords:
-                pos = visitedwords.index(old)
+# A cycle has been found.
+            elif old in oldvisited:
+                pos = oldvisited.index(old)
 
-                visitedwords = visitedwords[pos:]
-                visitedwords.append(old)
-                visitedwords = [""] + visitedwords
+                oldvisited = oldvisited[pos:]
+                oldvisited.append(old)
 
                 raise ValueError(
                     "the following viscious circle has been found." \
-                    + "\n\t + ".join(visitedwords)
+                    + "\n    + {0}".format(" ---> ".join(oldvisited))
                 )
 
+# We continue our quest recursively.
             else:
                 for new in oldinnew:
-                    self._noviciouscycle(
-                        visitedwords = visitedwords + [old],
-                        nextwords    = self._crossreplace[old]
+                    self._recu_search_cycles(
+                        oldvisited = oldvisited + [old],
+                        oldwords    = self._crossreplace[old]
                     )
 
-    def _replace_recursively(self):
+    def _build_replaceasit(self):
         """
     prototype::
         arg    = str: lang = DEFAULT_LANG ;
@@ -340,9 +341,11 @@ Indeed all the job is done by the hidden method ``self._replace_oneword``.
 #    http://www.developpez.net/forums/d958712/autres-langages/python-zope/general-python/amelioration-split-evolue/#post5383767
             newtext = self.pattern.sub(self._apply, text)
 
+# Nothing new.
             if newtext == text:
                 return text
 
+# text has changed.
             else:
                 text = newtext
 
@@ -365,6 +368,26 @@ This method is used to does the replacements corresponding the matching groups.
         """
         return self.replacements.get(match.group(1), match.group(0))
 
+
+    def _apply_asit(
+        self,
+        match
+    ):
+        """
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
+
+This method is used to does the replacements corresponding the matching groups.
+        """
+        return self.replaceasit.get(match.group(1), match.group(0))
+
     def replace(
         self,
         text
@@ -383,10 +406,7 @@ This method is used to does the replacements corresponding the matching groups.
 This method does the replacements in one text (indeed it simply calls the
 function ``replace`` with the attribut ``self.replaceasit``).
         """
-        return replace(
-            text         = text,
-            replacements = self.replaceasit
-        )
+        return self.pattern.sub(self._apply_asit, text)
 
 
 # ------------------------------------- #
@@ -414,7 +434,7 @@ of use is given in the documentation of ``ascii``.
         try:
             ascii(onechar)
 
-        except StringUseError as e:
+        except ValueError as e:
             problems.append(
                 "? >>> {0} : {1}".format(
                     onechar,
@@ -440,6 +460,7 @@ ASCII character(s).
         problems = "Nothing to report."
 
     return problems
+
 
 def ascii(
     text,
@@ -615,7 +636,7 @@ This function uses the following variables.
                 raise ValueError(
                     "ASCII conversion can be achieved because of the character "
                     "<< {0} >>. ".format(onechar) + "\nYou can use the "
-                    "function ``_ascii_report`` so as to report more precisely " "this with the possibility to indicate ascii assos."
+                    "function ``_ascii_report`` so as to report more precisely " "this with the possibility to propose ascii associations."
                 )
 
     text = replace(
@@ -658,6 +679,18 @@ prototype::
              ????
 
 
+    1) ``words`` is the list of words to use for the auto completions.
+
+    2) ``depth`` is the minimal size of the prefix used to look for the auto
+    completions. By default, ``depth = 0`` which indicates to start the auto
+    completion with the first letter.
+
+    infoo:
+        `3` seems to be a good value of ``depth`` for ¨gui application.
+
+    3) ``assos`` is a "magical" dictionary that eases the auto completion. This
+    dictionary is build by the method ``build`` from the list of words to be
+    used for the auto completions.
 
 
 
@@ -768,26 +801,6 @@ There is two other useful methods (see their docstrings for more informations).
 
     2) ``missing`` simply gives the letters remaining after one prefix in a
     word.
-
-
--------------
-The arguments
--------------
-
-The instanciation of this class uses the following variables.
-
-    1) ``words`` is the list of words to use for the auto completions.
-
-    2) ``depth`` is the minimal size of the prefix used to look for the auto
-    completions. By default, ``depth = 0`` which indicates to start the auto
-    completion with the first letter.
-
-    infoo:
-        `3` seems to be a good value of ``depth`` for ¨gui application.
-
-    3) ``assos`` is a "magical" dictionary that eases the auto completion. This
-    dictionary is build by the method ``build`` from the list of words to be
-    used for the auto completions.
     """
 
     def __init__(
@@ -806,7 +819,7 @@ The instanciation of this class uses the following variables.
         self.depth = depth
 
 # We have to build the magical dictionary.
-        if self.assos == None:
+        if assos == None:
             self.build()
 
     def build(self):
@@ -1279,22 +1292,22 @@ The instanciation of this class uses the following variables.
         if isinstance(self.seps, str):
             self.seps = [self.seps]
 
-        self.listview = self.build()
+        self.build()
 
     def build(self):
         """
 This method builds the list view version of the split text.
 
-Indeed all the job is done by the hidden method ``self._build``.
+Indeed all the job is done by the hidden method ``self._rbuild``.
         """
-        return self._build(
+        self.listview = self._rbuild(
             text   = self.text,
             seps   = self.seps,
             escape = self.escape,
             strip  = self.strip
         )
 
-    def _build(
+    def _rbuild(
         self,
         text,
         seps,
@@ -1321,7 +1334,7 @@ Indeed all the job is done by the hidden method ``self._build``.
 
             if otherseps:
                 answer = [
-                    self._build(
+                    self._rbuild(
                         text   = piece,
                         seps   = otherseps,
                         escape = escape,
@@ -1373,7 +1386,12 @@ def between(
     keep = False
 ):
     """
-PLUS UTILE !!!!!
+
+
+
+utiliser
+    	---> befor after = amount, space, currency = "123.45 USD".partition(" ")
+
 
 
 
@@ -1593,7 +1611,7 @@ This function uses the following variables.
                 .format(kind)
         )
 
-def camelto(text, kind):
+def camelto(text, kind, sep = "_"):
     """
     prototype::
         arg    = str: lang = DEFAULT_LANG ;
@@ -1610,7 +1628,11 @@ Small description
 
 This function transforms one text using camel syntax to one of the case variants
 proposed by the function ``case``. Indeed, each time one upper letter is met,
-one underscore followed by one space is added before it, then the function
+one underscore
+
+car sep = "_"
+
+ followed by one space is added before it, then the function
 ``case`` is called, and finally extra spaces are removed. For example,
 ``camelto("oneExample", "title")`` is equal to ``"One_Example"``.
 
