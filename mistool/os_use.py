@@ -418,9 +418,7 @@ pyterm::
     2
     >>> print(path_pb.depth_in(main))
     Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "/anaconda/lib/python3.4/pathlib.py", line 802, in relative_to
-        .format(str(self), str(formatted)))
+    [...]
     ValueError: '/NoUser/projects' does not start with '/Users/projects'
     """
     return len(cls.relative_to(path).parts) - 1
@@ -979,9 +977,7 @@ pyterm::
     >>> path_2 = PPath("test/README")
     >>> path_2.create("dir")
     Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "/anaconda/lib/python3.4/site-packages/mistool/os_use.py", line 330, in _ppath_create
-        raise ValueError("path points to an existing file.")
+    [...]
     ValueError: path points to an existing file.
 
 

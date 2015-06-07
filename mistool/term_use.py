@@ -2,11 +2,11 @@
 
 """
 prototype::
-    date = 2015-06-03
+    date = 2015-06-05
 
 
-This module contains a class ``DirView`` so as to display the content of a
-folder using filters if necessary.
+This module contains mainly classes and functions producing strings useful to be
+printed in a terminal.
 """
 
 from mistool.os_use import PPath, \
@@ -15,6 +15,538 @@ from mistool.os_use import PPath, \
                            OTHER_FILES_TAG, EMPTY_DIR_TAG
 
 from mistool.latex_use import escape as latex_escape
+
+from mistool.config.frame import FRAMES_FORMATS, _ABREVS_FRAMES, _KEYS_FRAME
+
+
+# ------------------- #
+# -- DECORATE TEXT -- #
+# ------------------- #
+
+DEFAULT_FRAME = FRAMES_FORMATS['python_basic']
+
+def _draw_hrule(
+    rule,
+    left,
+    right,
+    lenght,
+    nbspace
+):
+    """
+    prototype::
+            arg    = str: lang = DEFAULT_LANG ;
+                     ????
+            return = str ;
+                     ????
+
+
+
+
+
+-----------------
+Small description
+-----------------
+
+This function is used to draw the horizontal rules of a frame around one text.
+
+
+-------------
+The arguments
+-------------
+
+This function uses the following variables.
+
+    1) ``rule`` is the character used to draw the rule.
+
+    2) `left``�and ``right`` are the first and last additional texts used around
+    the rule.
+
+    3) ``lenght`` is an integer giving the lenght of the rule.
+
+    4) ``nbspace`` is the number of spaces to add before the first additional
+    text (this is for cases when left corners have different lenghts).
+    """
+    if rule:
+        return [
+            ' '*(nbspace - len(left))
+            + left
+            + rule*lenght
+            + right
+        ]
+
+    elif left:
+        return [
+            left
+            + ' '*lenght
+            + right
+        ]
+
+    elif right:
+        return [
+            ' '*(nbspace + lenght)
+            + right
+        ]
+
+    else:
+        return []
+
+def frame(
+    text,
+    format = DEFAULT_FRAME,
+    center = True
+):
+    """
+
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
+--------------
+Default frames
+--------------
+
+This function makes it possible to put one text into one frame materialized by
+ASCII characters. This can be usefull for console outputs or for pretty comments
+in listings like the following python comment.
+
+python::
+    #############
+    # one       #
+    # comment   #
+    # easily    #
+    # formatted #
+    #############
+
+
+This text has been produced using the following lines.
+
+python::
+    from mistool import string_use
+
+    oneText = '''one
+    comment
+    easily
+    formatted'''
+
+    print(
+        string_use.frame(
+            text   = oneText,
+            center = False
+        )
+    )
+
+
+By default, ``center`` is equal ``True`` which asks to merely center the content
+of the frame. Here we use the default frame ``DEFAULT_FRAME`` which is equal to
+``FRAMES_FORMATS['python_basic']``. The dictionary ``FRAMES_FORMATS`` contains all
+the default formats. For example, in the following code we use another default
+formats.
+
+python::
+    from mistool import string_use
+
+    oneText = '''one
+    comment
+    with C-like
+    style'''
+
+    print(
+        string_use.frame(
+            text   = oneText,
+            format = string_use.FRAMES_FORMATS['c_basic'],
+            center = False
+        )
+    )
+
+
+This will give the following output.
+
+code_c::
+    /***************
+     * one         *
+     * comment     *
+     * with C-like *
+     * style       *
+     ***************/
+
+
+---------------
+Homemade frames
+---------------
+
+The following frame can be obtained by using the default format
+``string_use.FRAMES_FORMATS['python_pretty']``.
+
+python::
+    # ------------- #
+    # -- one     -- #
+    # -- pretty  -- #
+    # -- comment -- #
+    # ------------- #
+
+
+Let see the definition ``FRAMES_FORMATS['python_pretty']``.
+
+python::
+    {
+        'rule': {
+            'down': '-',
+            'left': '--',
+            'right': '--',
+            'up': '-'
+        },
+        'extra': {
+            'rule': {
+                'left': '#',
+                'right': '#'
+            }
+        }
+    }
+
+
+In this dictionary, we define a frame and then an extra frame. Indeed, you can
+use a dictionary looking like the one above. A missing key is a shortcut to
+indicate an empty string.
+
+python::
+    {
+        'rule' : {
+            'up'   : "Single character",
+            'down' : "Single character",
+            'left' : "Some characters",
+            'right': "Some characters"
+        },
+        'corner': {
+            'leftup'   : "Some characters",
+            'leftdown' : "Some characters",
+            'rightup'  : "Some characters",
+            'rightdown': "Some characters"
+        },
+        'extra': {
+            'rule' : {
+                'up'   : "Single character",
+                'down' : "Single character",
+                'left' : "Some characters",
+                'right': "Some characters"
+            },
+            'corner': {
+                'leftup'   : "Some characters",
+                'leftdown' : "Some characters",
+                'rightup'  : "Some characters",
+                'rightdown': "Some characters"
+            },
+        }
+    }
+
+
+You can use the following abreviations for the positional keys.
+
+    * ``u``, ``d``, ``l`` and ``r`` are abreviations for ``up``, ``down``,
+    ``left`` and ``right`` respectively.
+
+    * ``lu``, ``ld``, ``ru`` and ``rd`` are abreviations for ``leftup``,
+    ``leftdown``, ``rightup`` and ``rightdown`` respectively.
+
+
+-------------
+The arguments
+-------------
+
+This function uses the following variables.
+
+    1) ``text`` is a string value corresponding to the text to put in a frame.
+
+    2) ``center`` is a boolean variable to center or not the text inside the
+    frame. By default, ``center = True``.
+
+    3) ``format`` is an optional dictionary defining the frame. By default,
+    ``format = DEFAULT_FRAME`` which is equal to
+    ``FRAMES_FORMATS['python_basic']``.
+
+    info::
+        All the default formats are in the dictionary ``FRAMES_FORMATS``.
+
+
+    The general structure of a dictionary to use with ``format`` is the following
+    one.
+    """
+# Default values must be chosen if nothing is given.
+    if not set(format.keys()) <= {'rule', 'corner', 'extra'}:
+        raise ValueError("illegal key for the dictionary << format >>.")
+
+    for kind in ['rule', 'corner', 'extra']:
+        if kind not in format:
+            format[kind] = {}
+
+
+    for kind in ['rule', 'corner']:
+        if not set(format[kind].keys()) <= _KEYS_FRAME[kind]:
+            raise ValueError(
+                "illegal key for the dictionary << format >>. "
+                "See the kind << {0} >>.".format(kind)
+            )
+
+        for key, abrev in _ABREVS_FRAMES[kind].items():
+            if abrev in format[kind] and key in format[kind]:
+                message = "use of the key << {0} >> and its abreviation " \
+                        + "<< {1} >> for the dictionary << format >>."
+
+                raise ValueError(message.format(key, abrev))
+
+            if abrev in format[kind]:
+                format[kind][key] = format[kind][abrev]
+
+            elif key not in format[kind]:
+                format[kind][key] = ""
+
+# Horizontal rules can only use one single character.
+    for loc in ['up', 'down']:
+        if len(format['rule'][loc]) > 1:
+            message = "You can only use nothing or one single character " \
+                    + "for rules.\nSee << {0} >> for the {1} rule."
+
+            raise ValueError(
+                message.format(format['rule'][loc], loc)
+            )
+
+# Infos about the lines of the text.
+    lines     = [oneline.rstrip() for oneline in text.splitlines()]
+    nbmaxchar = max([len(oneline) for oneline in lines])
+
+# Space to add before vertical rules.
+    nbspace = max(
+        len(format['corner']['leftup']),
+        len(format['corner']['leftdown'])
+    )
+
+    spacetoadd = ' '*nbspace
+
+# Text decoration for vertical rules
+    if format['rule']['left']:
+        leftrule = format['rule']['left'] + ' '
+    else:
+        leftrule = ''
+
+    if format['rule']['right']:
+        rightrule = ' ' + format['rule']['right']
+    else:
+        rightrule = ''
+
+# Length of the rule without the corners
+    lenght = nbmaxchar + len(leftrule) + len(rightrule)
+
+# First line of the frame
+    answer = _draw_hrule(
+        rule    = format['rule']['up'],
+        left    = format['corner']['leftup'],
+        right   = format['corner']['rightup'],
+        lenght  = lenght,
+        nbspace = nbspace
+    )
+
+# Management of the lines of the text
+    for oneline in lines:
+        nbmissingspaces = nbmaxchar - len(oneline)
+
+# Space before and after one line of text.
+        if center:
+            if nbmissingspaces % 2 == 1:
+                spaceafter = ' '
+            else:
+                spaceafter = ''
+
+            nbmissingspaces = nbmissingspaces // 2
+
+            spacebefore = ' '*nbmissingspaces
+            spaceafter += spacebefore
+
+        else:
+            spacebefore = ''
+            spaceafter = ' '*nbmissingspaces
+
+        answer.append(
+            spacetoadd
+            +
+            '{0}{1}{2}{3}{4}'.format(
+                leftrule,
+                spacebefore,
+                oneline,
+                spaceafter,
+                rightrule
+            )
+        )
+
+# Last line of the frame
+    answer += _draw_hrule(
+        rule    = format['rule']['down'],
+        left    = format['corner']['leftdown'],
+        right   = format['corner']['rightdown'],
+        lenght  = lenght,
+        nbspace = nbspace
+    )
+
+    answer = '\n'.join([x.rstrip() for x in answer])
+
+# Does we have an extra frame ?
+    if format['extra']:
+        try:
+            answer = frame(
+                text   = answer,
+                format = format['extra'],
+                center = center
+            )
+
+        except ValueError as e:
+            raise ValueError(
+                str(e)[:-1] + " in the definition of the extra frame."
+            )
+
+# All the job has been done.
+    return answer
+
+
+
+
+
+# ------------------ #
+# -- STEP BY STEP -- #
+# ------------------ #
+
+class Step:
+    """
+
+    prototype::
+        arg    = str: lang = DEFAULT_LANG ;
+                 ????
+        return = str ;
+                 ????
+
+
+
+
+
+-----------------
+Small description
+-----------------
+
+This class displays texts for step by step actions. The numbering of the steps
+is automatically updated and displayed.
+
+
+-------------
+The arguments
+-------------
+
+There are two optional variables.
+
+    1) ``nb`` is the number of the current step. When the class is instanciated,
+    the default value is ``1``.
+
+    2) ``deco`` indicates how to display the numbers. When the class is
+    instanciated, the default value is ``""1)""`` where ``1`` symbolises the
+    numbers.
+    """
+    def __init__(
+        self,
+        nb   = 1,
+        deco = "1)"
+    ):
+        self.nb   = nb
+        self.deco = deco.replace('1', '{0}')
+
+    def print(
+        self,
+        text,
+        deco
+    ):
+        """
+            prototype::
+                arg    = str: lang = DEFAULT_LANG ;
+                         ????
+                return = str ;
+                         ????
+
+
+
+
+-----------------
+Small description
+-----------------
+
+This method simply prints ``deco`` the text of the actual numbering, and then
+``text`` the content of the actual step.
+
+You can redefine this method for finer features.
+
+
+-------------
+The arguments
+-------------
+
+This method uses the following variables.
+
+    1) ``text`` is simply the text of the actual step.
+
+    2) ``deco`` is a string corresponding to the text indicated what is the
+    actual step number.
+        """
+        print(
+            deco,
+            text,
+            sep = " "
+        )
+
+    def display(
+        self,
+        text
+    ):
+        """
+
+            prototype::
+                arg    = str: lang = DEFAULT_LANG ;
+                         ????
+                return = str ;
+                         ????
+
+
+
+-----------------
+Small description
+-----------------
+
+This method simply calls the method ``self.print`` so as to print the
+informations contained in the variable ``text``, and then ``self.nb`` is
+augmented by one unit.
+
+You can redefine the method ``self.print`` for finer features.
+
+
+-------------
+The arguments
+-------------
+
+This method uses one variable ``text`` which is the text of the actual step.
+        """
+        self.print(
+            text = text,
+            deco = self.deco.format(self.nb)
+        )
+
+        self.nb += 1
+
+
+
+
+
+
+
+
+
 
 
 # ----------------------- #

@@ -44,6 +44,11 @@ Utilisation de __slots__ , __version__ ... Voir ce qu'il faut ajouter.
 
 > ---------------------------- <
 
+gestion de toutes les lettres grecques via une fonction dédiée qui repère beta, alpha, ...
+
+
+> ---------------------------- <
+
 **Amélioration côté développement interne :** voici ce qui a évolué.
 
     1) L'effacité des tests est évaluée à l'aide de ¨coverage.
