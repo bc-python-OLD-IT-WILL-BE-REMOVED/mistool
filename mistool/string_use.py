@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2015-06-07
+    date = 2015-06-08
 
 
 This module contains some tools to manipulate strings.
@@ -24,10 +24,12 @@ _LONG_CASE_VARIANTS = {x[0]:x for x in _CASE_VARIANTS}
 def case(text, kind):
     """
 prototype::
-    arg    = str: text ;
-             the text to modify
-    arg    = str: kind in _CASE_VARIANTS or in _LONG_CASE_VARIANTS ;
-             the kind of case you want
+    arg = str: text ;
+          the text to modify
+    arg = str: kind in _CASE_VARIANTS or
+                    in _LONG_CASE_VARIANTS ;
+          the kind of case you want
+
     return = str ;
              the text modified.
 
@@ -85,13 +87,17 @@ def camelto(
 ):
     """
 prototype::
-    arg    = str: text ;
-             the text to modify that uses the camel case (so it can't contain
-             spaces)
-    arg    = str: kind in _CASE_VARIANTS or in _LONG_CASE_VARIANTS ;
-             the kind of case you want
+    arg = str: text ;
+          the text to modify that uses the camel case (so it can't contain
+          spaces)
+    arg = str: kind in _CASE_VARIANTS or
+                    in _LONG_CASE_VARIANTS ;
+          the kind of case you want
+
     return = str ;
-             the text modified after adding underscores with one space before each upper leters, except the starting one, and then applying the case using ``kind`` so as to finally remove all spaces.
+             the text modified after adding underscores with one space before
+             each upper letters, except the starting one, and then applying the
+             case using ``kind`` so as to finally remove all spaces.
 
 
 The code below shows all the possibilities available with the default separator
@@ -110,7 +116,8 @@ pyterm::
     One_small_examp_l_E   [firstlast]
 
 
-If you want to use another separator than ``_``, just use the argument ``sep`` as below.
+If you want to use another separator than ``_``, just use the argument ``sep``
+as below.
 
 pyterm::
     >>> from mistool.string_use import camelto
@@ -150,10 +157,12 @@ pyterm::
 def iscase(text, kind):
     """
 prototype::
-    arg    = str: text ;
-             the text to test
-    arg    = str: kind in _CASE_VARIANTS or in _LONG_CASE_VARIANTS ;
-             the kind of case you want to test
+    arg = str: text ;
+          the text to test
+    arg = str: kind in _CASE_VARIANTS or
+                    in _LONG_CASE_VARIANTS ;
+          the kind of case you want to test
+
     return = bool ;
              the boolean value of the test ``text == case(text, kind)``
     """
@@ -185,7 +194,8 @@ prototype::
                this dictionary uses couples ``(key, value)`` that are of the
                kind ``(old text to find, new text for replacement)`` where the
                replacements can eventually contain also texts to be replaced
-    arg-attr = str: mode = "norecu" in cls._MODES or in cls._LONG_MODES ;
+    arg-attr = str: mode = "norecu" in cls._MODES or
+                                    in cls._LONG_MODES ;
                the default value asks to not do replacements recursively in the
                new texts used for replacements contrary to ``mode = "recu"``,
                this second mode needing to use also the argument ``pattern``
@@ -426,7 +436,8 @@ pyterm::
     def _lookforcycle(self):
         """
 prototype::
-    see    = self._noviciouscycle
+    see = self._noviciouscycle
+
     action = this method verifies that there are no cyclic replacements (all the
              job is done recursively by ``self._noviciouscycle``).
         """
@@ -454,11 +465,12 @@ prototype::
     ):
         """
 prototype::
-    arg    = list(str): nextwords ;
-             the old words with replacement texts to analyze
-    arg    = list(str): wordsfound ;
-             the words found in replacement texts (here we start for one word,
-             then we go in its replacement and so on...)
+    arg = list(str): nextwords ;
+          the old words with replacement texts to analyze
+    arg = list(str): wordsfound ;
+          the words found in replacement texts (here we start for one word,
+          then we go in its replacement and so on...)
+
     action = this method looks for cyclic replacements (the job is done
              recursively).
         """
@@ -548,8 +560,9 @@ prototype::
     def __call__(self, text):
         """
 prototype::
-    arg    = str: text ;
-             a text where to do replacements
+    arg = str: text ;
+          a text where to do replacements
+
     return = str ;
              the text where all the replacements have been done.
         """
@@ -595,7 +608,8 @@ prototype::
 class SplitInfos:
     """
 prototype::
-    see    = MultiSplit
+    see = MultiSplit
+
     action = this class is simply an object used by the method ``__iter__`` of
              the class ``MultiSplit``.
     """
@@ -635,7 +649,7 @@ The purpose of this class is to split a text at different levels. You can use
 either a list view version of the splitted text, or work with a special iterator
 as we will see at the end of this documentation.
 Here is an example of the "listview" version. As you can see one separator give
-a 1-depth list, two separators give a 2-depth list and so on...
+a 1-minsize list, two separators give a 2-minsize list and so on...
 
 pyterm::
     >>> from mistool.string_use import MultiSplit
@@ -814,12 +828,14 @@ warning::
     def __call__(self, text):
         """
 prototype::
-    see    = self._build
-    arg    = str: text ;
-             a text to be splitted.
+    see = self._build
+
+    arg = str: text ;
+          a text to be splitted.
+
     return = listview ;
              this method builds a list view version of the splitted text that is
-             a list of lists of lists of ... of lists of strings. The depth of
+             a list of lists of lists of ... of lists of strings. The minsize of
              the list is equal to the number of separators
              (indeed, all the job is done recursively by ``self._build``).
         """
@@ -834,10 +850,11 @@ prototype::
     def _build(self, text, seps):
         """
 prototype::
-    arg    = str: text ;
-             a text to be splitted.
-    arg    = list(str): seps ;
-             a list of separators (not necessary the user's list).
+    arg = str: text ;
+          a text to be splitted.
+    arg = list(str): seps ;
+          a list of separators (not necessary the user's list).
+
     return = listview ;
              a list view version of the splitted text, this list being made
              recursively.
@@ -896,33 +913,37 @@ prototype::
     def iter(self, listview = None):
         """
 prototype::
-    see   = SplitInfos , self._iter
-    arg   = None, listview: listview = None ;
-            a listview made by an instance of ``MultiSplit``, or ``None`` if you
-            want to use the last listview built.
+    see = SplitInfos , self._iter
+
+    arg = None, listview: listview = None ;
+          a listview made by an instance of ``MultiSplit``, or ``None`` if you
+          want to use the last listview built.
+
     yield = SplitInfos
         """
         if listview == None:
             listview = self.listview
 
-        return self._iter(listview, depth = 0)
+        return self._iter(listview, minsize = 0)
 
 
-    def _iter(self, listview, depth):
+    def _iter(self, listview, minsize):
         """
 prototype::
-    see   = SplitInfos
-    arg   = listview: listview ;
-            a listview or a sublistview made by an instance of ``MultiSplit``.
-    arg   = int: depth ;
-            the depth level of the separators to use.
+    see = SplitInfos
+
+    arg = list: listview ;
+          a listview or a sublistview made by an instance of ``MultiSplit``.
+    arg = int: minsize ;
+          the minsize level of the separators to use.
+
     yield = SplitInfos
         """
         if listview:
             if isinstance(listview[0], str):
                 yield SplitInfos(
                     type = "sep",
-                    val  = self.seps[depth]
+                    val  = self.seps[minsize]
                 )
 
                 for x in listview:
@@ -935,12 +956,12 @@ prototype::
                 for x in listview:
                     yield SplitInfos(
                         type = "sep",
-                        val  = self.seps[depth]
+                        val  = self.seps[minsize]
                     )
 
                     for y in self._iter(
                         listview = x,
-                        depth    = depth + 1
+                        minsize    = minsize + 1
                     ):
                         yield y
 
@@ -951,17 +972,18 @@ def between(
 ):
     """
 prototype::
-    arg    = str: text ;
-             the text that must be splitted
-    arg    = [str, str]: seps ;
-             ``seps[0]`` is the start delimiter and ``seps[1]`` the end
-             delimiter, none of this strings can be empty
-    return = [str, str, str] ;
+    arg = str: text ;
+          the text that must be splitted
+    arg = [str, str]: seps ;
+          ``seps[0]`` is the start delimiter and ``seps[1]`` the end delimiter,
+          none of this strings can be empty
+
+    return = [str, str, str] , None ;
              ``[before, between, after]`` where ``between`` is the piece of text
              between the first ``seps[0]`` and ``seps[1]``, in this order, that
              have been found in ``text``, and where ``before`` is just before
-             ``seps[0]``, and ``after`` just after ``seps[1]`` (if nothing has
-             been found, the unfction returns ``[text, "", ""]``)
+             ``seps[0]``, and ``after`` just after ``seps[1]``, but **if nothing
+             has been found**, the function will return ``None``
 
 
 Here is an example of use.
@@ -978,9 +1000,7 @@ pyterm::
     ]
     >>> seps = ["{", "}"]
     >>> print(between(text, seps))
-    Traceback (most recent call last):
-    [...]
-    ValueError: the starting text has not been found.
+    None
     """
     if not isinstance(seps, list) or len(seps) != 2 \
     or not isinstance(seps[0], str) or not isinstance(seps[1], str) \
@@ -993,18 +1013,17 @@ pyterm::
 
     s = text.find(start)
 
+# The starting text has not been found.
     if s == -1:
-        raise ValueError('the starting text has not been found.')
+        return None
 
     sbis = s + len(start)
 
     e = text.find(end, sbis)
 
+# The ending text has not been found after the starting text.
     if e == -1:
-        raise ValueError(
-            'the ending text has not been found after the starting text.'
-        )
-
+        return None
 
     return [text[:s], text[sbis:e], text[e + len(end):]]
 
@@ -1019,10 +1038,11 @@ def joinand(
 ):
     """
 prototype::
-    arg    = list(str): texts ;
-             the texts to be joined
-    arg    = str: andtext = "and" ;
-             the text used to separate the two last strings
+    arg = list(str): texts ;
+          the texts to be joined
+    arg = str: andtext = "and" ;
+          the text used to separate the two last strings
+
     return = str ;
              the text obtained by joining the strings in ``texts`` using comas
              between each string, excpet for the two last ones that are separated
@@ -1060,8 +1080,9 @@ pyterm::
 def isascii(text):
     """
 prototype::
-    arg    = str: text ;
-             the text to be tested
+    arg = str: text ;
+          the text to be tested
+
     return = bool ;
              ``True`` if the text contains only ¨ascii characters, or ``False``
              if not
@@ -1085,15 +1106,16 @@ def ascii(
 ):
     """
 prototype::
-    arg    = str: text ;
-             the text to be translated
-    arg    = {str: str}: oldnew = {} ;
-             this dictionary uses couples ``(key, value)`` that are of the kind
-             ``(non-ascii character, ascii version)``
-    arg    = bool: strict = True ;
-             ``strict = True`` indicates to raise an error when the translation
-             can only be partial, and with ``strict = True`` no error will be
-             raised
+    arg = str: text ;
+          the text to be translated
+    arg = {str: str}: oldnew = {} ;
+          this dictionary uses couples ``(key, value)`` that are of the kind
+          ``(non-ascii character, ascii version)``
+    arg = bool: strict = True ;
+          ``strict = True`` indicates to raise an error when the translation
+          can only be partial, and with ``strict = True`` no error will be
+          raised
+
     return = str ;
              a partial or total ¨ascii version of ``text``
 
@@ -1237,8 +1259,9 @@ It's easy to increase the list of special characters managed by default.
 def _ascii_report(text):
     """
 prototype::
-    arg    = str: text ;
-             the non-¨ascii characters for the report
+    arg = str: text ;
+          the non-¨ascii characters for the report
+
     return = str ;
              a text to be sent to the author of ¨mistool
     """
@@ -1276,12 +1299,6 @@ ASCII character(s).
     return problems
 
 
-
-
-
-
-
-
 # ----------------- #
 # -- LOOKING FOR -- #
 # ----------------- #
@@ -1291,67 +1308,76 @@ ASCII character(s).
 class AutoComplete:
     """
 prototype::
-    arg    = str: lang = DEFAULT_LANG ;
-             ????
-    return = str ;
-             ????
+    arg-attr = str , None: words = None ;
+               either ``None`` or a list of words to use for the auto-completions
+    arg-attr = {'words':list(str) , 'prefixes':{str:[int, int]}} ,
+               None: assos = None ;
+               either ``None`` or a "magical" dictionary that eases the
+               auto-completions (see ``self._build_assos``)
+    arg-attr = int : minsize = 0 ;
+               the minimal size of prefixes used to look for the auto-completions
+               with the convention that ``minsize = 0`` indicates to start with
+               the first letter
+
+    action = after defining an instance of this class, you can use your instance
+             to do auto-completions
 
 
+=========
+Basic use
+=========
 
+The aim of this class is to give an easy way to have an auto-completion feature.
+Here is an example where we use the method ``matching`` that simply gives the
+list of words starting with the prefix given. As you can see, if the prefix is
+empty, the matching words are all the words defining the auto-completions.
 
-
------------------
-Small description
------------------
-
-The aim of this class is to ease auto completions. Here is an example.
-
-python::
-from mistool.string_use import AutoComplete
-myac = AutoComplete(
-    words = [
-        "article", "artist", "art",
-        "when", "who", "whendy",
-        "bar", "barbie", "barber", "bar"
-    ]
-)
-print(myac.matching("art"))
-print('---')
-print(myac.matching(""))
-
-
-
-
-
-
-Launched in a terminal, the preceding code will produce something similar to the
-following output.
-
-terminal::
-    ['art', 'article', 'artist']
-    ---
+pyterm::
+    >>> from mistool.string_use import AutoComplete
+    >>> myac = AutoComplete(
+    ...     words = [
+    ...         "article", "artist", "art",
+    ...         "when", "who", "whendy",
+    ...         "bar", "barbie", "barber", "bar"
+    ...     ]
+    ... )
+    >>> print(myac.matching("art"))
+    ['article', 'artist']
+    >>> print(myac.matching(""))
     [
-        'art', 'article', 'artiste',
-        'bar', 'barbie', 'barber',
+        'art', 'article', 'artist',
+        'bar', 'barber', 'barbie',
         'when', 'whendy', 'who'
     ]
 
 
-The method ``matching`` simply gives all the words starting with the prefix
-given. If the prefix is empty, the matching words are all the words defining the
-auto completion.
+If you need it, you can have the letters remaining after one prefix in a word by
+using the method ``missing`` as below.
+
+...pyterm::
+    >>> print(myac.missing("art", 'article'))
+    icle
 
 
-The search indeed uses a special "magical" dictionary which is stored in the
-attribut ``assos``. With the preceding example, ``myac.assos`` is equal to the
-dictionary below where the lists of integers correspond to the good indexes in
-the ordered list of words.
+==============================
+Don't build it again and again
+==============================
 
+The class ``AutoComplete`` builds a special "magical" dictionary which is stored
+in the attribut ``self.assos`` that you can store somewhere, using ``pickle``
+for example, so as to not build each time the same auto-completions. Here is an
+example where the output has been enhanced and commented a little.
 
-
-
-
-python::
+pyterm::
+    >>> from mistool.string_use import AutoComplete
+    >>> myac = AutoComplete(
+    ...     words = [
+    ...         "article", "artist", "art",
+    ...         "when", "who", "whendy",
+    ...         "bar", "barbie", "barber", "bar"
+    ...     ]
+    ... )
+    >>> print(myac.assos)
     {
         'words': [
     # A
@@ -1361,15 +1387,15 @@ python::
     # W
             'when', 'whendy', 'who'
         ],
-        'completions': {
+        'prefixes': {
     # A
-            'a'     : [0, 3],
+            'a'     : [0, 3],   # words in position 0 to 2 starts with "a"
             'ar'    : [0, 3],
-            'art'   : [1, 3],
+            'art'   : [1, 3],   # "art" has not to be completed !
             'arti'  : [1, 3],
             'artic' : [1, 2],
-            'artis' : [2, 3],
-            'articl': [1, 2],
+            'artis' : [2, 3],   # "artist" has not to be completed
+            'articl': [1, 2],   # so it is not a prefix like "artcile".
     # B
             'b'    : [3, 6],
             'ba'   : [3, 6],
@@ -1387,66 +1413,82 @@ python::
     }
 
 
-You can directly give this dictionary like in the following fictive example.
+In the example above, we have used the default value ``minsize = 0`` that gives
+all the possible prefixes, but in practice ``minsize = 3`` seems to be a better
+choice for ¨gui or ¨cli applications. In that case the "magic" dictionary can be
+built like this.
+
+pyterm::
+    >>> from mistool.string_use import AutoComplete
+    >>> myac = AutoComplete(
+    ...     words = [
+    ...         "article", "artist", "art",
+    ...         "when", "who", "whendy",
+    ...         "bar", "barbie", "barber", "bar"
+    ...     ],
+    ...     minsize = 3
+    ... )
+    >>> print(myac.assos)
+    {
+        'words': [
+            'art', 'article', 'artist',
+            'bar', 'barber', 'barbie',
+            'when', 'whendy', 'who'
+        ],
+        'prefixes': {
+    # A
+            'art'   : [1, 3],
+            'arti'  : [1, 3],
+            'artic' : [1, 2],
+            'articl': [1, 2],
+            'artis' : [2, 3],
+    # B
+            'bar'  : [4, 6],
+            'barb' : [4, 6],
+            'barbe': [4, 5],
+            'barbi': [5, 6],
+    # W
+            'whe'  : [6, 8],
+            'when' : [7, 8]
+            'whend': [7, 8],
+        }
+    }
+
+
+You can directly give the dictionary stored in ``self.assos`` like in the
+following fictive example where you can see the instance ``newoldac`` stores
+no words, and that there is no matching for ``"a"`` because the magic dictionary
+uses a depth of `3`.
+
+...pyterm::
+    >>> oldassos = myac.assos
+    >>> newoldac = AutoComplete(assos = myac.assos)
+    >>> print(newoldac.matching("art"))
+    ['article', 'artist']
+    >>> print(newoldac.matching("a"))
+    []
+    >>> print(newoldac.words)
+    None
+
+
 This can be very useful when you always use the same list of words : just ask
-one time to the class to build the "magical" dictionary, by giving the fixed
-list of words just one time, and then store this dictionary to reuse it later
-(you can use the function ``pyRepr``  of the module ``python_use`` to hard store
-the dictionary).
-
-python::
-    myac = AutoComplete(
-        assos = mymagicdict  # Previously build and stored somewhere.
-    )
-
-
-There is two other useful methods (see their docstrings for more informations).
-
-    1) ``build`` simply builds the "magical" dictionary. This method can be used
-    for local updating of the list of words used for the auto completion.
-
-    2) ``missing`` simply gives the letters remaining after one prefix in a
-    word.
-
-
--------------
-The arguments
--------------
-
-The instanciation of this class uses the following variables.
-
-    1) ``words`` is the list of words to use for the auto completions.
-
-    2) ``depth`` is the minimal size of the prefix used to look for the auto
-    completions. By default, ``depth = 0`` which indicates to start the auto
-    completion with the first letter.
-
-    infoo:
-        `3` seems to be a good value of ``depth`` for �gui application.
-
-    3) ``assos`` is a "magical" dictionary that eases the auto completion. This
-    dictionary is build by the method ``build`` from the list of words to be
-    used for the auto completions.
+one time to the class to build the "magical" dictionary by giving one fixed
+list of words just one time, and then store this dictionary to reuse it later.
     """
 
     def __init__(
         self,
-        words = None,
-        assos = None,
-        depth = 0
+        words   = None,
+        minsize = 0,
+        assos   = None,
     ):
-# User's arguments
-        self.words = words
-        self.assos = assos
-        self.depth = depth
+# Internal hack...
+        self._not_first_setting = False
 
-# Update the value of ``self.assos``
-        self._updateit = True
-
-
-
-
-
+# User's arguments (do not change the order)
+        self.words   = words
+        self.minsize = minsize
+        self.assos   = assos
 
 
 # --------------------- #
@@ -1459,10 +1501,22 @@ The instanciation of this class uses the following variables.
 
     @words.setter
     def words(self, value):
-        if value != None:
-            self._updateit = True
-
         self._words = value
+
+        if value != None and self._not_first_setting:
+            self.assos = None
+
+
+    @property
+    def minsize(self):
+        return self._minsize
+
+    @minsize.setter
+    def minsize(self, value):
+        self._minsize = value
+
+        if self._words != None and self._not_first_setting:
+            self.assos = None
 
 
     @property
@@ -1471,91 +1525,59 @@ The instanciation of this class uses the following variables.
 
     @assos.setter
     def assos(self, value):
-        if value != None:
-            self._updateit = True
+        if value == None:
+            self._build_assos()
 
-        self._assos = value
-
-
-    @property
-    def depth(self):
-        return self._depth
-
-    @assos.setter
-    def depth(self, value):
-        self._updateit = True
-        self._depth    = value
+        else:
+            self._assos = value
 
 
 # -------------------------- #
 # -- THE MAGIC DICTIONARY -- #
 # -------------------------- #
 
-    def build(self):
+    def _build_assos(self):
         """
 prototype::
-    arg    = str: lang = DEFAULT_LANG ;
-             ????
-    return = str ;
-             ????
-
-
-
-
-
-This method builds the "magical" dictionary that will ease the auto completions.
-Indeed, if you create a class ``AutoComplete`` without giving a "magical"
-dictionary ``dict``, the method ``build`` is automatically called.
+    action = this method builds the "magical" dictionary that will ease the
+             auto-completions
 
 
 info::
-    The idea of the magical dictionary comes from cf::``this discusion ;
+    The idea of the "magical" dictionary comes from cf::``this discusion ;
     http://www.developpez.net/forums/d921494/autres-langages/python-zope/general-python/naturel-chaine-stockage``
         """
+# We have to rebuild ``self.assos`` each time that something changes.
+        self._not_first_setting = True
+
 # Can we do the job ?
         if self.words == None:
-            raise ValueError(
-                "you must give either the value of ``words`` or ``assos``."
-            )
+            raise ValueError("missing value of ``words``.")
 
 # Sorted list of single words.
         sortedwords = list(set(self.words))
         sortedwords = sorted(sortedwords)
 
-# Maximum depth.
-        depth = self.depth
-
-        if depth == 0:
-            for word in sortedwords:
-                depth = max(depth, len(word) - 1)
-
 # Let's build the magical dictionary.
-        self.assos = {
-            'words'      : sortedwords,
-            'completions': {}
+        assos = {
+            'words'   : sortedwords,
+            'prefixes': {}
         }
 
-        for idword, word in enumerate(sortedwords):
-            maxSize = min(depth, len(word))
+        minsize = max(0, self.minsize - 1)
 
-            for i in range(maxSize):
+        for idword, word in enumerate(sortedwords):
+            for i in range(minsize, len(word)):
                 prefix = word[:i+1]
 
                 if prefix != sortedwords[idword]:
-                    if prefix in self.assos['completions']:
-                        self.assos['completions'][prefix][1] = idword + 1
+                    if prefix in assos['prefixes']:
+                        assos['prefixes'][prefix][1] = idword + 1
 
                     else:
-                        self.assos['completions'][prefix] = [idword, idword + 1]
+                        assos['prefixes'][prefix] = [idword, idword + 1]
 
-
-
-
-
-
-
-
-
+        self.assos = assos
 
 
     def matching(
@@ -1564,22 +1586,23 @@ info::
     ):
         """
 prototype::
-    arg    = str: lang = DEFAULT_LANG ;
-             ????
-    return = str ;
-                 ????
+    arg = str: prefix ;
+          a string for the begining of words to be auto-completed
 
-
-This method looks for words given in the list ``words`` that start with the
-string variable ``prefix``.
+    return = list(str) ;
+             the list of words that can auto-complete ``prefix``, or all the
+             words if ``prefix`` is empty
         """
-        if prefix.strip() == '':
+        if prefix == '':
             return self.assos['words']
 
-        if prefix in self.assos['completions']:
-            first, last = self.assos['completions'][prefix]
+        if prefix in self.assos['prefixes']:
+            first, last = self.assos['prefixes'][prefix]
 
             return self.assos['words'][first: last]
+
+        return []
+
 
     def missing(
         self,
@@ -1588,34 +1611,17 @@ string variable ``prefix``.
     ):
         """
 prototype::
-    arg    = str: lang = DEFAULT_LANG ;
-             ????
+    arg = str: prefix ;
+          a string for the begining of words to be auto-completed
+    arg = str: word ;
+          a word where we want to extract a prefix
+
     return = str ;
-                 ????
-
-
------------------
-Small description
------------------
-
-Giving a word ``"prefixExample"`` and one prefix ``"pre"``, this method will
-return simply ``"fixExample"``.
-
-
--------------
-The arguments
--------------
-
-This method uses the following variables.
-
-    1) ``prefix`` is a string corresponding to the prefix expected.
-
-    2) ``word`` is a string where the prefix ``prefix`` must be removed.
+             giving a word ``"showit"`` and one prefix ``"sho"``, this method
+             check if ``prefix`` starts ``word``, and if it is the case the
+             remaining letters ``"wit"`` will be returned
         """
         if not word.startswith(prefix):
-            raise ValueError(
-                "the word << {0} >> does not start with the prefix << {1} >>."\
-                    .format(word, prefix)
-            )
+            raise ValueError("the word does not start with the prefix.")
 
         return word[len(prefix):]

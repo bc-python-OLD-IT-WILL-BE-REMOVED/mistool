@@ -1,5 +1,24 @@
 ==========
-2015-06-08       ??????
+2015-06-????
+==========
+
+???? ---------->    **Publication de la nouvelle version de ``mistool`` :** cette nouvelle version casse la rétro-compatibilité (voir les ¨chgts depuis le date::``2015-05-26``). Autant considérer ce package comme un tout nouveau !
+
+
+???? ---------->    **Amélioration du fichier ``README.md`` :** des exemples "en console" ont été ajoutés afin de rendre le package plus "bankable".
+
+
+???? ---------->    **Noms des versions :** les numéros de version deviennent standards en suivant la convention ``majeur.mineur.patch``, cette version ayant pour numéro ``0.0.0`` car le projet ¨mistool reste à l'état très `¨beta`. Cette norme étant suivie par tout le monde, soyons grégaire pour devenir clair...
+
+
+???? ---------->    **Ajout d'une licence :** le projet est maintenant sous licence ???.
+
+
+???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer.
+
+
+==========
+2015-06-09
 ==========
 
 **Du nouveau dans le module ``os_use``:** voici les ¨chgts.
@@ -8,9 +27,11 @@
 
     1) Une nouvelle méthode ``runthis`` permet de lancer des processus très naturellement.
 
-    1) Ajout de la fonction ``canmodify`` pour savoir si l'on tus
+    1) Ajout de la fonction ``canmodify`` pour savoir si l'on a les droits de modification pour un dossier.
 
-    1) Comme l'utilisation de négation dans les ¨regex_frs ¨python fait mal à la tpete, et que de plsu concrètement on cherche soir des chemins qui va  lident un motif, soit au contraire qui ne le valide pas, il a été ajouté une nouvelle requête ``not`` pour le ¨2nd cas.
+    1) Comme l'utilisation de la négation dans les ¨regex_frs ¨python fait vite mal à la tête, et que concrètement on cherche soit des chemins qui valident un motif, soit au contraire qui ne le valident pas, il a été ajouté une nouvelle requête ``not`` pour le ¨2nd cas.
+
+    1) Retour de la constante ``SEP`` car elle peut encore rendre quelques services quand on est obligé de travailer avec des chemins juste donnés via une chaîne de caractères.
 
 
 **Un tout nouveau module ``term_use``:** ce module propose les fonctionnalités ci-après.
@@ -19,18 +40,32 @@
 
     À cette occasion, un bug, idiot comme souvent, a été repéré et corrigé : le dossier principal n'était pas traité à part dans ``self.listview``.
 
-    1) La classe ``Step`` et la fonction ``frame`` anciennement présentes dans le module ``string_use`` sont maintenant proposées dans ``term_use``.
+    1) La classe ``Step`` anciennement présente dans le module ``string_use`` est maintenant proposée dans ``term_use``. Cette classe a été un peu modifiée.
+
+        a) La méthode ``display`` devient la méthode magique ``__call__`` pour un emploi très simplifié.
+
+        a) L'argument ``deco`` est reniommée ``info`` et il devient une lambda fonction pour plus de souplesse dans la mise en forme.
+
+        a) Un nouvel argument permet de récupérer le texte des ¨infos au lieu de juste les imprimer dans le terminal.
+
+        a) La méthode ``print`` a été supprimée au vue des modifications précédentes.
+
+    1) La fonction ``frame`` anciennement présente dans le module ``string_use`` est maintenant proposée dans ``term_use`` sous une toute nouvelle forme.
+
+        a) Ajout d'une fonction ``showallframes`` qui permet à l'utilisateur d'avoir sans efforts l'ensemble des formats disponibles par défaut.
+
+        a) Ajout d'une fonction ``buildframes`` qui permet de définir sans aucune douleur un nouveau type de cadre.
+
+        a) La fonction ``frame`` a été renommée ``withframe`` et le code recommencé de zéro car l'ancien code avait dû être fait par un extra-terrestre ((
+            L'erreur que j'ai commise est d'avoir raisonné graphiquement au lieu de le faire textuellement.
+        )) !
+        Tout est fait bien plus simplement dorénavant, ceci rendant au passage possible l'existence de la fonction ``buildframes``.
 
 
+**Suppression du module ``log_test_use``:** le module standard ``pytest`` rend les tests unitaires très faciles à faire ! Autant l'utiliser.
 
 
-
-
-
-
-
-
-**¨MAJ DE TOUS LES MODULES:** il a fallu prendre en compte ``os_use.PPath``. Ceci a été aussi l'occasion de revoir certaines choses. Voici ce qui a été modifié.
+**¨MAJ DE TOUS LES AUTRES MODULES:** il a fallu prendre en compte ``os_use.PPath``. Ceci a été aussi l'occasion de revoir certaines choses. Voici ce qui a été modifié.
 
     1) Dans le module ``date_use``, il y a eu juste eu la suppression de la fonction ``now`` car de toute façon on doit faire appel au module ``datetime`` pour utiliser les fonctions ``nextday`` et ``translate`` qui elles restent inchangées.
 
@@ -44,22 +79,15 @@
 
         a) Une nouvelle fonction ``remove``, petite soeur énemie de ``install``, a été ajoutée.
 
-???? ---------->        1) Dans le module ``log_test_use``, la fonction ``clean`` ????
-
-
-
-
-
-
     1) Dans le module ``python_use``, il y a eu les disparitions suivantes.
 
         a) La fonction ``_escape`` ne servant à rien, elle a été supprimée. Vive le darwinisme.
 
         a) La fonction ``runpys`` cède sa place à la fonction ``runthis`` du module ``os_use``.
 
+    1) Dans le module ``string_use``,
 
-
-???? ---------->        1) Dans le module ``string_use``,
+        a) La classe ``Step`` et la fonction ``frame`` ont été déplacées dans le module ``term_use``.
 
         a) La fonction ``case`` prend un texte en argument et en renvoie un autre, c'est logique et carré. Du coup, on ne peut plus utiliser qu'un seul type parmi ``"firstlast"``, ``"lower"``, ``"sentence"``, ``"title"`` et ``"upper"``.
 
@@ -99,17 +127,15 @@
 
         a) Suppression de la constante ``AND_TEXT`` qui était utilisée par la fonction ``joinand``.
 
-        a) Le code de la fonction ``ascii`` a été adpaté à l'utilisation de la classe ``MultiSplit``.
+        a) Le code de la fonction ``ascii`` a été adpaté à l'utilisation de la classe ``MultiReplace``.
 
+        a) La classe ``AutoComplete`` a subi trois modifications.
 
+            i) Correction d'un bug relativement à l'argument ``depth`` qui a été renommé ``minsize``.
 
+            i) Le dictionnaire "magique" ``self.assos`` utilise la clé ``"prefixes"`` au lieu de``"completion"``.
 
-
-        a) La classe ``Step`` et la fonction ``frame`` ont été déplacées dans le module ``term_use``.
-
-
-
-
+            i) Les arguments ``words``, ``minsize`` et ``assos`` sont aussi des attributs modifiables dynamiquement.
 
     1) Dans le module ``url_use``, la fonction ``test`` a été renommée ``islinked`` (on comprend ainsi directement ce que fait cette fonction).
 

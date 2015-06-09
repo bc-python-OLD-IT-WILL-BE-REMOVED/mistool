@@ -2,19 +2,25 @@
 misTool - TODO
 ==============
 
-???? ---------->    **Publication de la nouvelle version de ``mistool`` :** cette nouvelle version casse la rétro-compatibilité (voir les ¨chgts depuis le date::``2015-05-26``).
+> ---------------------------- <
+
+**Une belle nouveauté dans le module ``python_use`` :** la classe ``MKDict`` permet de définir des dictionnaires dont on peut extraire une valeur en utilisant une syntaxe du type ``mymkdict["key_1", "subkey_1", "subsubkey_1"]`` au lieu de ``mymkdict["key_1"]["subkey_1"]["subsubkey_1"]``.
+
+    MKDict ---> Multi Keys Dict
+
+    toc = MKDict({
+        "I": {
+            "A": {
+                "1": "Dans I-A-1",
+                "2": "Dans I-A-2",
+            }
+        }
+    })
 
 
-???? ---------->    **Amélioration du fichier ``README.md`` :** des exemples "en console" ont été ajoutés afin de rendre le package plus "bankable".
-
-
-???? ---------->    **Noms des versions :** les numéros de version deviennent standards en suivant la convention ``majeur.mineur.patch``, cette version ayant pour numéro ``0.0.0`` car le projet ¨mistool reste à l'état très `¨beta`. Cette norme étant suivie par tout le monde, soyons grégaire pour devenir clair...
-
-
-???? ---------->    **Ajout d'une licence :** le projet est maintenant sous licence ???.
-
-
-???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer.
+    print(toc)
+    print()
+    print(toc["I", "A", "2"])
 
 
 > ---------------------------- <
@@ -30,11 +36,6 @@ misTool - TODO
 Ceci étant dit, le module ``pdt.mistool.orpyste`` du package maison ``pdt`` est encore utilisé (le nouveau module ``pathlib`` permet maintenant de travailler facilement avec des chemins de dossiers et de fichiers même si la classe ``PPath`` facilite encore plus les choses).
 
 En attendant la nouvelle version de ¨orpyste, qui ne sera plus du tout dépendante de ¨mistool, on continue encore à utiliser l'affreux ``pdt.mistool.orpyste`` mais plus pour très longtemps... Une fois ceci fait, les tests seront disponibles sur ¨github et ¨pypi (afin que les utilisateurs puissent tester leur installation).
-
-
-> ---------------------------- <
-
-**Abandon de la prise en charge du module ¨unittest dans le module ``log_test_use``:** dorénavant, ce sera le module ¨pytest qui sera privilégié.
 
 
 > ---------------------------- <
@@ -62,14 +63,6 @@ gestion de toutes les lettres grecques via une fonction dédiée qui repère bet
 
 > ---------------------------- <
 
-Gestion de tous les types d'importation
-    * from mistool import os_use
-    * from mistool.os_use import DirView
-    * AUTRES ?
-
-
-> ---------------------------- <
-
 **Utilisation de ¨setuptools:** le fichier ``setup.py`` se base maintenant sur ¨setuptools. Ceci se fait très efficacement grâce à ¨setytup un autre projet de l'auteur de ¨mistool.
 
 
@@ -89,33 +82,12 @@ A VOIR ????
 
 > ---------------------------- <
 
-**Une belle nouveauté dans le module ``python_use`` :** la classe ``MKDict`` permet de définir des dictionnaires dont on peut extraire une valeur en utilisant une syntaxe du type ``mymkdict["key_1", "subkey_1", "subsubkey_1"]`` au lieu de ``mymkdict["key_1"]["subkey_1"]["subsubkey_1"]``.
-
-    MKDict ---> Multi Keys Dict
-
-    toc = MKDict({
-        "I": {
-            "A": {
-                "1": "Dans I-A-1",
-                "2": "Dans I-A-2",
-            }
-        }
-    })
-
-
-    print(toc)
-    print()
-    print(toc["I", "A", "2"])
+**Mise en ligne d'une documentation non technique en français :** ceci a été rendu possible grâce au projet ¨pyba qui lui aussi est disponible sur ¨github et ¨pypi .
 
 
 > ---------------------------- <
 
-**Mise en ligne d'une documentation non technique en français :** ceci a été rendu possible grâce au projet ¨pyba qui lui aussi est disponible sur ¨pypi et ¨github.
-
-
-> ---------------------------- <
-
-**Mise en ligne de la documentation technique en anglais uniquement :** ceci a été rendu possible grâce au projet ¨pybadoc qui lui aussi est disponible sur ¨pypi et ¨github.
+**Mise en ligne de la documentation technique en anglais uniquement :** ceci a été rendu possible grâce au projet ¨pybadoc qui lui aussi est disponible sur ¨github et ¨pypi .
 
 
 > ---------------------------- <

@@ -19,10 +19,11 @@ def quote(
 ):
     """
 prototype::
-    arg    = str: text ;
-             the text to be quoted
-    symbol = str: symbol = "'" ;
-             the prefered quoting symbol
+    arg = str: text ;
+          the text to be quoted
+    arg = str: symbol = "'" ;
+          the prefered quoting symbol
+
     return = str ;
              the text quoted (the quote symbols in ``text`` are escaped if it is
              necessary)
@@ -69,8 +70,8 @@ info::
 def dictvalues(onedict):
     """
 prototype::
-    arg    = dict: onedict ;
-             a dictionary
+    arg = dict: onedict
+
     return = list ;
              a list of the values used in the dictionary ``onedict`` without
              repetition

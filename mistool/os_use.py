@@ -9,8 +9,7 @@ The main feature of this module is the class ``PPath`` which is an enhanced
 version of the standard class ``pathlib.Path`` that allows to manipulate easily
 paths and as a consequence files and folders.
 
-
-There are also other smal useful functions like ``runthis`` that really
+There are also other small useful functions like ``runthis`` that really
 simplify the use of a command line from ¨python codes.
 """
 
@@ -26,6 +25,8 @@ from subprocess import check_call, check_output
 # ------------------- #
 # -- GENERAL INFOS -- #
 # ------------------- #
+
+SEP = os.sep
 
 def pathenv():
     """
@@ -83,13 +84,16 @@ prototype::
 def _ppath_parent(cls):
     """
 prototype::
-    type   = property ;
-             a hack is used so as to transform this function into a property
-             method ``parent`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``parent`` of the class ``PPath``
+    type = property ;
+           a hack is used so as to transform this function into a property
+           method ``parent`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``parent`` of the class ``PPath``
+
     return = PPath ;
              a new path corresponding to the first "parent folder" of the
              current path
@@ -111,13 +115,16 @@ pyterm::
 def _ppath_ext(cls):
     """
 prototype::
-    type   = property ;
-             a hack is used so as to transform this function into a property
-             method ``ext`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``ext`` of the class ``PPath``
+    type = property ;
+           a hack is used so as to transform this function into a property
+           method ``ext`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``ext`` of the class ``PPath``
+
     return = str ;
              the extension of the path
 
@@ -141,15 +148,18 @@ pyterm::
 def _ppath_with_ext(cls, ext):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into a method
-             ``with_ext`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``with_ext`` of the class ``PPath``
-    arg    = str: ext ;
-             value of the extension
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``with_ext`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``with_ext`` of the class ``PPath``
+    arg = str: ext ;
+          value of the extension
+
     return = PPath ;
              a new path obtained from the current path by adding or changing
              the extension using the value of ``ext``
@@ -181,13 +191,16 @@ pyterm::
 def _ppath_normpath(cls):
     """
 prototype::
-    type   = property ;
-             a hack is used so as to transform this function into a property
-             method ``normpath`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``normpath`` of the class ``PPath``
+    type = property ;
+           a hack is used so as to transform this function into a property
+           method ``normpath`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``normpath`` of the class ``PPath``
+
     return = PPath ;
              a new path obtained from the current path by interpreting the
              leading shortcut path::``~``, and the shortcuts path::``/../``
@@ -215,13 +228,16 @@ pyterm::
 def _ppath_shortpath(cls):
     """
 prototype::
-    type   = property ;
-             a hack is used so as to transform this function into a property
-             method ``shortpath`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``shortpath`` of the class ``PPath``
+    type = property ;
+           a hack is used so as to transform this function into a property
+           method ``shortpath`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``shortpath`` of the class ``PPath``
+
     return = PPath ;
              a new path obtained from the current path by trying to use the
              leading shortcut path::``~``, and by intepreting the shortcuts
@@ -254,16 +270,19 @@ pyterm::
 def _ppath_common_with(cls, *args):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into a method
-             ``common_with`` of the class ``PPath`` (uggly but functional)
-    see    = PPath , _ppath___and__
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``common_with`` of the class ``PPath``
-    args   = PPath ;
-             the arguments can be given separated by comas, or in list, or in
-             a tuple
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``common_with`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath , _ppath___and__
+
+    arg  = PPath: cls ;
+           this argument nearly refers to the ``self`` used by the associated
+           method ``common_with`` of the class ``PPath``
+    args = PPath ;
+           the arguments can be given separated by comas, or in list, or in
+           a tuple
+
     return = PPath ;
              a new path which corresponds to the "smaller common folder" of
              the current path and the other ones given in arguments
@@ -346,14 +365,17 @@ info::
 def _ppath___and__(cls, paths):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into the magic
-             method ``__and__`` of the class ``PPath`` (uggly but functional)
-    see    = PPath , _ppath_common_with
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             magic method ``__and__`` of the class ``PPath``
-    arg    = PPath | list(PPath) | tuple(PPath): paths
+    type = method ;
+           a hack is used so as to transform this function into the magic
+           method ``__and__`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath , _ppath_common_with
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          magic method ``__and__`` of the class ``PPath``
+    arg = PPath , list(PPath) , tuple(PPath): paths
+
     return = PPath ;
              a new path which corresponds to the "smaller common folder" of
              the current path and the other ones given in arguments
@@ -369,14 +391,17 @@ a list or a tuple of paths.
 def _ppath___sub__(cls, path):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into the magic
-             method ``__sub__`` of the class ``PPath`` (uggly but functional)
-    see    = PPath , relative_to (pathlib.Path)
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             magic method ``__sub__`` of the class ``PPath``
-    arg    = PPath: path
+    type = method ;
+           a hack is used so as to transform this function into the magic
+           method ``__sub__`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath , relative_to (pathlib.Path)
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          magic method ``__sub__`` of the class ``PPath``
+    arg = PPath: path
+
     return = PPath ;
              a new path which corresponds to the relative path of the current
              one regarding to the path given in the argument ``path``
@@ -391,14 +416,17 @@ version ``path.relative_to(anotherpath)`` given by ``pathlib.Path``.
 def _ppath_depth_in(cls, path):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into a method
-             ``depth_in`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``depth_in`` of the class ``PPath``
-    arg    = PPath: path
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``depth_in`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``depth_in`` of the class ``PPath``
+    arg = PPath: path
+
     return = PPath ;
              the depth of the current path regarding to the one given in the
              argument ``path``
@@ -428,13 +456,16 @@ pyterm::
 def _ppath_depth(cls):
     """
 prototype::
-    type   = property ;
-             a hack is used so as to transform this function into a property
-             method ``depth`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``parent`` of the class ``PPath``
+    type = property ;
+           a hack is used so as to transform this function into a property
+           method ``depth`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``parent`` of the class ``PPath``
+
     return = int ;
              the absolute depth of a path
 
@@ -489,16 +520,18 @@ _REPLACEMENTS['/']  = "[^/]+"
 def _ppath_regexit(cls, pattern):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into a method
-             ``regexit`` of the class ``PPath`` (uggly but functional)
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``regpath2meta`` of the class ``PPath``
-    arg    = str: pattern ;
-             ``pattern`` is a pattern using the regpath syntax which tries to
-             catch the best of the regex and the Unix-glob syntaxes (no special
-             queries here)
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``regexit`` of the class ``PPath`` (uggly but functional)
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``regpath2meta`` of the class ``PPath``
+    arg = str: pattern ;
+          ``pattern`` is a pattern using the regpath syntax which tries to
+          catch the best of the regex and the Unix-glob syntaxes (no special
+          queries here)
+
     return = str ;
              a regex uncompiled version of ``pattern``.
     """
@@ -525,17 +558,19 @@ prototype::
 def _ppath_regpath2meta(cls, regpath, regexit = True):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into a method
-             ``regpath2meta`` of the class ``PPath`` (uggly but functional)
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``regpath2meta`` of the class ``PPath``
-    arg    = str: regpath ;
-             ``regpath`` uses a syntax trying to catch the best of the regex and
-             the Unix-glob syntaxes with some little extra features
-    arg    = bool: regexit = True ;
-             ``regexit`` allows to have the regex version of ``regpath``
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``regpath2meta`` of the class ``PPath`` (uggly but functional)
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``regpath2meta`` of the class ``PPath``
+    arg = str: regpath ;
+          ``regpath`` uses a syntax trying to catch the best of the regex and
+          the Unix-glob syntaxes with some little extra features
+    arg = bool: regexit = True ;
+          ``regexit`` allows to have the regex version of ``regpath``
+
     return = tuple(set(str): queries, str: pattern) ;
              ``queries`` give extra infos about the kind of objects to "search",
              and ``pattern`` is a "searching pattern" which is in regex
@@ -712,16 +747,19 @@ _ELLIPSIS_NAMES = [EMPTY_DIR_TAG, OTHER_FILES_TAG]
 def _ppath_walk(cls, regpath = "relative::**"):
     """
 prototype::
-    type  = method ;
-            a hack is used so as to transform this function into a method
-            ``depth_in`` of the class ``PPath`` (uggly but functional)
-    see   = PPath , _ppath_regpath2meta
-    arg   = PPath: cls ;
-            this argument nearly refers to the ``self`` used by the associated
-            method ``depth_in`` of the class ``PPath``
-    arg   = str: regpath = "relative::**" ;
-            this is a string that follows some rules named regpath rules (see
-            the documentation of the function ``_ppath_regpath2meta``)
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``depth_in`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath , _ppath_regpath2meta
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``depth_in`` of the class ``PPath``
+    arg = str: regpath = "relative::**" ;
+          this is a string that follows some rules named regpath rules (see
+          the documentation of the function ``_ppath_regpath2meta``)
+
     yield = PPath ;
             whole path of files and directories matching the "regpath" pattern
             (in each folder, the files are always yield before the sub folders)
@@ -894,13 +932,16 @@ info::
 def _ppath_see(cls):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into a method
-             ``see`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``see`` of the class ``PPath``
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``see`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``see`` of the class ``PPath``
+
     action = this method shows one directory or one file in the OS environment
              by trying to call an associated application
     """
@@ -950,14 +991,17 @@ _LONG_CREATE_KINDS = {x[0]: x for x in _ALL_CREATE_KINDS}
 def _ppath_create(cls, kind):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into a method
-             ``create`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``create`` of the class ``PPath``
-    arg    = str: kind in _FILE, _DIR
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``create`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``create`` of the class ``PPath``
+    arg = str: kind in [_FILE, _DIR]
+
     action = this method creates the file or the directory having the current
              path except if this path points to an existing directory or file
              respectively.
@@ -1016,13 +1060,16 @@ info::
 def _ppath_remove(cls):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into a method
-             ``create`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``create`` of the class ``PPath``
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``create`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``create`` of the class ``PPath``
+
     action = this method removes the directory or the file corresponding to
              the current path
 
@@ -1044,16 +1091,19 @@ warning::
 def _ppath_clean(cls, regpath):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into a method
-             ``depth_in`` of the class ``PPath`` (uggly but functional)
-    see    = PPath , _ppath_regpath2meta , _ppath_walk
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``depth_in`` of the class ``PPath``
-    arg    = str: regpath ;
-             this is a string that follows some rules named regpath rules (see
-             the documentation of the function ``_ppath_regpath2meta``)
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``depth_in`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath , _ppath_regpath2meta , _ppath_walk
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``depth_in`` of the class ``PPath``
+    arg = str: regpath ;
+          this is a string that follows some rules named regpath rules (see
+          the documentation of the function ``_ppath_regpath2meta``)
+
     action = every files and directories matching ``regpath`` are removed
     """
 # We have to play with the queries and the pattern in ``regpath``.
@@ -1095,14 +1145,17 @@ prototype::
 def _ppath_copy_to(cls, path):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into a method
-             ``create`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``create`` of the class ``PPath``
-    arg    = PPath: path
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``create`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``create`` of the class ``PPath``
+    arg = PPath: path
+
     action = this method copies the current file to the destination given by
              the argument ``path``
 
@@ -1129,14 +1182,17 @@ warning::
 def _ppath_move_to(cls, path):
     """
 prototype::
-    type   = method ;
-             a hack is used so as to transform this function into a method
-             ``create`` of the class ``PPath`` (uggly but functional)
-    see    = PPath
-    arg    = PPath: cls ;
-             this argument nearly refers to the ``self`` used by the associated
-             method ``create`` of the class ``PPath``
-    arg    = PPath: path
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``create`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``create`` of the class ``PPath``
+    arg = PPath: path
+
     action = this method moves the current file to the destination given by
              the argument ``path``
 
@@ -1187,7 +1243,8 @@ prototype::
     type = cls ;
            a hack is used so as to mimic subclassing of the standard class
            ``pathlib.Path``
-    see  = pathlib.Path
+
+    see = pathlib.Path
     """
 
     def __new__(cls, *args):
@@ -1222,15 +1279,16 @@ def runthis(
 ):
     """
 prototype::
-    arg    = str: cmd ;
-             a single string that can contain several commands separated by
-             spaces as in a terminal
-    arg    = None, PPath: ppath = None ;
-             this argument can be either ``None`` for standalone commands, or
-             one path of a directory or a file on which the command ``cmd`` acts
-    arg    = bool: showoutput ;
-             by default, ``showoutput = False`` asks to not show what the script
-             launched by the command prints
+    arg = str: cmd ;
+          a single string that can contain several commands separated by
+          spaces as in a terminal
+    arg = None, PPath: ppath = None ;
+          this argument can be either ``None`` for standalone commands, or
+          one path of a directory or a file on which the command ``cmd`` acts
+    arg = bool: showoutput ;
+          by default, ``showoutput = False`` asks to not show what the script
+          launched by the command prints
+
     return = str ;
              this function runs the commands indicated in ``cmd`` to the file or
              directory indicated via ``ppath`` and also returns either an empty
@@ -1288,8 +1346,9 @@ pyterm::
 def canmodify(ppath):
     """
 prototype::
-    arg    = PPath; ppath;
-             the path of a dircetory where we want to do some changes
+    arg = PPath; ppath;
+          the path of a directory where we want to do some changes
+
     action = this function tests if the script can act on a folder
     """
     if ppath.is_file():

@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2015-06-05
+    date = 2015-06-08
 
 
 This module contains mainly classes and functions producing strings useful to be
@@ -16,401 +16,7 @@ from mistool.os_use import PPath, \
 
 from mistool.latex_use import escape as latex_escape
 
-from mistool.config.frame import FRAMES_FORMATS, _ABREVS_FRAMES, _KEYS_FRAME
-
-
-# ------------------- #
-# -- DECORATE TEXT -- #
-# ------------------- #
-
-DEFAULT_FRAME = FRAMES_FORMATS['python_basic']
-
-def _draw_hrule(
-    rule,
-    left,
-    right,
-    lenght,
-    nbspace
-):
-    """
-    prototype::
-            arg    = str: lang = DEFAULT_LANG ;
-                     ????
-            return = str ;
-                     ????
-
-
-
-
-
------------------
-Small description
------------------
-
-This function is used to draw the horizontal rules of a frame around one text.
-
-
--------------
-The arguments
--------------
-
-This function uses the following variables.
-
-    1) ``rule`` is the character used to draw the rule.
-
-    2) `left``�and ``right`` are the first and last additional texts used around
-    the rule.
-
-    3) ``lenght`` is an integer giving the lenght of the rule.
-
-    4) ``nbspace`` is the number of spaces to add before the first additional
-    text (this is for cases when left corners have different lenghts).
-    """
-    if rule:
-        return [
-            ' '*(nbspace - len(left))
-            + left
-            + rule*lenght
-            + right
-        ]
-
-    elif left:
-        return [
-            left
-            + ' '*lenght
-            + right
-        ]
-
-    elif right:
-        return [
-            ' '*(nbspace + lenght)
-            + right
-        ]
-
-    else:
-        return []
-
-def frame(
-    text,
-    format = DEFAULT_FRAME,
-    center = True
-):
-    """
-
-    prototype::
-        arg    = str: lang = DEFAULT_LANG ;
-                 ????
-        return = str ;
-                 ????
-
-
-
-
---------------
-Default frames
---------------
-
-This function makes it possible to put one text into one frame materialized by
-ASCII characters. This can be usefull for console outputs or for pretty comments
-in listings like the following python comment.
-
-python::
-    #############
-    # one       #
-    # comment   #
-    # easily    #
-    # formatted #
-    #############
-
-
-This text has been produced using the following lines.
-
-python::
-    from mistool import string_use
-
-    oneText = '''one
-    comment
-    easily
-    formatted'''
-
-    print(
-        string_use.frame(
-            text   = oneText,
-            center = False
-        )
-    )
-
-
-By default, ``center`` is equal ``True`` which asks to merely center the content
-of the frame. Here we use the default frame ``DEFAULT_FRAME`` which is equal to
-``FRAMES_FORMATS['python_basic']``. The dictionary ``FRAMES_FORMATS`` contains all
-the default formats. For example, in the following code we use another default
-formats.
-
-python::
-    from mistool import string_use
-
-    oneText = '''one
-    comment
-    with C-like
-    style'''
-
-    print(
-        string_use.frame(
-            text   = oneText,
-            format = string_use.FRAMES_FORMATS['c_basic'],
-            center = False
-        )
-    )
-
-
-This will give the following output.
-
-code_c::
-    /***************
-     * one         *
-     * comment     *
-     * with C-like *
-     * style       *
-     ***************/
-
-
----------------
-Homemade frames
----------------
-
-The following frame can be obtained by using the default format
-``string_use.FRAMES_FORMATS['python_pretty']``.
-
-python::
-    # ------------- #
-    # -- one     -- #
-    # -- pretty  -- #
-    # -- comment -- #
-    # ------------- #
-
-
-Let see the definition ``FRAMES_FORMATS['python_pretty']``.
-
-python::
-    {
-        'rule': {
-            'down': '-',
-            'left': '--',
-            'right': '--',
-            'up': '-'
-        },
-        'extra': {
-            'rule': {
-                'left': '#',
-                'right': '#'
-            }
-        }
-    }
-
-
-In this dictionary, we define a frame and then an extra frame. Indeed, you can
-use a dictionary looking like the one above. A missing key is a shortcut to
-indicate an empty string.
-
-python::
-    {
-        'rule' : {
-            'up'   : "Single character",
-            'down' : "Single character",
-            'left' : "Some characters",
-            'right': "Some characters"
-        },
-        'corner': {
-            'leftup'   : "Some characters",
-            'leftdown' : "Some characters",
-            'rightup'  : "Some characters",
-            'rightdown': "Some characters"
-        },
-        'extra': {
-            'rule' : {
-                'up'   : "Single character",
-                'down' : "Single character",
-                'left' : "Some characters",
-                'right': "Some characters"
-            },
-            'corner': {
-                'leftup'   : "Some characters",
-                'leftdown' : "Some characters",
-                'rightup'  : "Some characters",
-                'rightdown': "Some characters"
-            },
-        }
-    }
-
-
-You can use the following abreviations for the positional keys.
-
-    * ``u``, ``d``, ``l`` and ``r`` are abreviations for ``up``, ``down``,
-    ``left`` and ``right`` respectively.
-
-    * ``lu``, ``ld``, ``ru`` and ``rd`` are abreviations for ``leftup``,
-    ``leftdown``, ``rightup`` and ``rightdown`` respectively.
-
-
--------------
-The arguments
--------------
-
-This function uses the following variables.
-
-    1) ``text`` is a string value corresponding to the text to put in a frame.
-
-    2) ``center`` is a boolean variable to center or not the text inside the
-    frame. By default, ``center = True``.
-
-    3) ``format`` is an optional dictionary defining the frame. By default,
-    ``format = DEFAULT_FRAME`` which is equal to
-    ``FRAMES_FORMATS['python_basic']``.
-
-    info::
-        All the default formats are in the dictionary ``FRAMES_FORMATS``.
-
-
-    The general structure of a dictionary to use with ``format`` is the following
-    one.
-    """
-# Default values must be chosen if nothing is given.
-    if not set(format.keys()) <= {'rule', 'corner', 'extra'}:
-        raise ValueError("illegal key for the dictionary << format >>.")
-
-    for kind in ['rule', 'corner', 'extra']:
-        if kind not in format:
-            format[kind] = {}
-
-
-    for kind in ['rule', 'corner']:
-        if not set(format[kind].keys()) <= _KEYS_FRAME[kind]:
-            raise ValueError(
-                "illegal key for the dictionary << format >>. "
-                "See the kind << {0} >>.".format(kind)
-            )
-
-        for key, abrev in _ABREVS_FRAMES[kind].items():
-            if abrev in format[kind] and key in format[kind]:
-                message = "use of the key << {0} >> and its abreviation " \
-                        + "<< {1} >> for the dictionary << format >>."
-
-                raise ValueError(message.format(key, abrev))
-
-            if abrev in format[kind]:
-                format[kind][key] = format[kind][abrev]
-
-            elif key not in format[kind]:
-                format[kind][key] = ""
-
-# Horizontal rules can only use one single character.
-    for loc in ['up', 'down']:
-        if len(format['rule'][loc]) > 1:
-            message = "You can only use nothing or one single character " \
-                    + "for rules.\nSee << {0} >> for the {1} rule."
-
-            raise ValueError(
-                message.format(format['rule'][loc], loc)
-            )
-
-# Infos about the lines of the text.
-    lines     = [oneline.rstrip() for oneline in text.splitlines()]
-    nbmaxchar = max([len(oneline) for oneline in lines])
-
-# Space to add before vertical rules.
-    nbspace = max(
-        len(format['corner']['leftup']),
-        len(format['corner']['leftdown'])
-    )
-
-    spacetoadd = ' '*nbspace
-
-# Text decoration for vertical rules
-    if format['rule']['left']:
-        leftrule = format['rule']['left'] + ' '
-    else:
-        leftrule = ''
-
-    if format['rule']['right']:
-        rightrule = ' ' + format['rule']['right']
-    else:
-        rightrule = ''
-
-# Length of the rule without the corners
-    lenght = nbmaxchar + len(leftrule) + len(rightrule)
-
-# First line of the frame
-    answer = _draw_hrule(
-        rule    = format['rule']['up'],
-        left    = format['corner']['leftup'],
-        right   = format['corner']['rightup'],
-        lenght  = lenght,
-        nbspace = nbspace
-    )
-
-# Management of the lines of the text
-    for oneline in lines:
-        nbmissingspaces = nbmaxchar - len(oneline)
-
-# Space before and after one line of text.
-        if center:
-            if nbmissingspaces % 2 == 1:
-                spaceafter = ' '
-            else:
-                spaceafter = ''
-
-            nbmissingspaces = nbmissingspaces // 2
-
-            spacebefore = ' '*nbmissingspaces
-            spaceafter += spacebefore
-
-        else:
-            spacebefore = ''
-            spaceafter = ' '*nbmissingspaces
-
-        answer.append(
-            spacetoadd
-            +
-            '{0}{1}{2}{3}{4}'.format(
-                leftrule,
-                spacebefore,
-                oneline,
-                spaceafter,
-                rightrule
-            )
-        )
-
-# Last line of the frame
-    answer += _draw_hrule(
-        rule    = format['rule']['down'],
-        left    = format['corner']['leftdown'],
-        right   = format['corner']['rightdown'],
-        lenght  = lenght,
-        nbspace = nbspace
-    )
-
-    answer = '\n'.join([x.rstrip() for x in answer])
-
-# Does we have an extra frame ?
-    if format['extra']:
-        try:
-            answer = frame(
-                text   = answer,
-                format = format['extra'],
-                center = center
-            )
-
-        except ValueError as e:
-            raise ValueError(
-                str(e)[:-1] + " in the definition of the extra frame."
-            )
-
-# All the job has been done.
-    return answer
-
-
-
+from mistool.config.frame import ALL_FRAMES
 
 
 # ------------------ #
@@ -419,134 +25,545 @@ This function uses the following variables.
 
 class Step:
     """
+prototype::
+    arg = int: start = 1 ;
+          the first number used for the steps
+    arg = lambda: textit = lambda n, t: "{0}) {1}".format(n, t) ;
+          the lambda function used so to make the text corresponding to one
+          action using two variables two variables ``n`` for the number, and
+          ``t`` for the users's text
+    arg = bool: isprinted = True ;
+          this is to ask to print the texts in the terminal
+    arg = bool: isreturned = False ;
+          this is to ask to return the texts
 
-    prototype::
-        arg    = str: lang = DEFAULT_LANG ;
-                 ????
-        return = str ;
-                 ????
-
-
-
-
-
------------------
-Small description
------------------
-
-This class displays texts for step by step actions. The numbering of the steps
-is automatically updated and displayed.
+    action = this tiny class allows to print ¨andor obtain texts for step by
+             step actions that are automatically numbered.
 
 
--------------
-The arguments
--------------
+==============
+For a terminal
+==============
 
-There are two optional variables.
+When offers a console application, or to do a log file, it may be convenient to
+have ¨infos given step by step. The class ``Step`` is doing for that. Here is
+a toy example.
 
-    1) ``nb`` is the number of the current step. When the class is instanciated,
-    the default value is ``1``.
+pyterm::
+    >>> from mistool.term_use import Step
+    >>> mysteps = Step()
+    >>> i = 0
+    >>> while i <= 12:
+    ...     if i % 2:
+    ...         mysteps("Action #{0}".format(i))
+    ...     i += 1
+    ...
+    1) Action #1
+    2) Action #3
+    3) Action #5
+    4) Action #7
+    5) Action #9
+    6) Action #11
 
-    2) ``deco`` indicates how to display the numbers. When the class is
-    instanciated, the default value is ``""1)""`` where ``1`` symbolises the
-    numbers.
+
+==========
+For a file
+==========
+
+The text can be returned when you call an instance of ``Step`` so you can do
+something else than print the steps in a terminal. You can even ask to not print
+anything.
+Here is an example where the actions are just put in a file with the long path
+path::``/Users/projetmbc/file.log`` (you can also use ``mistool.os_use`` for the
+actions on files).
+
+python::
+    from pathlib import Path
+    from mistool.term_use import Step
+    mysteps = Step(
+        isprinted  = False,
+        isreturned = True
+    )
+    myfile = Path("/Users/projetmbc/file.log")
+    with myfile.open(
+        mode     = "w",
+        encoding = "utf-8"
+    ) as file:
+        for i in range(0, 4):
+            text = mysteps("Text #{0}".format(i))
+            file.write(text)
+            file.write("\n")
+
+
+Suppose that our python script is in a file with the long path
+path::``/Users/projetmbc/stepit.py``, and suppose also that ¨python can be
+launched using term::``python``, then here is what you should see in a terminal (nothing is printed).
+
+term::
+    > python3 stepit.py
+
+
+If we open now the file path::``file.log``, its content is the following one.
+
+log::
+    1) Text #0
+    2) Text #1
+    3) Text #2
+    4) Text #3
+
+
+info::
+    ¨latex prints and puts in a file its logging ¨infos. This kind of double
+    logging can be done using ``Step(isreturned = True)`` (remember that by
+    default we have ``isprinted = True``).
+
+
+=======================
+Another starting number
+=======================
+
+If you need to start the numbering at `7` instead of `1` for example, you can
+just do as below.
+
+pyterm::
+    >>> from mistool.term_use import Step
+    >>> mysteps = Step(start = 7)
+    >>> for i in range(1, 6):
+    ...     mysteps("Text #{0}".format(i))
+    ...
+    7) Text #1
+    8) Text #2
+    9) Text #3
+    10) Text #4
+    11) Text #5
+
+
+===================================
+Choose the way things are displayed
+===================================
+
+The texts for the actions are made using the argument ``textit`` which must be a
+lambda function of two variables ``n`` for the number, and ``t`` for the users's
+text. Here is an ugly but assumed example.
+
+pyterm::
+    >>> from mistool.term_use import Step
+    >>> mysteps = Step(
+        textit = lambda n, t: "[{0}]-->> [[ {1} ]] <<--[{0}]".format(n, t)
+    )
+    >>> for i in range(1, 6):
+    ...     mysteps("Text #{0}".format(i))
+    ...
+    [1]-->> [[ Text #1 ]] <<--[1]
+    [2]-->> [[ Text #2 ]] <<--[2]
+    [3]-->> [[ Text #3 ]] <<--[3]
+    [4]-->> [[ Text #4 ]] <<--[4]
+    [5]-->> [[ Text #5 ]] <<--[5]
     """
     def __init__(
         self,
-        nb   = 1,
-        deco = "1)"
+        start      = 1,
+        textit     = lambda n, t: "{0}) {1}".format(n, t),
+        isprinted  = True,
+        isreturned = False
     ):
-        self.nb   = nb
-        self.deco = deco.replace('1', '{0}')
-
-    def print(
-        self,
-        text,
-        deco
-    ):
-        """
-            prototype::
-                arg    = str: lang = DEFAULT_LANG ;
-                         ????
-                return = str ;
-                         ????
+        self.nb         = start
+        self.textit     = textit
+        self.isprinted  = isprinted
+        self.isreturned = isreturned
 
 
-
-
------------------
-Small description
------------------
-
-This method simply prints ``deco`` the text of the actual numbering, and then
-``text`` the content of the actual step.
-
-You can redefine this method for finer features.
-
-
--------------
-The arguments
--------------
-
-This method uses the following variables.
-
-    1) ``text`` is simply the text of the actual step.
-
-    2) ``deco`` is a string corresponding to the text indicated what is the
-    actual step number.
-        """
-        print(
-            deco,
-            text,
-            sep = " "
-        )
-
-    def display(
+    def __call__(
         self,
         text
     ):
         """
-
-            prototype::
-                arg    = str: lang = DEFAULT_LANG ;
-                         ????
-                return = str ;
-                         ????
-
-
-
------------------
-Small description
------------------
-
-This method simply calls the method ``self.print`` so as to print the
-informations contained in the variable ``text``, and then ``self.nb`` is
-augmented by one unit.
-
-You can redefine the method ``self.print`` for finer features.
-
-
--------------
-The arguments
--------------
-
-This method uses one variable ``text`` which is the text of the actual step.
+prototype::
+    arg = str: text ;
+             the text for the actual step is build using the lambda function
+             ``self.textit``, and then it is printed ¨andor returned regarding
+             to the values of ``self.isprinted`` and ``self.isreturned``.
         """
-        self.print(
-            text = text,
-            deco = self.deco.format(self.nb)
-        )
+        text = self.textit(self.nb, text)
+
+        if self.isprinted:
+            print(text)
 
         self.nb += 1
 
+        if self.isreturned:
+            return text
 
 
+# -------------------- #
+# -- TEXTUAL FRAMES -- #
+# -------------------- #
+
+DEFAULT_FRAME = ALL_FRAMES['python_basic']
+
+_ALIGNMENTS = ["left", "center", "right"]
+_LONG_ALIGNMENTS = {x[0]: x for x in _ALIGNMENTS}
+
+def withframe(
+    text,
+    frame = DEFAULT_FRAME,
+    align = "left"
+):
+    """
+prototype::
+    see = showallframes , buildframe
+
+    arg = str: text ;
+          the text to put inside a frame
+    arg = {str: str}: frame = DEFAULT_FRAME ;
+          this dictionary indicates how to draw the frame (you can easily add
+          new frames with the help of the function ``buildframe``)
+    arg = str: align = "left" ;
+          this indicates how to align the text inside the frame
+
+    return = str ;
+             the text put inside a frame
 
 
+=========
+BASIC USE
+=========
+
+Let's see how ``withframe`` works with the default parameters.
+
+pyterm::
+    >>> from mistool.term_use import withframe
+    >>> text = '''
+    ... One small
+    ... text
+    ... to do tests
+    ... '''.strip()
+    >>> print(withframe(text))
+    ###############
+    # One small   #
+    # text        #
+    # to do tests #
+    ###############
 
 
+Easy to use but can we use other frames. Yes we can first use the frames stored
+in the dictionary ``ALL_FRAMES`` (a section after will give you an easy way to
+see all the default frames stored in the dictionary ``ALL_FRAMES``).
+
+pyterm::
+    >>> from mistool.term_use import withframe, ALL_FRAMES
+    >>> text = '''
+    ... One small
+    ... text
+    ... to do tests
+    ... '''.strip()
+    >>> frame = ALL_FRAMES["python_pretty"]
+    >>> print(
+    ...     withframe(
+    ...         text  = text,
+    ...         frame = frame
+    ...     )
+    ... )
+    # ----------------- #
+    # -- One small   -- #
+    # -- text        -- #
+    # -- to do tests -- #
+    # ----------------- #
 
 
+=========
+ALIGNMENT
+=========
+
+By default the text is left aligned, but you can center it or right align it.
+Here is how to do that.
+
+pyterm::
+    >>> from mistool.term_use import withframe
+    >>> text = '''
+    ... One small
+    ... text
+    ... to do tests
+    ... '''.strip()
+    >>> print(withframe(text))
+    ###############
+    # One small   #
+    # text        #
+    # to do tests #
+    ###############
+
+    >>> print(withframe(text = text, align = "center"))
+    ###############
+    #  One small  #
+    #    text     #
+    # to do tests #
+    ###############
+
+    >>> print(withframe(text = text, align = "right"))
+    ###############
+    #   One small #
+    #        text #
+    # to do tests #
+    ###############
+
+
+================================
+ALL THE DEFAULT FRAMES AVAILABLE
+================================
+
+Using the two lines below you can see all the default frames with their names
+indicated after the arrow ``---->`` (in the output, term::``[...]`` indicates
+that lines have been cut).
+
+pyterm::
+    >>> from mistool.term_use import showallframes
+    >>> showallframes()
+
+    ----> ascii_star
+
+    ***************
+    * One small   *
+    * text        *
+    * to do tests *
+    ***************
+
+
+    ----> c_basic
+
+    /***************
+     * One small   *
+     * text        *
+     * to do tests *
+     ***************/
+
+    [...]
+
+
+=======================================
+HOW TO DEFINE AND USE AN HOMEMADE FRAME
+=======================================
+
+Just take a look at the documentation of the function ``buildframe`` that allows
+to build very easily a "frame" dictionary that can be used with ``withframe``.
+    """
+# Long name of the position
+    align = _LONG_ALIGNMENTS.get(align, align)
+
+    if align not in _ALIGNMENTS:
+        raise ValueError("unknown name for the positionning of the text.")
+
+# The lines of the text.
+    lines = [x for x in text.splitlines()]
+    width = max([len(x) for x in lines])
+
+# Formatting each line of text inside the frame.
+#
+# Source: https://docs.python.org/3/library/string.html#format-specification-mini-language
+    if align == "left":
+        howtoput = '{:<' + str(width) + '}'
+
+    elif align == "right":
+        howtoput = '{:>' + str(width) + '}'
+
+    else:
+        howtoput = '{:^' + str(width) + '}'
+
+    lines = [howtoput.format(x) for x in lines]
+
+# The frame
+    frametexts = []
+
+# First rule
+    hrule = "{0}{1}{2}".format(
+        frame["upleft"],
+        frame["uprule"]*width,
+        frame["upright"]
+    )
+
+    if hrule:
+        frametexts.append(hrule)
+
+# Inside
+    for oneline in lines:
+        frametexts.append(
+            "{0}{1}{2}".format(
+                frame["left"],
+                oneline,
+                frame["right"]
+            )
+        )
+
+# Last rule
+    hrule = "{0}{1}{2}".format(
+        frame["downleft"],
+        frame["downrule"]*width,
+        frame["downright"]
+    )
+
+    if hrule:
+        frametexts.append(hrule)
+
+# Here we are...
+    return "\n".join(frametexts)
+
+
+def showallframes():
+    """
+prototype::
+    action = this function prints all the available kinds of frames and shows
+             how they "work"
+    """
+    text = """
+One small
+text
+to do tests
+    """.strip()
+
+    for name in sorted(ALL_FRAMES.keys()):
+        print(
+            "",
+            "----> {0}".format(name),
+            "",
+            withframe(text = text, frame = ALL_FRAMES[name]),
+            "",
+            sep = "\n"
+        )
+
+
+def buildframe(text):
+    """
+prototype::
+    arg = str: text ;
+          a text representatiing a frame with its content indicated using
+          ``{text}`` (see the example)
+
+    return = {str: str} ;
+             a dictionary that can be used with the argument ``frame`` of the
+             function ``withframe``
+
+
+To understand how this function has to be used, let's suppose we want to define
+the following ugly frame.
+
+code::
+    @@ --------------------%%
+       |-> One small   <-+
+       |-> text        <-+
+       |-> to do tests <-+
+    &&==================== $$
+
+
+To do that, you must first use a standard representation usign ``{text}`` as we
+do in the following text.
+
+code::
+    @@ --------------%%
+       |-> {text} <-+
+    &&=============== $$
+
+
+This text can be directly given to the function ``buildframe`` that will return
+a dictionnary that can be given to the function ``withframe``. That's all !
+
+pyterm::
+    >>> from mistool.term_use import buildframe
+    >>> frame = buildframe(
+    ...     '''
+    ... @@ --------------%%
+    ...    |-> {text} <-+
+    ... &&=============== $$
+    ...     '''.strip()
+    ...     )
+    >>> print(frame)
+    {
+    # UP
+        'upleft' : '@@ ----',
+        'uprule' : '-',
+        'upright': '----%%',
+    # INSIDE
+        'left' : '   |-> ',
+        'right': ' <-+',
+    # DOWN
+        'downleft' : '&&=====',
+        'downrule' : '=',
+        'downright': '==== $$'
+    }
+
+
+warning::
+    Only one character can be used upon ``{text}``, and the same is true below
+    ``{text}``, but you can use one character upside, and another downside as we
+    have done. This restriction come from the different width of texts that can
+    be put in a frame.
+    """
+# The lines used
+    lines = text.splitlines()
+
+# Do we have a good number of lines ?
+    nblines = len(lines)
+
+    if nblines == 0 or nblines > 3:
+        raise ValueError(
+            "you must use at least one line and at most three lines."
+        )
+
+# Up, inside and down
+    inside = None
+    for i in range(nblines):
+        if "{text}" in lines[i]:
+            if nblines == 3 and (i == 0 or i == 2):
+                raise ValueError("the line with ``{text}`` is misplaced.")
+
+            inside = lines[i]
+
+            if nblines == 1:
+                lines = [""] + lines + [""]
+
+            elif nblines == 2:
+                if i == 0:
+                    lines = [""] + lines
+
+                else:
+                    lines = lines + [""]
+
+            up, inside, down = lines
+
+            break
+
+    if inside == None:
+        raise ValueError("the line with ``{text}`` is missing.")
+
+# Near to the end...
+    start = inside.find('{text}')
+    end   = start + 6
+
+    frame = {
+    # UP
+        "upleft" : up[:start],
+        "upright": up[end:],
+    # INSIDE
+        "left" : inside[:start],
+        "right": inside[end:],
+    # DOWN
+        "downleft" : down[:start],
+        "downright": down[end:],
+    }
+
+    if len(set(up[start:end])) != 1:
+        raise ValueError(
+            "only one character can be used to draw the line upside the text."
+        )
+
+    frame["uprule"] = up[start]
+
+    if len(set(down[start:end])) != 1:
+        raise ValueError(
+            "only one character can be used to draw the line downside the text."
+        )
+
+    frame["downrule"] = down[start]
+
+    return frame
 
 
 # ----------------------- #
@@ -560,7 +577,8 @@ prototype::
            this class allows to display in different formats the tree structure
            of one directory with the extra possibility to keep and show only
            some informations, and also to set a little the format of the output
-    see  = os_use._ppath_regpath2meta, os_use._ppath_walk
+
+    see = os_use._ppath_regpath2meta, os_use._ppath_walk
 
     arg-attr = os_use.PPath: ppath ;
                this argument is the path of the directory to analyze
@@ -571,8 +589,8 @@ prototype::
     arg-attr = str: display = "main short" in self._FORMATS;
                this argument gives informations about the output to produce (you
                can just use the initials of the options)
-    arg-attr = str: sorting = "alpha" in [x[0] for x in cls.LAMBDA_SORT]
-                                      or in [x[1] for x in cls.LAMBDA_SORT];
+    arg-attr = str: sorting = "alpha" in [x[0] for x in cls.LAMBDA_SORT] or
+                                      in [x[1] for x in cls.LAMBDA_SORT];
                this argument inidcates the way to sort the paths found
 
     clsattr = {(str, str): (lambda, ?)}: LAMBDA_SORT ;
@@ -1061,6 +1079,7 @@ info::
 
         self._mustberebuilt = True
 
+
 # -------------------- #
 # -- INTERNAL VIEWS -- #
 # -------------------- #
@@ -1068,7 +1087,8 @@ info::
     def buildviews(self):
         """
 prototype::
-    see    = self.sort , self.ascii , self.latex , self.toc , self.tree
+    see = self.sort , self.ascii , self.latex , self.toc , self.tree
+
     action = this method builds one flat list ``self.listview`` of dictionaries,
              that store all the informations about the directory even the empty
              folders and the unmatching files,
@@ -1144,9 +1164,8 @@ info::
 prototype::
     return = dict ;
              the dictionnary stores the path, its depth and the kind of object
-             pointed by the path
-             (this is for the elements in ``self.listview`` and partially for
-             ``self.treeview``)
+             pointed by the path (this is for the elements in ``self.listview``
+             and partially for ``self.treeview``)
         """
         if ppath.name == EMPTY_DIR_TAG:
             kind  = "empty_dir"
@@ -1174,7 +1193,8 @@ prototype::
     def _build_listview(self):
         """
 prototype::
-    see    = self.buildviews
+    see = self.buildviews
+
     action = the attribut ``self.listview`` is build using the attribut
              ``self._all_listview``
         """
@@ -1236,7 +1256,8 @@ prototype::
     def _build_treeview(self):
         """
 prototype::
-    see    = self.buildviews , self._rbuild_treeview
+    see = self.buildviews , self._rbuild_treeview
+
     action = this method returns the attribut ``self.treeview`` but all the
              job is done recursively by the method ``self._rbuild_treeview``
         """
@@ -1298,8 +1319,10 @@ prototype::
     def _ellipsis_sort(self, metadatas):
         """
 prototype::
-    arg    = dict: metadatas
-    see    = self.buildviews , self._metadatas
+    see = self.buildviews , self._metadatas
+
+    arg = dict: metadatas
+
     return = str ;
              the value to use for the sorting
         """
@@ -1313,7 +1336,8 @@ prototype::
     def sort(self):
         """
 prototype::
-    see    = self._rsort
+    see = self._rsort
+
     action = this method sorts the attribut ``self.treeview`` regarding to the
              value of the attribut ``self._sorting``, this job being done
              recursively by the method ``self._rsort``, and then the list
@@ -1337,8 +1361,10 @@ prototype::
     def _rsort(self, treeview):
         """
 prototype::
-    arg    = list(dict): treeview
-    see    = self.buildviews , self._metadatas , self._ellipsis_sort
+    see = self.buildviews , self._metadatas , self._ellipsis_sort
+
+    arg = list(dict): treeview
+
     return = list(dict) ;
              the treeview sorting regarding to the value of ``self._sorting``
              (the job is done recursively)
@@ -1356,8 +1382,10 @@ prototype::
     def _rtree_to_list_view(self, treeview):
         """
 prototype::
-    see    = self.sort
-    arg    = list(dict): treeview
+    see = self.sort
+
+    arg = list(dict): treeview
+
     return = list(dict) ;
              the listview associated to ``self.treeview`` (the job is done
              recursively)
@@ -1406,7 +1434,8 @@ prototype::
     def pathtoprint(self, metadatas):
         """
 prototype::
-    arg    = dict: metadatas
+    arg = dict: metadatas
+
     return = str ;
              the string to print for a path
         """
@@ -1435,7 +1464,8 @@ prototype::
     def ascii(self):
         """
 prototype::
-    type   = property
+    type = property
+
     return = str ;
              a basic tree using only ¨ascii characters
         """
@@ -1464,8 +1494,10 @@ prototype::
     def tree(self):
         """
 prototype::
-    see    = self._rtree
-    type   = property
+    type = property
+
+    see = self._rtree
+
     return = str ;
              a tree using special ¨unicode characters such as to draw some
              additional rules
@@ -1557,7 +1589,8 @@ prototype::
     def toc(self):
         """
 prototype::
-    type   = property
+    type = property
+
     return = str ;
              the content only shows files and their direct parent folder like in
              a table of content where the section are always relative paths of
@@ -1617,7 +1650,8 @@ prototype::
     def latex(self):
         """
 prototype::
-    type   = property
+    type = property
+
     return = str ;
              a ¨latex code that can be used by the ¨latex package 
              ¨latex::``dirtree``

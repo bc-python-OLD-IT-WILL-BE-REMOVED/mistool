@@ -27,6 +27,7 @@ prototype::
     """
     pass
 
+
 def _raise_ioerror(
     kind   = None,
     ppath  = None,
@@ -34,9 +35,10 @@ def _raise_ioerror(
 ):
     """
 prototype::
-    arg    = str: kind
-    arg    = PPath: ppath
-    arg    = str: action in 'access' , 'exist' , 'notatex', 'superuser'
+    arg = str: kind
+    arg = PPath: ppath
+    arg = str: action in ['access' , 'exist' , 'notatex', 'superuser']
+
     return = str ;
              this function simply eases the raising of some specific OS errors.
     """
@@ -70,14 +72,15 @@ def escape(
 ):
     """
 prototype::
-    arg    = str: text ;
-             the text to be escaped
-    arg    = str: mode = "text" in "text" , "math" ;
-             the ¨latex mode where the text will be used.
+    arg = str: text ;
+          the text to be escaped
+    arg = str: mode = "text" in ["text" , "math"] ;
+          the ¨latex mode where the text will be used
+
     return = str ;
              the text with all specific ¨latex characters escaped so as to be
              used verbatim in either a math formula or a text regarding ot the
-             value of ``mode``.
+             value of ``mode``
 
 
 Here is an example of use.
@@ -300,14 +303,15 @@ def clean(
 ):
     """
 prototype::
-    arg    = os_use.PPath: ppath ;
-             the path of either one ¨latex file or a directory
-    arg    = list(str): exts = EXTS_TO_CLEAN ;
-             the list of extensions of the special files made by ¨latex that
-             have to be removed
-    arg    = bool: showinfos = False ;
-             by default, ``showinfos = False`` asks to not show the informations
-             about the cleaning
+    arg = os_use.PPath: ppath ;
+          the path of either one ¨latex file or a directory
+    arg = list(str): exts = EXTS_TO_CLEAN ;
+          the list of extensions of the special files made by ¨latex that
+          have to be removed
+    arg = bool: showinfos = False ;
+          by default, ``showinfos = False`` asks to not show the informations
+          about the cleaning
+
     action = this function removes extra files build during a ¨latex compilation
              that are associated to a file, or the ones corresponding to all the
              ¨latex files in a directory.
@@ -389,9 +393,10 @@ MIKETEX_LOCALDIR = PPath('C:/texmf-local')
 def _localdir_texlive(osname = ""):
     """
 prototype::
-    arg    = str: osname = "" in "windows" , "linux" , "mac";
-             the name of the ¨os (logical, isn't it ?), that can be found
-             automatically if you use the default value ``osname = ""``
+    arg = str: osname = "" in ["windows" , "linux" , "mac"];
+          the name of the ¨os (logical, isn't it ?), that can be found
+          automatically if you use the default value ``osname = ""``
+
     return = PPath ;
              the path of the ¨texlive directory where we have to put special
              ¨latex packages.
@@ -494,9 +499,12 @@ _DECO_2 = '{0}+ '.format(_TAB*2)
 
 def _must_be_su(aboutlatex):
     """
-    see    = about
-    arg    = dict: aboutlatex = {} ;
-             one dictionary similar to the one sent by the function ``about``
+prototype::
+    see = about
+
+    arg = dict: aboutlatex = {} ;
+          one dictionary similar to the one sent by the function ``about``
+
     action = this function tests if we have "Super User" permissions
     """
     if not canmodify(aboutlatex['localdir']):
@@ -505,9 +513,12 @@ def _must_be_su(aboutlatex):
 
 def _can_install(aboutlatex):
     """
-    see    = about
-    arg    = dict: aboutlatex = {} ;
-             one dictionary similar to the one sent by the function ``about``
+prototype::
+    see = about
+
+    arg = dict: aboutlatex = {} ;
+          one dictionary similar to the one sent by the function ``about``
+
     action = this function tests if we have ¨latex local directory that we can
              act on it
     """
@@ -534,9 +545,11 @@ def _can_install(aboutlatex):
 def refresh(aboutlatex = {}):
     """
 prototype::
-    see    = about
-    arg    = dict: aboutlatex = {} ;
-             one dictionary similar to the one sent by the function ``about``
+    see = about
+
+    arg = dict: aboutlatex = {} ;
+          one dictionary similar to the one sent by the function ``about``
+
     action = the list of packages directly known by the ¨latex distribution is
              refreshed
 
@@ -570,9 +583,11 @@ warning::
 def make_miktex_localdir(aboutlatex):
     """
 prototype::
-    see    = about
-    arg    = dict: aboutlatex ;
-             one dictionary similar to the one sent by the function ``about``
+    see = about
+
+    arg = dict: aboutlatex ;
+          one dictionary similar to the one sent by the function ``about``
+
     action = this function creates one local directory and add it to the list
              of directories automatically analysed by MiKTeX when it looks for
              packages.
@@ -617,19 +632,21 @@ def install(
 ):
     """
 prototype::
-    see    = os_use._ppath_regpath2meta , about
-    arg    = os_use.PPath: ppath;
-             the path of folder containg the package
-    arg    = str: name = "" ;
-             you can use this variable so as to give explicitly the name of the
-             package, otherwise that will be the name of the folder that will
-             choosen
-    arg    = str: regpath = "file::**" ;
-             this is a string that follows some rules named regpath rules (see
-             the documentation of the function ``os_use._ppath_regpath2meta``)
-    arg    = bool: clean = True ;
-             by default, ``clean = True`` asks to remove first an old version of
-             the package
+    see = os_use._ppath_regpath2meta , about
+
+    arg = os_use.PPath: ppath;
+          the path of folder containg the package
+    arg = str: name = "" ;
+          you can use this variable so as to give explicitly the name of the
+          package, otherwise that will be the name of the folder that will
+          choosen
+    arg = str: regpath = "file::**" ;
+          this is a string that follows some rules named regpath rules (see
+          the documentation of the function ``os_use._ppath_regpath2meta``)
+    arg = bool: clean = True ;
+          by default, ``clean = True`` asks to remove first an old version of
+          the package
+
     action = this function install an homemade package in a dedicated folder
              known by your ¨latex distribution.
 
@@ -793,8 +810,9 @@ pyterm::
 def remove(name):
     """
 prototype::
-    arg    = str: name ;
-             the name of a local ¨latex package
+    arg = str: name ;
+          the name of a local ¨latex package
+
     action = the package is reoved from the local ¨latex distribution
 
 

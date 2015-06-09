@@ -30,11 +30,13 @@ _WEEKDAYS = {
 def nextday(date, name):
     """
 prototype::
-    see    = datetime
-    arg    = datetime.date: date ;
-             the date
-    arg    = str: name ;
-             the english long name of the day wanted
+    see = datetime
+
+    arg = datetime.date: date ;
+          the date
+    arg = str: name ;
+          the english long name of the day wanted
+
     return = datetime.date ;
              the date of the next day with name equal to the value of ``name``
 
@@ -88,15 +90,17 @@ _FORMATS_TRANSLATIONS = date_name._FORMATS_TRANSLATIONS
 def translate(date, strformat, lang = DEFAULT_LANG):
     """
 prototype::
-    see    = datetime
-    arg    = datetime.date: date ;
-             the date
-    arg    = str: strformat ;
-             this string follows the special formatters available in the method
-             ``strftime`` of the class ``datetime.date``.
-    arg    = str: lang = DEFAULT_LANG ;
-             this defines the language to use, the syntax is the one of the
-             function ``locale.setlocale`` of the standard package ``locale``.
+    see = datetime
+
+    arg = datetime.date: date ;
+          the date
+    arg = str: strformat ;
+          this string follows the special formatters available in the method
+          ``strftime`` of the class ``datetime.date``.
+    arg = str: lang = DEFAULT_LANG ;
+          this defines the language to use, the syntax is the one of the
+          function ``locale.setlocale`` of the standard package ``locale``.
+
     return = str ;
              the date formatting by ``strftime`` but with the name translating
              regarding to the value of ``lang``
