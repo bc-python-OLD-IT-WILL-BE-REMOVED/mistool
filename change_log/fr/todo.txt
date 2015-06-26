@@ -2,6 +2,7 @@
 misTool - TODO
 ==============
 
+
 > ---------------------------- <
 
 **Une belle nouveauté dans le module ``python_use`` :** la classe ``MKDict`` permet de définir des dictionnaires dont on peut extraire une valeur en utilisant une syntaxe du type ``mymkdict["key_1", "subkey_1", "subsubkey_1"]`` au lieu de ``mymkdict["key_1"]["subkey_1"]["subsubkey_1"]``.
@@ -27,15 +28,6 @@ misTool - TODO
 
 **Une nouvelle méthode de tri pour la classe ``os_use.DirView``:**  ????
     ---> trier par type d'application:  on trie en fait par extesnion et on regroupe les extensions par thème
-
-
-> ---------------------------- <
-
-???? ---------->    **Amélioration et mise à jour des tests :** on utilise maintenant ¨pytest ce qui simplifie énormément les choses. On va enfin à l'essentiel !
-
-Ceci étant dit, le module ``pdt.mistool.orpyste`` du package maison ``pdt`` est encore utilisé (le nouveau module ``pathlib`` permet maintenant de travailler facilement avec des chemins de dossiers et de fichiers même si la classe ``PPath`` facilite encore plus les choses).
-
-En attendant la nouvelle version de ¨orpyste, qui ne sera plus du tout dépendante de ¨mistool, on continue encore à utiliser l'affreux ``pdt.mistool.orpyste`` mais plus pour très longtemps... Une fois ceci fait, les tests seront disponibles sur ¨github et ¨pypi (afin que les utilisateurs puissent tester leur installation).
 
 
 > ---------------------------- <

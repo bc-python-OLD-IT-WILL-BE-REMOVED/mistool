@@ -2,14 +2,14 @@
 
 """
 prototype::
-    date = 2015-06-02
+    date = 2015-06-26
 
 This script proposes two useful functions to manipulate urls.
 """
 
-from urllib.parse import quote
-from urllib.request import urlopen
-from urllib.error import URLError
+import requests
+from requests.exceptions import ConnectionError
+from requests.utils import quote
 
 
 # ---------------- #
@@ -50,14 +50,11 @@ info::
 # -- TESTING -- #
 # ------------- #
 
-def islinked(url, timeout = -1):
+def islinked(url):
     """
 prototype::
     arg    = str: url ;
              the link that must be tested
-    arg    = float: timeout = -1 ;
-             an upper bound in seconds for the whole duration of the test, the
-             value ``(-1)`` indicates a merly infinite time
     return = bool ;
              ``True`` if the script has been able to open the link, and ``False``
              otherwise
@@ -73,24 +70,10 @@ pyterm::
     True
     >>> islinked("http://www.g-o-o-g-l-e.com")
     False
-
-
-warning::
-    A poor connection can lead to false negatives.
     """
     try:
-        if timeout == -1:
-            urlopen(url)
-
-        else:
-            urlopen(
-                url = url,
-                timeout = timeout
-            )
-
+        requests.get(url)
         return True
 
-    except URLError as e:
-        ...
-
-    return False
+    except ConnectionError as e:
+        return False

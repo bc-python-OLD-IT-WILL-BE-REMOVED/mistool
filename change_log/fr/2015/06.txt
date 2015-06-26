@@ -2,6 +2,15 @@
 2015-06-????
 ==========
 
+???? ---------->    **Amélioration et mise à jour des tests :** voici ce qui a été fait.
+
+    1) On utilise maintenant ¨pytest ce qui simplifie énormément les choses. On va enfin à l'essentiel !
+
+    2) L'affreux package maison ``pdt`` n'est plus du tout utilisé (ceci a pu être fait car la nouvelle version de ¨orpyste n'est plus du tout dépendante de ¨mistool).
+
+    1) Les tests sont disponibles sur ¨github et ¨pypi (afin que les utilisateurs puissent tester leur installation).
+
+
 ???? ---------->    **Publication de la nouvelle version de ``mistool`` :** cette nouvelle version casse la rétro-compatibilité (voir les ¨chgts depuis le date::``2015-05-26``). Autant considérer ce package comme un tout nouveau !
 
 
@@ -14,14 +23,25 @@
 ???? ---------->    **Ajout d'une licence :** le projet est maintenant sous licence ???.
 
 
-???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer.
+???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer. Ceci se fait très efficacement grâce à ¨setytup un autre projet de l'auteur de ¨mistool. ¨setytup est disponible sur ¨pypi et ¨github.
+
+
+
+
+
+
+==========
+2015-06-26
+==========
+
+**Changment interne dans le module ``url_use``:** c'est le très sympathique module ``requests`` qui est utilisé en coulisse.
 
 
 ==========
 2015-06-09
 ==========
 
-**Du nouveau dans le module ``os_use``:** voici les ¨chgts.
+    **Du nouveau dans le module ``os_use``:** voici les ¨chgts.
 
     1) Pour des raisons d'organisation du code de ¨mistool, la classe ``DirView`` a été déplacée dans un nouveau module ``term_use`` proposant des outils principalement destinés au terminal.
 
@@ -29,9 +49,9 @@
 
     1) Ajout de la fonction ``canmodify`` pour savoir si l'on a les droits de modification pour un dossier.
 
-    1) Comme l'utilisation de la négation dans les ¨regex_frs ¨python fait vite mal à la tête, et que concrètement on cherche soit des chemins qui valident un motif, soit au contraire qui ne le valident pas, il a été ajouté une nouvelle requête ``not`` pour le ¨2nd cas.
+    1) Pour les "regpaths", comme l'utilisation de la négation dans les ¨regex_frs ¨python fait vite mal à la tête, et que concrètement on cherche soit des chemins qui valident un motif, soit au contraire qui ne le valident pas, il a été ajouté une nouvelle requête ``not`` pour le ¨2nd cas.
 
-    1) Retour de la constante ``SEP`` car elle peut encore rendre quelques services quand on est obligé de travailer avec des chemins juste donnés via une chaîne de caractères.
+    1) Retour de la constante ``SEP`` car elle peut encore rendre quelques services quand on est obligé de travailler avec des chemins juste donnés via une chaîne de caractères.
 
 
 **Un tout nouveau module ``term_use``:** ce module propose les fonctionnalités ci-après.
@@ -44,22 +64,27 @@
 
         a) La méthode ``display`` devient la méthode magique ``__call__`` pour un emploi très simplifié.
 
-        a) L'argument ``deco`` est reniommée ``info`` et il devient une lambda fonction pour plus de souplesse dans la mise en forme.
+        a) L'argument ``deco`` a été supprimé. On utilise à la place un nouvel argument ``textit`` de type fonction ce qui offre beaucoup de souplesse dans la ¨mef.
 
-        a) Un nouvel argument permet de récupérer le texte des ¨infos au lieu de juste les imprimer dans le terminal.
+        a) Un nouveal argument ``start`` permet d'indiquer le début de la numérotation.
+
+        a) Un nouvel argument ``isreturned`` permet de récupérer le texte des ¨infos au lieu de juste les imprimer dans le terminal.
+
+        a) Un nouvel argument ``isprinted`` permet de ne pas imprimer le texte des ¨infos dans le terminal.
 
         a) La méthode ``print`` a été supprimée au vue des modifications précédentes.
 
-    1) La fonction ``frame`` anciennement présente dans le module ``string_use`` est maintenant proposée dans ``term_use`` sous une toute nouvelle forme.
+    1) La fonction ``frame`` anciennement présente dans le module ``string_use`` est maintenant proposée dans ``term_use`` sous le nouveau nom ``withframe``.
 
-        a) Ajout d'une fonction ``showallframes`` qui permet à l'utilisateur d'avoir sans efforts l'ensemble des formats disponibles par défaut.
+    Le code a été refait à partir de zéro car l'ancien code avait dû être fait par un extra-terrestre
+    ((
+        L'erreur que j'ai commise est d'avoir raisonné graphiquement au lieu de le faire textuellement.
+    )) !
+    Tout est fait bien plus simplement dorénavant, ceci rendant au passage possible l'existence de la fonction ``buildframes``.
 
-        a) Ajout d'une fonction ``buildframes`` qui permet de définir sans aucune douleur un nouveau type de cadre.
+    1) Ajout d'une fonction ``buildframes`` qui permet de définir sans aucune douleur un nouveau type de cadre.
 
-        a) La fonction ``frame`` a été renommée ``withframe`` et le code recommencé de zéro car l'ancien code avait dû être fait par un extra-terrestre ((
-            L'erreur que j'ai commise est d'avoir raisonné graphiquement au lieu de le faire textuellement.
-        )) !
-        Tout est fait bien plus simplement dorénavant, ceci rendant au passage possible l'existence de la fonction ``buildframes``.
+    1) Ajout d'une fonction ``showallframes`` qui permet à l'utilisateur d'avoir sans efforts l'ensemble des formats disponibles par défaut.
 
 
 **Suppression du module ``log_test_use``:** le module standard ``pytest`` rend les tests unitaires très faciles à faire ! Autant l'utiliser.
@@ -77,13 +102,13 @@
 
         a) La fonction ``make_localdir_miktex`` a été renommée ``make_miktex_localdir``.
 
-        a) Une nouvelle fonction ``remove``, petite soeur énemie de ``install``, a été ajoutée.
+        a) Une nouvelle fonction ``remove``, petite soeur ennemie de ``install``, a été ajoutée.
 
     1) Dans le module ``python_use``, il y a eu les disparitions suivantes.
 
         a) La fonction ``_escape`` ne servant à rien, elle a été supprimée. Vive le darwinisme.
 
-        a) La fonction ``runpys`` cède sa place à la fonction ``runthis`` du module ``os_use``.
+        a) La fonction ``runpys`` cède sa place à la fonction plus généraliste ``runthis`` du module ``os_use``.
 
     1) Dans le module ``string_use``,
 
@@ -101,11 +126,11 @@
 
             i) L'argument ``replacements`` a été renommé ``oldnew``.
 
-            i) La méthode ``replace`` de la classe ``MultiReplace`` est devenue la méthode magique ``__call__`` afin d'utiliser les instances de la classe ``MultiReplace`` simplement  comme des fonctions.
+            i) La méthode ``replace`` de la classe ``MultiReplace`` est devenue la méthode magique ``__call__`` afin d'utiliser les instances de la classe ``MultiReplace`` simplement comme des fonctions.
 
             i) Ajout de l'argument ``mode`` afin de pouvoir choisir un remplacement récursif ou non.
 
-            i) Correction d'un bug lié à la non utilisation de l'regex_fr lors du remplacement en mode récursif.
+            i) Correction d'un bug lié à la non utilisation de l'¨regex_fr lors du remplacement en mode récursif.
 
         a) La fonction ``split`` a été supprimée : une autre bizarrerie après réflexion.
 
@@ -113,9 +138,9 @@
 
             i) L'argument ``escape`` a été renommé ``esc_char``.
 
-            i) Disparition de l'argument ``text`` car on a ajouté la méthode magique ``__call__`` afin d'utiliser les instances de la classe ``MultiSplit`` simplement  comme des fonctions.
+            i) Disparition de l'argument ``text`` car on a ajouté la méthode magique ``__call__`` afin d'utiliser les instances de la classe ``MultiSplit`` simplement comme des fonctions.
 
-            i) ``seps`` ne peut être qu'une liste de chaînes indiquéant des séparateurs, ou éventuellment une chapine pour un seul séparateur. La possibilité d'utiliser plusieurs séparateurs pour un même niveau a été supprimée.
+            i) ``seps`` ne peut être qu'une liste de chaînes indiquant des séparateurs, ou éventuellment une chaîne pour un seul séparateur. La possibilité d'utiliser plusieurs séparateurs pour un même niveau a été supprimée.
 
             i) L'itérateur n'est plus une méthode magique mais est devenu une méthode à appeler avec un argument ``listview``.
 
@@ -140,7 +165,7 @@
     1) Dans le module ``url_use``, la fonction ``test`` a été renommée ``islinked`` (on comprend ainsi directement ce que fait cette fonction).
 
 
-**Amélioration de TOUTES LES DOCSTRINGS:** on utilise la même ¨nelle syntaxe que celle qui a été introduite dans la dernière version de ``os_use``.
+**Amélioration de TOUTES LES DOCSTRINGS:** on utilise la même ¨nelle syntaxe que celle qui a été introduite dans la nouvelle version de ``os_use``.
 
 
 ==========

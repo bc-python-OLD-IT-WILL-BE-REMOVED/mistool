@@ -15,7 +15,7 @@
 2015-05-26
 ==========
 
-**NON RÉTRO-COMPATIBILITÉ du code du module ``os_use`` suite à la prise en compte de ``pathlib``:** ajout d'une nouvelle classe ``PPath``, très facile à utiliser, qui est grosso modo une sous-classe de ``pathlib.Path`` (voir le code pour comprendre la signification technique du "grosso modo"). Ceci implique tous les changements importants suivants **en attendant de mettre à jour tous les autres modules**.
+**NON RÉTRO-COMPATIBILITÉ du nouveau code du module ``os_use`` suite à la prise en compte de ``pathlib``:** ajout d'une nouvelle classe ``PPath``, très facile à utiliser, qui est grosso modo une sous-classe de ``pathlib.Path`` (voir le code pour comprendre la signification technique du "grosso modo"). Ceci implique tous les changements importants suivants **en attendant de mettre à jour tous les autres modules**.
 
     1) Concernant **les noms** de fichier ou de dossier, voici ce qui a évolué.
 
@@ -103,7 +103,7 @@
     1) La fonction ``system`` a été gardée sans aucune modification.
 
 
-**Amélioration des docstrings de ``os_use``:** la syntaxe utilisée se base sur de nouvelles spécifications de ¨pybadoc, un outil maison en cours de construction: on utilise des exemples "en console" pour rendre le propos plus clair et on peut indiquer les signatures des fonctions, des classes, ¨etc via le bloc pybadoc::``prototype::...`` à placer en début de docstring. Très lisible et très efficace !
+**Amélioration des docstrings de ``os_use``:** la syntaxe utilisée se base sur de nouvelles spécifications de ¨pybadoc, un outil maison en cours de construction. On utilise des exemples "en console" pour rendre le propos plus clair et on peut indiquer les signatures des fonctions, des classes, ¨etc via le bloc pybadoc::``prototype::...`` à placer en début de docstring. Très lisible et très efficace !
 
 
 ==========
@@ -114,4 +114,4 @@
 
     1) Dans un souci de développement serein, on utilise dorénavant une branche ``dev`` avec ¨git.
 
-    2) L'utilisation de ¨pyvenv permet aussi d'éviter des dégâts colatéraux non négligeables avec les versions en cours de développement (l'environnment virtuel se nomme ``pyenv/mistool``). Fini l'amateurisme !
+    2) L'utilisation de ¨pyvenv permet aussi d'éviter des dégâts colatéraux non négligeables avec les versions en cours de développement (l'environnement virtuel se nomme ``pyenv/mistool``). Fini l'amateurisme !

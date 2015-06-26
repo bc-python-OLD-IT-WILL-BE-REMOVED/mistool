@@ -2,12 +2,14 @@
 
 """
 prototype::
-    date = 2015-06-08
+    date = 2015-06-09
 
 
 This module contains mainly classes and functions producing strings useful to be
 printed in a terminal.
 """
+
+from mistool.config.frame import ALL_FRAMES
 
 from mistool.os_use import PPath, \
                            _XTRA, _FILE, _DIR, \
@@ -15,8 +17,6 @@ from mistool.os_use import PPath, \
                            OTHER_FILES_TAG, EMPTY_DIR_TAG
 
 from mistool.latex_use import escape as latex_escape
-
-from mistool.config.frame import ALL_FRAMES
 
 
 # ------------------ #
@@ -28,10 +28,10 @@ class Step:
 prototype::
     arg = int: start = 1 ;
           the first number used for the steps
-    arg = lambda: textit = lambda n, t: "{0}) {1}".format(n, t) ;
-          the lambda function used so to make the text corresponding to one
-          action using two variables two variables ``n`` for the number, and
-          ``t`` for the users's text
+    arg = func: textit = lambda n, t: "{0}) {1}".format(n, t) ;
+          the function called to make the text corresponding to one action using
+          two variables two variables ``n`` for the number, and ``t`` for the
+          users's text
     arg = bool: isprinted = True ;
           this is to ask to print the texts in the terminal
     arg = bool: isreturned = False ;
@@ -97,7 +97,8 @@ python::
 
 Suppose that our python script is in a file with the long path
 path::``/Users/projetmbc/stepit.py``, and suppose also that ¨python can be
-launched using term::``python``, then here is what you should see in a terminal (nothing is printed).
+launched using term::``python``, then here is what you should see in a terminal
+(nothing is printed).
 
 term::
     > python3 stepit.py
@@ -143,8 +144,8 @@ Choose the way things are displayed
 ===================================
 
 The texts for the actions are made using the argument ``textit`` which must be a
-lambda function of two variables ``n`` for the number, and ``t`` for the users's
-text. Here is an ugly but assumed example.
+function of two variables ``n`` for the number, and ``t`` for the users's text.
+Here is an ugly but assumed example.
 
 pyterm::
     >>> from mistool.term_use import Step
@@ -180,11 +181,11 @@ pyterm::
         """
 prototype::
     arg = str: text ;
-             the text for the actual step is build using the lambda function
-             ``self.textit``, and then it is printed ¨andor returned regarding
-             to the values of ``self.isprinted`` and ``self.isreturned``.
+          the text for the actual step is build using ``self.textit``, and
+          then it is printed ¨andor returned regarding to the values of
+          ``self.isprinted`` and ``self.isreturned``.
         """
-        text = self.textit(self.nb, text)
+        text = self.textit(n = self.nb, t = text)
 
         if self.isprinted:
             print(text)
@@ -201,7 +202,12 @@ prototype::
 
 DEFAULT_FRAME = ALL_FRAMES['python_basic']
 
-_ALIGNMENTS = ["left", "center", "right"]
+# Source: https://docs.python.org/3/library/string.html#format-specification-mini-language
+_ALIGNMENTS = {
+    'left'  : "<",
+    'center': "^",
+    'right' : ">"
+}
 _LONG_ALIGNMENTS = {x[0]: x for x in _ALIGNMENTS}
 
 def withframe(
@@ -247,8 +253,7 @@ pyterm::
 
 
 Easy to use but can we use other frames. Yes we can first use the frames stored
-in the dictionary ``ALL_FRAMES`` (a section after will give you an easy way to
-see all the default frames stored in the dictionary ``ALL_FRAMES``).
+in the dictionary ``ALL_FRAMES``.
 
 pyterm::
     >>> from mistool.term_use import withframe, ALL_FRAMES
@@ -271,11 +276,16 @@ pyterm::
     # ----------------- #
 
 
+info::
+    There is one section after will give you an easy way to see all the default
+    frames stored in the dictionary ``ALL_FRAMES``.
+
+
 =========
 ALIGNMENT
 =========
 
-By default the text is left aligned, but you can center it or right align it.
+By default the text is left aligned but you can center it or right align it.
 Here is how to do that.
 
 pyterm::
@@ -357,16 +367,10 @@ to build very easily a "frame" dictionary that can be used with ``withframe``.
     width = max([len(x) for x in lines])
 
 # Formatting each line of text inside the frame.
-#
-# Source: https://docs.python.org/3/library/string.html#format-specification-mini-language
-    if align == "left":
-        howtoput = '{:<' + str(width) + '}'
-
-    elif align == "right":
-        howtoput = '{:>' + str(width) + '}'
-
-    else:
-        howtoput = '{:^' + str(width) + '}'
+    howtoput = '{' + ':{0}{1}'.format(
+        _ALIGNMENTS[align],
+        width
+    ) + '}'
 
     lines = [howtoput.format(x) for x in lines]
 
@@ -453,8 +457,8 @@ code::
     &&==================== $$
 
 
-To do that, you must first use a standard representation usign ``{text}`` as we
-do in the following text.
+To do that, you must first use a special string ``{text}`` as we do in the
+following text.
 
 code::
     @@ --------------%%
@@ -463,7 +467,7 @@ code::
 
 
 This text can be directly given to the function ``buildframe`` that will return
-a dictionnary that can be given to the function ``withframe``. That's all !
+a dictionary directly usable with the function ``withframe``. That's all !
 
 pyterm::
     >>> from mistool.term_use import buildframe
@@ -493,8 +497,8 @@ pyterm::
 warning::
     Only one character can be used upon ``{text}``, and the same is true below
     ``{text}``, but you can use one character upside, and another downside as we
-    have done. This restriction come from the different width of texts that can
-    be put in a frame.
+    have done. This restriction comes from the different width of texts that can
+    be framed.
     """
 # The lines used
     lines = text.splitlines()
@@ -1653,8 +1657,7 @@ prototype::
     type = property
 
     return = str ;
-             a ¨latex code that can be used by the ¨latex package 
-             ¨latex::``dirtree``
+             a ¨latex code for the ¨latex package latex::``dirtree``
         """
 # The job has to be done.
         if self.havetobuild('latex'):
