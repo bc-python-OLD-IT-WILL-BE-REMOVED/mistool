@@ -457,8 +457,8 @@ code::
     &&==================== $$
 
 
-To do that, you must first use a special string ``{text}`` as we do in the
-following text.
+To do that, you just have to use the special string ``{text}`` instead of a real
+text as we have done in the following text.
 
 code::
     @@ --------------%%
@@ -466,7 +466,7 @@ code::
     &&=============== $$
 
 
-This text can be directly given to the function ``buildframe`` that will return
+This string can be directly given to the function ``buildframe`` that will return
 a dictionary directly usable with the function ``withframe``. That's all !
 
 pyterm::
@@ -477,7 +477,7 @@ pyterm::
     ...    |-> {text} <-+
     ... &&=============== $$
     ...     '''.strip()
-    ...     )
+    ... )
     >>> print(frame)
     {
     # UP
@@ -575,7 +575,7 @@ warning::
 # ----------------------- #
 
 class DirView:
-    r"""
+    """
 prototype::
     type = cls ;
            this class allows to display in different formats the tree structure

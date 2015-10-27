@@ -8,7 +8,7 @@
     Ceci permet à l'utilisateur, s'il le souhaite, d'ajouter d'autres ordres, relativement simples à définir.
     Cette nouveauté a nécessité d'ajouter en interne une vue en arbre en plus de celle sous forme de liste "plate".
 
-    2) Ajout de deux nouvelles représentations: l'une sous forme d'arbre ¨utf8 utilisant des lignes dans une console, comme dans les ¨gui_frs, et l'autre à destination du package latex::``dirtree`` pour ¨latex.
+    2) Ajout de deux nouvelles représentations: l'une sous forme d'arbre ¨utf8 faisant apparraître des traits dans une console, comme dans les ¨gui_frs, et l'autre à destination du package latex::``dirtree`` pour ¨latex.
 
 
 ==========

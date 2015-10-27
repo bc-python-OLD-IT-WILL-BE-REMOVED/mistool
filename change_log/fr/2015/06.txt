@@ -1,47 +1,15 @@
 ==========
-2015-06-????
-==========
-
-???? ---------->    **Amélioration et mise à jour des tests :** voici ce qui a été fait.
-
-    1) On utilise maintenant ¨pytest ce qui simplifie énormément les choses. On va enfin à l'essentiel !
-
-    2) L'affreux package maison ``pdt`` n'est plus du tout utilisé (ceci a pu être fait car la nouvelle version de ¨orpyste n'est plus du tout dépendante de ¨mistool).
-
-    1) Les tests sont disponibles sur ¨github et ¨pypi (afin que les utilisateurs puissent tester leur installation).
-
-
-???? ---------->    **Publication de la nouvelle version de ``mistool`` :** cette nouvelle version casse la rétro-compatibilité (voir les ¨chgts depuis le date::``2015-05-26``). Autant considérer ce package comme un tout nouveau !
-
-
-???? ---------->    **Amélioration du fichier ``README.md`` :** des exemples "en console" ont été ajoutés afin de rendre le package plus "bankable".
-
-
-???? ---------->    **Noms des versions :** les numéros de version deviennent standards en suivant la convention ``majeur.mineur.patch``, cette version ayant pour numéro ``0.0.0`` car le projet ¨mistool reste à l'état très `¨beta`. Cette norme étant suivie par tout le monde, soyons grégaire pour devenir clair...
-
-
-???? ---------->    **Ajout d'une licence :** le projet est maintenant sous licence ???.
-
-
-???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu accélérer l'utilisation de ``setuptools``, un outil plus sympathique à employer. Ceci se fait très efficacement grâce à ¨setytup un autre projet de l'auteur de ¨mistool. ¨setytup est disponible sur ¨pypi et ¨github.
-
-
-
-
-
-
-==========
 2015-06-26
 ==========
 
-**Changment interne dans le module ``url_use``:** c'est le très sympathique module ``requests`` qui est utilisé en coulisse.
+**Changement interne dans le module ``url_use``:** c'est le très sympathique module ``requests`` qui est utilisé en coulisse.
 
 
 ==========
 2015-06-09
 ==========
 
-    **Du nouveau dans le module ``os_use``:** voici les ¨chgts.
+**Du nouveau dans le module ``os_use``:** voici les ¨chgts.
 
     1) Pour des raisons d'organisation du code de ¨mistool, la classe ``DirView`` a été déplacée dans un nouveau module ``term_use`` proposant des outils principalement destinés au terminal.
 

@@ -33,7 +33,7 @@
     * Dans le module ``python_use``, les fonctions ``pyRepr`` et ``lambdify`` ont été retirées.
 
 
-**Refonte profonde du code:** pour les modules restants, beaucoup de choses ont été renommées afin de coller à des spécifications internes plus cohérentes, mais aussi plus simples à utiliser en pratique. Voici tous les changements côté interface. Désolé pour tout ce bazar ! :-)
+**Refonte profonde du code:** pour les modules restants, beaucoup de choses ont été renommées afin de coller à des spécifications internes plus cohérentes, mais aussi pour une utilisation plus simple. Voici tous les changements côté interface. Désolé pour tout ce bazar ! :-)
 
 
 Commençons par tout ce qui concerne **les dates**.

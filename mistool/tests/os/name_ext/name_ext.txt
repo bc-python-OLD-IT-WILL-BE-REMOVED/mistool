@@ -1,0 +1,11 @@
+file::
+    path  = /Users/misTool/mistool/nameFile.txt
+    name  = nameFile
+    ext   = txt
+    noext = /Users/misTool/mistool/nameFile
+
+directory::
+    path  = /Users/misTool/mistool
+    name  = mistool
+    ext   =
+    noext = /Users/misTool/mistool

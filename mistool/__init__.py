@@ -4,6 +4,6 @@
 prototype::
     author  = Christophe, BAL
     mail    = projetmbc@gmail.com
-    licence = ????
-    version = 0.0.0
+    licence = gpl   ????
+    version = 0.1.0-beta
 """

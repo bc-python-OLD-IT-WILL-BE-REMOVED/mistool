@@ -1310,8 +1310,8 @@ want to see what the script launched prints.
 pyterm::
     >>> from mistool.os_use import PPath, runthis
     >>> pyfile = PPath("/Users/projetmbc/script.py")
-    >>> runthis(ppath = pyfile, cmd = "python3")
-    >>> runthis(ppath = pyfile, cmd = "python3", showoutput = True)
+    >>> runthis(cmd = "python3", ppath = pyfile)
+    >>> runthis(cmd = "python3", ppath = pyfile  , showoutput = True)
     Everything is ok.
     """
     cmds = [x.strip() for x in cmd.split(" ")]

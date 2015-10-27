@@ -296,7 +296,7 @@ First downloadable version of the package.
 
 setup(
     name = "mistool",
-    version = "1.2014.8.31",
+    version = "1",
     author = "Christophe BAL",
     author_email = "projetmbc@gmail.com",
     url = "https://github.com/projetmbc/mistool",

@@ -3,13 +3,64 @@ misTool - TODO
 ==============
 
 
+???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a passer à ``setuptools``, un outil plus sympathique à employer. Ceci se fait très efficacement grâce à ¨setytup un autre projet de l'auteur de ¨mistool. ¨setytup est disponible sur ¨pypi et ¨github.
+
+
+???? ---------->    **Ajout d'une licence :** le projet est maintenant sous licence ???.
+
+
+???? ---------->    **Amélioration et mise à jour des tests :** voici ce qui a été fait.
+
+    1) On utilise maintenant ¨pytest ce qui simplifie énormément les choses. On va enfin à l'essentiel !
+
+    2) Les tests sont disponibles sur ¨github afin que les utilisateurs avertis puissent tester leur installation, mais pas sur ¨pypi pour ne pas polluer ¨python lors d'une installation de ¨orpyste.
+
+    3) L'étrange package maison ``pdt`` n'est plus utilisé. À la place, on utilise tout simplement ¨orpyste qui est devenu totalement indépendant de ¨mistool. Et oui, on se professionnalise... ;-)
+
+
+
+
 > ---------------------------- <
 
-**Une belle nouveauté dans le module ``python_use`` :** la classe ``MKDict`` permet de définir des dictionnaires dont on peut extraire une valeur en utilisant une syntaxe du type ``mymkdict["key_1", "subkey_1", "subsubkey_1"]`` au lieu de ``mymkdict["key_1"]["subkey_1"]["subsubkey_1"]``.
+???? ---------->    os.scandir à utiliser au lieu de os.walk !!!!!
 
-    MKDict ---> Multi Keys Dict
 
-    toc = MKDict({
+???? ---------->    >>> subprocess.run
+    rend inutile runthis ????
+
+
+???? ---------->    BUG !!!!
+
+pb car ::...empty...:: renvoyé meêm sans xtra
+
+
+pb aussi
+
+>>> from mistool.term_use import DirView, PPath
+>>> dirview = DirView(dir, regpath="*(/*){0,2}", display="found")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/anaconda/lib/python3.4/site-packages/mistool/term_use.py", line 1010, in __init__
+    self.display = display
+  File "/anaconda/lib/python3.4/site-packages/mistool/term_use.py", line 1060, in display
+    self._display.add(_SHORT_PATH)
+NameError: name '_SHORT_PATH' is not defined
+???? ---------->    **Publication de la nouvelle version de ``mistool`` :** toutes les améliorations techniques ci-dessous  permettennt de rendre public l'actuelle nouvelle version qui casse la rétro-compatibilité (voir les ¨chgts depuis le date::``2015-05-26``). Autant considérer ce package comme un tout nouveau !
+
+
+???? ---------->    **Amélioration du fichier ``README.md`` :** des exemples "en console" ont été ajoutés afin de rendre le package plus "bankable".
+
+
+???? ---------->    **Noms des versions :** les numéros de version deviennent standards en suivant la convention ``majeur.mineur.patch-extrainfo``. Cette norme étant suivie par tout le monde, soyons grégaire pour devenir clair... Cette version de ¨mistool a pour numéro ``0.1.0-beta`` car le projet ¨mistool reste à l'état très `¨beta` (il reste à l'utiliser un peu pour voir si le `¨beta` est de trop).
+
+
+> ---------------------------- <
+
+**Une belle nouveauté dans le module ``python_use`` :** la classe ``SKDict`` permet de définir des dictionnaires dont on peut extraire une valeur en utilisant une syntaxe du type ``myskdict["key_1", "subkey_1", "subsubkey_1"]`` au lieu de ``mymkdict["key_1"]["subkey_1"]["subsubkey_1"]``.
+
+    SKDict --> Several Key Dict
+
+    toc = SKDict({
         "I": {
             "A": {
                 "1": "Dans I-A-1",
@@ -27,7 +78,8 @@ misTool - TODO
 > ---------------------------- <
 
 **Une nouvelle méthode de tri pour la classe ``os_use.DirView``:**  ????
-    ---> trier par type d'application:  on trie en fait par extesnion et on regroupe les extensions par thème
+    ---> trier par type d'application:  on trie en fait par extesnion et on regroupe les extensions par thème Dans ce cas, modifiable par l'utilisatuer simpleme,t !
+    ---> ou si possible on se base sur les infos système
 
 
 > ---------------------------- <
@@ -37,7 +89,7 @@ Utilisation de __slots__ , __version__ ... Voir ce qu'il faut ajouter.
 
 > ---------------------------- <
 
-gestion de toutes les lettres grecques via une fonction dédiée qui repère beta, alpha, ...
+ascii : gestion de toutes les lettres grecques via une fonction dédiée qui repère beta, alpha, ...
 
 
 > ---------------------------- <
@@ -47,15 +99,6 @@ gestion de toutes les lettres grecques via une fonction dédiée qui repère bet
     1) L'effacité des tests est évaluée à l'aide de ¨coverage.
 
     2) ¨pep8py et ¨pylint sont consultés pour améliorer le code de ¨mistool lorsque cela paraît pertinent.
-
-	3) Le module ``pdt.mistool.orpyste`` du package maison ``pdt`` n'est plus utilisé. C'est la mort de cet étrange ``pdt``. À la place, on utilise tout simplement ¨orpyste qui est devenu totalement indépendant de ¨mistool. Et oui, on se professionnalise... ;-)
-
-    Ceci permet au passage de rendre les tests disponibles sur ¨github uniquement (pas sur ¨pypi par choix).
-
-
-> ---------------------------- <
-
-**Utilisation de ¨setuptools:** le fichier ``setup.py`` se base maintenant sur ¨setuptools. Ceci se fait très efficacement grâce à ¨setytup un autre projet de l'auteur de ¨mistool.
 
 
 > ---------------------------- <

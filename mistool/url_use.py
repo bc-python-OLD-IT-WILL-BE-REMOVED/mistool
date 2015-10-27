@@ -61,8 +61,8 @@ prototype::
 
 
 This function try to open the url given in the variable ``url`` so as to know if
-the url is a real one. If the connection works then ``True`` is returned, if not
-that is ``False`` which is sent.
+the url is accessible. If the connection is possible then ``True`` is returned,
+if not that is ``False`` which is sent.
 
 pyterm::
     >>> from mistool.url_use import islinked
