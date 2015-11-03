@@ -1,0 +1,27 @@
+==========
+2015-11-03
+==========
+
+**Des nouveautés dans ``os_use``:** voici tout ce qui a été ajouté.
+
+    1) Ajout d'une classe ``cd`` qui s'utilise via ``with cd(...): ...`` pour changer ponctuellement de dossier courant (le code vient entièrement de cf::``cette discussion ; http://stackoverflow.com/a/13197763/4589608``).
+
+    1) Ajout d'une méthode ``can_be_removed`` qui permet de savoir si l'on peut détruire ou non un fichier ou un dossier suivant la valeur d'un argument booléen ``safemode``.
+
+    1) Ajout d'une méthode ``is_empty`` pour savoir si un dossier est vide.
+
+
+**Des améliorations dans ``os_use``:** voici ce qui a évolué.
+
+    1) Les méthodes ``copy`` et ``move_to`` gèrent dorénavant les dossiers (il est volontairement impossible de copier un dossier dans l'un de ses sous-dossiers). Ceci a induit les ¨chgts suivants.
+
+        * L'argument ``path`` est devenu ``dest`` ce qui est plus clair.
+
+        * Il a fallu ajouter un argument booléen ``safemode`` pour sécuriser les destructions de fichiers ou dossiers existants (voir ``can_be_removed``).
+
+    1) La méthode ``walk`` s'utilise différemment lorsque l'on veut des ¨infos en plus (on n'utilise plus les plus qu'étranges ``"::...files...::"`` et  ``"::...empty...::"``). Ceci a permis au passage de découvrir un bug qui a été réparé !
+
+    1) Amélioration de la fonction ``runthis`` qui ne gérait pas jusqu'à présent les espaces échapés comme par exemple dans term::``git config --local core.excludesfile /Users/projects/git\ config\ perso/gitignore`` où term:: ``/Users/projects/git\ config\ perso/gitignore`` est un unique argument. L'utilisation de guillemets n'est pas supporté !
+
+
+**¨Maj de ``term_use``:** les ¨chgts dans ``os_use.walk`` ont demandé de modifier en conséquence la classe ``DirView``.

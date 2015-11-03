@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2015-06-09
+    date = 2015-11-03
 
 
 This module contains mainly classes and functions producing strings useful to be
@@ -14,7 +14,8 @@ from mistool.config.frame import ALL_FRAMES
 from mistool.os_use import PPath, \
                            _XTRA, _FILE, _DIR, \
                            _FILE_DIR_QUERIES, \
-                           OTHER_FILES_TAG, EMPTY_DIR_TAG
+                           _ALL, _NOT, _RELSEARCH, _XTRA, \
+                           _FILE, _DIR, _EMPTY, _OTHER_FILES
 
 from mistool.latex_use import escape as latex_escape
 
@@ -923,14 +924,13 @@ info::
             special ellipsis ``"..."`` is met (ellipsis are used to indicate
             unmatching files).
     """
-    FILE_KINDS = ['file', 'other_files']
-    DIR_KINDS  = ['dir', 'content_dir', 'empty_dir']
+    _ELLIPSIS = "..."
 
     ASCII_DECOS = {
         k: v
         for v, keys in {
-            "+"  : DIR_KINDS,
-            "*"  : FILE_KINDS,
+            "+"  : [_DIR, _EMPTY, _OTHER_FILES],
+            "*"  : [_FILE],
             " "*4: ['tab'],
         }.items()
         for k in keys
@@ -1060,7 +1060,7 @@ info::
         nb_path_formats = len(self._display & self._PATH_FORMATS)
 
         if nb_path_formats == 0:
-            self._display.add(_SHORT_PATH)
+            self._display.add(self._SHORT_PATH)
 
         elif nb_path_formats != 1:
             raise ValueError(
@@ -1090,6 +1090,9 @@ info::
 
     def buildviews(self):
         """
+????
+
+
 prototype::
     see = self.sort , self.ascii , self.latex , self.toc , self.tree
 
@@ -1148,8 +1151,15 @@ info::
         self._extradepth = int(self._MAIN_PATH in self._display)
 
         self._all_listview = [
-            self._metadatas(x)
-            for x in self.ppath.walk(allregpath)
+            {
+                'tag'  : tag,
+                'depth': ppath.depth_in(self.ppath) + self._extradepth,
+                'ppath': ppath
+            }
+            for ppath, tag in self.ppath.walk(
+                regpath  = allregpath,
+                givetags = True
+            )
         ]
 
         self._filedir_queries = queries & _FILE_DIR_QUERIES
@@ -1161,37 +1171,6 @@ info::
         self.sort()
 
         self._mustberebuilt = False
-
-
-    def _metadatas(self, ppath):
-        """
-prototype::
-    return = dict ;
-             the dictionnary stores the path, its depth and the kind of object
-             pointed by the path (this is for the elements in ``self.listview``
-             and partially for ``self.treeview``)
-        """
-        if ppath.name == EMPTY_DIR_TAG:
-            kind  = "empty_dir"
-            ppath = ppath.parent
-
-        elif ppath.name == OTHER_FILES_TAG:
-            kind  = "other_files"
-            ppath = ppath.parent / "..."
-
-        elif ppath.is_dir():
-            kind = "dir"
-
-        else:
-            kind = "file"
-
-        metadatas = {
-            'kind' : kind,
-            'depth': ppath.depth_in(self.ppath) + self._extradepth,
-            'ppath': ppath
-        }
-
-        return metadatas
 
 
     def _build_listview(self):
@@ -1207,37 +1186,59 @@ prototype::
         _listview = []
 
         for metadatas in self._all_listview:
-            if metadatas['kind'] in ["empty_dir", "other_files"]:
+            addthis = bool(
+                self._MAIN_PATH in self._display
+                or
+                metadatas['ppath'] != self.ppath
+            )
+
+            if metadatas['tag'] in [_EMPTY, _OTHER_FILES]:
                 if addall:
+                    if addthis:
+                        _listview.append(metadatas)
+
+                    if metadatas['tag'] == _OTHER_FILES:
+                        _listview.append({
+                            'tag'  : _FILE,
+                            'depth': metadatas['depth'] + 1,
+                            'ppath': metadatas['ppath'] / self._ELLIPSIS
+                        })
+
+            elif metadatas['tag'] in self._filedir_queries:
+                if addthis:
                     _listview.append(metadatas)
 
-            elif metadatas['kind'] in self._filedir_queries:
-                _listview.append(metadatas)
-
         _listview.sort(key = lambda x: str(x['ppath']))
+
 
 # We have to find folders with only unmacthing files or with matching and
 # unmacthing files, and also all the parent directories.
 #
 # Main or not main, that is the question.
         if self._MAIN_PATH in self._display:
-            self.listview = [{
-                'kind' : 'dir',
-                'depth': 0,
-                'ppath': self.ppath
-            }]
+            if _listview \
+            and _listview[0]["ppath"] != self.ppath:
+                self.listview = [{
+                    'tag'  : _DIR,
+                    'depth': 0,
+                    'ppath': self.ppath
+                }]
+
+            else:
+                self.listview = []
+
             lastreldirs   = [PPath('.')]
 
         else:
             self.listview = []
             lastreldirs   = []
 
-        for i, metadatas in enumerate(_listview):
+        for metadatas in _listview:
             relpath = metadatas['ppath'].relative_to(self.ppath)
             parents = relpath.parents
 
 # We have to add all the parent directories !
-            if "dir" in metadatas['kind']:
+            if "dir" in metadatas['tag']:
                 lastreldirs.append(metadatas['ppath'].relative_to(self.ppath))
 
             else:
@@ -1245,17 +1246,21 @@ prototype::
                     if parent not in lastreldirs:
                         ppath = self.ppath / parent
 
-                        self.listview.append({
-                            'kind' : 'dir',
-                            'depth': ppath.depth_in(self.ppath) \
-                                     + self._extradepth,
-                            'ppath': ppath
-                        })
+                        if self._MAIN_PATH in self._display \
+                        or ppath != self.ppath:
+                            self.listview.insert(
+                                -1,
+                                {
+                                    'tag'  : _DIR,
+                                    'depth': ppath.depth_in(self.ppath) \
+                                             + self._extradepth,
+                                    'ppath': ppath
+                                }
+                            )
 
                         lastreldirs.append(parent)
 
             self.listview.append(metadatas)
-
 
     def _build_treeview(self):
         """
@@ -1283,7 +1288,7 @@ prototype::
             metadatas = listview[i]
 
 # Simply a file.
-            if 'file' in metadatas['kind']:
+            if metadatas['tag'] == _FILE:
                 treeview.append(metadatas)
                 i += 1
 
@@ -1330,7 +1335,7 @@ prototype::
     return = str ;
              the value to use for the sorting
         """
-        if metadatas['ppath'].name == "...":
+        if metadatas['ppath'].name == self._ELLIPSIS:
             return self._ellipsi_sort_value
 
         else:
@@ -1444,11 +1449,11 @@ prototype::
              the string to print for a path
         """
 # << Warning ! >> The paths are whole ones by default !
-        kind  = metadatas["kind"]
         ppath = metadatas["ppath"]
         name  = ppath.name
 
-        if name == "..." or self._SHORT_PATH in self._display:
+        if name == self._ELLIPSIS \
+        or self._SHORT_PATH in self._display:
             strpath = name
 
         elif self._REL_PATH in self._display:
@@ -1481,7 +1486,7 @@ prototype::
                 depth = metadatas["depth"]
                 tab   = self.ASCII_DECOS['tab']*depth
 
-                decokind    = self.ASCII_DECOS[metadatas["kind"]]
+                decokind    = self.ASCII_DECOS[metadatas["tag"]]
                 pathtoprint = self.pathtoprint(metadatas)
 
                 text.append(
@@ -1545,7 +1550,7 @@ prototype::
 
         for i, metadatas in enumerate(treeview):
 # Rule regarding the kind of object.
-            isdir = 'dir' in metadatas['kind']
+            isdir = 'dir' in metadatas['tag']
 
 # Rule before any kind of rule.
             if thisdepth == 0:
@@ -1611,7 +1616,7 @@ prototype::
 
             for metadatas in self.listview:
 # One file
-                if "file" in metadatas["kind"]:
+                if metadatas["tag"] == _FILE:
                     thisparent = str(
                         metadatas["ppath"].parent.relative_to(self.ppath)
                     )
@@ -1634,7 +1639,7 @@ prototype::
                     )
 
 # One empty directory
-                elif metadatas["kind"] == "empty_dir":
+                elif metadatas["tag"] == "empty_dir":
                     dirpath = mainname / metadatas["ppath"].relative_to(
                         self.ppath
                     )

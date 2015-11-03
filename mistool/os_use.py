@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2015-06-04
+    date = 2015-11-03
 
 
 The main feature of this module is the class ``PPath`` which is an enhanced
@@ -55,6 +55,80 @@ prototype::
 
     else:
         return osname.lower()
+
+
+# -------------------------------- #
+# -- CHANGING CURRENT DIRECTORY -- #
+# -------------------------------- #
+
+class cd:
+    """
+prototype::
+    type = cls ;
+           this class i a context manager that allows to easily change the
+           current directory as this can be done using term::``cd`` in a ¨unix
+           system, or term::``chdir`` in a ¨win sytem
+
+    arg-attr = PPath: ppath ;
+               this gives the path where to go
+
+
+Let's suppose that we have the following directory having the full path
+path::``/Users/projects/basic_dir`` in a ¨unix system.
+
+dir::
+    + basic_dir
+        * latex_1.tex
+        * latex_2.tex
+        * python_1.py
+        * python_2.py
+        * python_3.py
+        * python_4.py
+        * text_1.txt
+        * text_2.txt
+        * text_3.txt
+        + empty_dir
+        + sub_dir
+            * code_A.py
+            * code_B.py
+            * slide_A.pdf
+            * slide_B.pdf
+            + sub_sub_dir
+                * doc.pdf
+
+
+In the following ¨unix example, the use of ``subprocess.call("ls")`` is similar
+to use term::``ls`` directly in a ¨unix terminal so as to have the list of all
+files and directories directly contained in a the current folder. As you can
+see, the lists of files and folders correspond to the current directory choosen
+with the class ``cd``.
+
+pyterm::
+    >>> import subprocess
+    >>> from mistool.os_use import cd
+    >>> with cd("/Users/projects/basic_dir"):
+    ...     subprocess.call("ls")
+    empty_dir	python_1.py	python_4.py	text_2.txt
+    latex_1.tex	python_2.py	sub_dir		text_3.txt
+    latex_2.tex	python_3.py	text_1.txt
+    >>> with cd("/Users/projects/basic_dir/sub_dir"):
+    ...     subprocess.call("ls")
+    code_A.py	slide_A.pdf	sub_sub_dir
+    code_B.py	slide_B.pdf
+
+
+info::
+    All the code comes from cf::``this post ; http://stackoverflow.com/a/13197763/4589608``.
+"""
+    def __init__(self, ppath):
+        self._newstrpath = str(ppath.normpath)
+
+    def __enter__(self):
+        self._savedpath = os.getcwd()
+        os.chdir(self._newstrpath)
+
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self._savedpath)
 
 
 # --------------------------------------------- #
@@ -183,6 +257,33 @@ pyterm::
     return cls.with_suffix(ext)
 
 
+def _ppath_is_empty(cls):
+    """
+prototype::
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``with_ext`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``with_ext`` of the class ``PPath``
+
+    return = bool ;
+             if ``PPath`` is not an existing directory an error is raised, but
+             if the ``PPath`` points to an empty directory, ``False`` is
+             returned, otherwise that is ``True`` that is returned
+    """
+    if not cls.is_dir():
+        raise OSError("the path does not point to an existing directory")
+
+    for onepath in cls.walk():
+        return False
+
+    return True
+
+
 # ----------------------- #
 # -- FORMATTING A PATH -- #
 # ----------------------- #
@@ -208,14 +309,14 @@ prototype::
 
 
 Here is an example made on the ¨mac of the author of ¨mistool where the user's
-folder is path::``/Users/projetmbc``. The ``PosixPath`` refers to the Unix
+folder is path::``/Users/projects``. The ``PosixPath`` refers to the Unix
 version of ``PPath``.
 
 pyterm::
     >>> from mistool.os_use import PPath
     >>> path = PPath("~/dir_1/dir_2/dir_3/../../file.txt")
     >>> path.normpath
-    PosixPath('/Users/projetmbc/dir_1/file.txt')
+    PosixPath('/Users/projects/dir_1/file.txt')
     """
     return PPath(
         os.path.normpath(
@@ -245,12 +346,12 @@ prototype::
 
 
 Here is an example made on the Mac of the author of ¨mistool. In that case
-path::``/Users/projetmbc`` is the user's folder. The ``PosixPath`` refers to
+path::``/Users/projects`` is the user's folder. The ``PosixPath`` refers to
 the Unix version of ``PPath``.
 
 pyterm::
     >>> from mistool.os_use import PPath
-    >>> path = PPath("/Users/projetmbc/dir_1/dir_2/dir_3/../../file.txt")
+    >>> path = PPath("/Users/projects/dir_1/dir_2/dir_3/../../file.txt")
     >>> path.shortpath
     PosixPath('~/dir_1/file.txt')
     """
@@ -492,10 +593,13 @@ pyterm::
 #     * http://stackoverflow.com/a/817117/4589608
 #     * http://stackoverflow.com/questions/20294704/which-pattern-has-been-found/20294987
 
-_ALL, _DIR, _EMPTY, _FILE, _NOT, _RELSEARCH, _XTRA \
-= "all", "dir", "empty", "file", "not", "relative", "xtra"
+_FILE, _DIR, _EMPTY, _OTHER_FILES \
+= "file", "dir", "empty_dir", "dir_other_files"
 
-_PATH_QUERIES      = set([_ALL, _DIR, _EMPTY, _FILE, _NOT, _RELSEARCH, _XTRA])
+_ALL, _NOT, _RELSEARCH, _XTRA \
+= "all", "not", "relative", "xtra"
+
+_PATH_QUERIES      = set([_DIR, _EMPTY, _FILE, _ALL, _NOT, _RELSEARCH, _XTRA])
 _LONG_PATH_QUERIES = {x[0]: x for x in _PATH_QUERIES}
 _FILE_DIR_QUERIES  = set([_DIR, _FILE])
 _ALL_QUERY         = set([_ALL])
@@ -739,12 +843,17 @@ info::
 # -- WALK AND SEE -- #
 # ------------------ #
 
-OTHER_FILES_TAG = "::...files...::"
-EMPTY_DIR_TAG   = "::...empty...::"
+def __tagsreturnedbywalk(ppath, tag, givetags):
+    if givetags:
+        return ppath, tag
+    else:
+        return ppath
 
-_ELLIPSIS_NAMES = [EMPTY_DIR_TAG, OTHER_FILES_TAG]
-
-def _ppath_walk(cls, regpath = "relative::**"):
+def _ppath_walk(
+    cls,
+    regpath  = "relative::**",
+    givetags = False
+):
     """
 prototype::
     type = method ;
@@ -759,28 +868,40 @@ prototype::
     arg = str: regpath = "relative::**" ;
           this is a string that follows some rules named regpath rules (see
           the documentation of the function ``_ppath_regpath2meta``)
+    arg = bool: givetags = False ;
+          by default, the walk yields only ``PPath``, but if you use ``givetags
+          = True``, then the walk yields a couple made of a ``PPath`` and an
+          additional tag to know which kind of ``PPath`` has been yield
 
-    yield = PPath ;
-            whole path of files and directories matching the "regpath" pattern
-            (in each folder, the files are always yield before the sub folders)
+    yield = if givetags == False then PPath else (PPath, str);
+            the ``PPath`` are whole path of files and directories matching the
+            "regpath" pattern (in each folder, the files are always yield before
+            the sub folders), and the strings are tags that can be "file",
+            "dir", "empty_dir" or "dir_other_files" (this is an additional
+            information that is used by the class ``term_use.DirView``)
 
 
 Let's suppose that we have the following directory having the full path
-path::``/Users/projects/dir`` in a ¨unix system.
+path::``/Users/projects/basic_dir`` in a ¨unix system.
 
 dir::
-    + dir
-        * code_1.py
-        * code_2.py
-        * file_1.txt
-        * file_2.txt
-        + emptydir
-        + subdir
-            * slide_A.pdf
-            * slide_B.pdf
+    + basic_dir
+        * latex_1.tex
+        * latex_2.tex
+        * python_1.py
+        * python_2.py
+        * python_3.py
+        * python_4.py
+        * text_1.txt
+        * text_2.txt
+        * text_3.txt
+        + empty_dir
+        + sub_dir
             * code_A.py
             * code_B.py
-            + subsubdir
+            * slide_A.pdf
+            * slide_B.pdf
+            + sub_sub_dir
                 * doc.pdf
 
 
@@ -795,52 +916,57 @@ pyterm::
     >>> for p in folder.walk("dir::**"):
     ...     print("+", p)
     ...
-    + /Users/projects/dir/emptydir
-    + /Users/projects/dir/subdir
-    + /Users/projects/dir/subdir/subsubdir
+    + /Users/projects/basic_dir/empty_dir
+    + /Users/projects/basic_dir/sub_dir
+    + /Users/projects/basic_dir/sub_dir/sub_sub_dir
     >>> for p in folder.walk("**.py"):
     ...     print("+", p)
     ...
-    + /Users/projects/dir/code_1.py
-    + /Users/projects/dir/code_2.py
-    + /Users/projects/dir/subdir/code_A.py
-    + /Users/projects/dir/subdir/code_B.py
+    + /Users/projects/basic_dir/python_1.py
+    + /Users/projects/basic_dir/python_2.py
+    + /Users/projects/basic_dir/python_3.py
+    + /Users/projects/basic_dir/python_4.py
+    + /Users/projects/basic_dir/sub_dir/code_A.py
+    + /Users/projects/basic_dir/sub_dir/code_B.py
     >>> for p in folder.walk("relative file::*.py"):
     ...     print("+", p)
     ...
-    + /Users/projects/dir/code_1.py
-    + /Users/projects/dir/code_2.py
-
-
-If you want to see the existing files that do not match the regpath and also the
-empty folders, you will have to the query ``xtra`` (this feature is used  by the
-class ``DirView``).
-In the example above, that uses the same directory as before, you can see that
-there are special names ``::...files...::`` and ``::...empty...::`` which
-indicate the extra informations.
-
-
-pyterm::
-    >>> from mistool.os_use import PPath
-    >>> folder = PPath("/Users/projects/dir")
-    >>> for p in folder.walk("xtra file::**.py"):
-    ...     print("+", p)
-    ...
-    + /Users/projects/dir/code_1.py
-    + /Users/projects/dir/code_2.py
-    + /Users/projects/dir/::...files...::
-    + /Users/projects/dir/emptydir/::...empty...::
-    + /Users/projects/dir/subdir/code_A.py
-    + /Users/projects/dir/subdir/code_B.py
-    + /Users/projects/dir/subdir/::...files...::
-    + /Users/projects/dir/subdir/subsubdir/::...files...::
+    + /Users/projects/basic_dir/python_1.py
+    + /Users/projects/basic_dir/python_2.py
+    + /Users/projects/basic_dir/python_3.py
+    + /Users/projects/basic_dir/python_4.py
 
 
 info::
-    The special names are stored in the global variables ``OTHER_FILES_TAG`` and
-    ``EMPTY_DIR_TAG`` which are strings.
+    If you want to see the existing files that do not match the regpath and also
+    the empty folders, you will have to use the query ``xtra`` together with
+    ``givetags = True`` (this feature is used  by the class ``DirView``). Here
+    is an example.
+
+    pyterm::
+        >>> from mistool.os_use import PPath
+        >>> folder = PPath("/Users/projects/dir")
+        >>> for p, tag in folder.walk(
+        ...     regpath = "xtra file::**.py",
+        ...     givetags = True
+        ... ):
+        ...     print("+", tag, ">>>", p)
+        ...
+        + file >>> /Users/projects/basic_dir/python_1.py
+        + file >>> /Users/projects/basic_dir/python_2.py
+        + file >>> /Users/projects/basic_dir/python_3.py
+        + file >>> /Users/projects/basic_dir/python_4.py
+        + dir_other_files >>> /Users/projects/basic_dir
+        + empty_dir >>> /Users/projects/basic_dir/empty_dir
+        + file >>> /Users/projects/basic_dir/sub_dir/code_A.py
+        + file >>> /Users/projects/basic_dir/sub_dir/code_B.py
+        + dir_other_files >>> /Users/projects/basic_dir/sub_dir
+        + dir_other_files >>> /Users/projects/basic_dir/sub_dir/sub_sub_dir
+
+    The special names are stored in the global variables ``_FILE``, ``_DIR``,
+    ``_EMPTY`` and ``_OTHER_FILES`` which are strings.
     This is useful to avoid typing errors if you want to use the query ``xtra``
-    as the class ``DirView`` does.
+    together with ``givetags = True`` as the class ``DirView`` does.
     """
 # Do we have an existing directory ?
     if not cls.is_dir():
@@ -902,13 +1028,21 @@ info::
                     rel_file = str(ppath_full_file.relative_to(cls))
 
                     if match(rel_file):
-                        yield ppath_full_file
+                        yield __tagsreturnedbywalk(
+                            ppath    = ppath_full_file,
+                            tag      = _FILE,
+                            givetags = givetags
+                        )
 
                     else:
                         nomatch_files_found = True
 
                 elif match(full_file):
-                    yield PPath(full_file)
+                    yield __tagsreturnedbywalk(
+                        ppath    = PPath(full_file),
+                        tag      = _FILE,
+                        givetags = givetags
+                    )
 
                 else:
                     nomatch_files_found = True
@@ -916,17 +1050,32 @@ info::
 # A new directory ?
         if addthisdir:
             if isdirempty:
-                yield root_ppath / PPath(EMPTY_DIR_TAG)
+                tag = _EMPTY
 
             else:
-                yield root_ppath
+                tag = _DIR
+
+            yield __tagsreturnedbywalk(
+                ppath    = root_ppath,
+                tag      = tag,
+                givetags = givetags
+            )
 
         elif addextra:
             if isdirempty:
-                yield root_ppath / PPath(EMPTY_DIR_TAG)
+                tag = _EMPTY
 
             elif nomatch_files_found:
-                yield root_ppath / PPath(OTHER_FILES_TAG)
+                tag = _OTHER_FILES
+
+            else:
+                tag = _DIR
+
+            yield __tagsreturnedbywalk(
+                ppath    = root_ppath,
+                tag      = tag,
+                givetags = givetags
+            )
 
 
 def _ppath_see(cls):
@@ -1008,7 +1157,7 @@ prototype::
 
 
 Here is an example of creations relatively to a current directory having path
-path::``/Users/projetmbc``. You can see that some exceptions can be raised.
+path::``/Users/projects``. You can see that some exceptions can be raised.
 
 pyterm::
     >>> from mistool.os_use import PPath
@@ -1056,6 +1205,39 @@ info::
 # ------------ #
 # -- REMOVE -- #
 # ------------ #
+
+def _ppath_can_be_removed(cls, safemode):
+    """
+prototype::
+    type = method ;
+           a hack is used so as to transform this function into a method
+           ``with_ext`` of the class ``PPath`` (uggly but functional)
+
+    see = PPath
+
+    arg = PPath: cls ;
+          this argument nearly refers to the ``self`` used by the associated
+          method ``with_ext`` of the class ``PPath``
+    arg = bool: safemode ;
+          using ``safemode = True`` protects any existing file or directory
+          whereas ``safemode = True`` makes any file or directory removable
+
+    action = if the file or the directory can't be removed regarding to the
+    value of ``safemode``, an OS error is raised.
+    """
+    if safemode:
+        if cls.is_file():
+            raise OSError(
+                "impossible to remove the file (use ``safemode = False`` "
+                "to force the erasing)"
+            )
+
+        elif cls.is_dir():
+            raise OSError(
+                "impossible to remove the directory (use ``safemode = False`` "
+                "to force the erasing)"
+            )
+
 
 def _ppath_remove(cls):
     """
@@ -1142,7 +1324,7 @@ prototype::
 # -- MOVE & COPY -- #
 # ----------------- #
 
-def _ppath_copy_to(cls, path):
+def _ppath_copy_to(cls, dest, safemode = True):
     """
 prototype::
     type = method ;
@@ -1155,31 +1337,69 @@ prototype::
           this argument nearly refers to the ``self`` used by the associated
           method ``create`` of the class ``PPath``
     arg = PPath: path
+    arg = bool: safemode = True;
+          this argument is a security to avoid the erasing of an existing file
+          or directory. This allows the savvy developer to erase file or
+          directory during a copy by using ``safemode = False``
 
-    action = this method copies the current file to the destination given by
-             the argument ``path``
+    action = if the current ``PPath`` is an existing file or directory, the
+             method will copy it to the destination given by the argument
+             ``path``
 
 
 warning::
-    The current path is not changed and the copy of a directory is not yet
-    supported.
+     The use of ``safemode = False`` will erase **everything** at the destination
+     path.
     """
-    if cls.is_file():
-        parent = path.parent
+# Is the copy allowed ?
+    dest.can_be_removed(safemode)
 
-        if not parent.is_dir():
-            parent.create(_DIR)
+# We have to use a clean way !
+    try:
+# Copy of a file.
+        if cls.is_file():
+            dest.parent.create(_DIR)
 
-        shutil.copy(str(cls), str(path))
+            shutil.copy(str(cls), str(dest))
 
-    elif cls.is_dir():
-        raise ValueError("copying a directory is not yet supported.")
+# Copy of a directory.
+#
+# WARNING !!! We can't call the method ``create`` during the recursive walk !
+        elif cls.is_dir():
+            print("cls & dest", cls & dest)
+            if cls == cls & dest:
+                raise OSError(
+                    "copy of a directory inside one of its sub directory "
+                    "is not supported (be aware of recursive copying)"
+                )
 
-    else:
-        raise OSError("path points nowhere.")
+            dest.parent.create(_DIR)
 
+            for onepath in cls.walk():
+                relpath  = onepath - cls
+                destpath = dest / relpath
 
-def _ppath_move_to(cls, path):
+                if onepath.is_file():
+                    onepath.copy_to(
+                        dest     = destpath,
+                        safemode = safemode
+                    )
+
+                elif onepath.is_empty():
+                    destpath.create(_DIR)
+
+# Path points nowhere !
+        else:
+            raise OSError("destination path points nowhere.")
+
+# Erase anything in case of any OS problem...
+    except OSError as e:
+        if dest.is_file() or dest.is_dir():
+            dest.remove()
+
+        raise OSError(e)
+
+def _ppath_move_to(cls, dest, safemode = True):
     """
 prototype::
     type = method ;
@@ -1191,7 +1411,11 @@ prototype::
     arg = PPath: cls ;
           this argument nearly refers to the ``self`` used by the associated
           method ``create`` of the class ``PPath``
-    arg = PPath: path
+    arg = PPath: dest
+    arg = bool: safemode = True;
+          this argument is a security to avoid the erasing of an existing file
+          or directory. This allows the savvy developer to erase file or
+          directory during a move by using ``safemode = False``
 
     action = this method moves the current file to the destination given by
              the argument ``path``
@@ -1203,28 +1427,39 @@ info::
 
 
 warning::
-    The current path is not changed and moving a directory is not yet supported.
+     The use of ``safemode = False`` will erase **everything** at the destination
+     path.
     """
+# Moving a file...
     if cls.is_file():
-        cls.copy_to(path)
+        cls.copy_to(
+            dest     = dest,
+            safemode = safemode
+        )
 
 # Let's be cautious...
-        if path.is_file():
+        if dest.is_file():
             cls.remove()
 
         else:
             raise OSError("moving the file has failed.")
 
+# Moving a directory...
     elif cls.is_dir():
-        raise ValueError("moving directories is not yet supported.")
+        cls.copy_to(
+            dest     = dest,
+            safemode = safemode
+        )
+
+# Let's be cautious...
+        if dest.is_dir():
+            cls.remove()
+
+        else:
+            raise OSError("moving the diretory has failed.")
 
     else:
         raise OSError("current path points nowhere.")
-
-# TO NOT BE USED !
-#
-# def _ppath___repr__(cls):
-#     return "PPath({!r})".format(cls.as_posix())
 
 
 # ------------------------ #
@@ -1236,6 +1471,7 @@ _SPECIAL_FUNCS = [
     for x in dir()
     if x.startswith("_ppath_")
 ]
+
 
 class PPath(pathlib.Path):
     """
@@ -1255,6 +1491,7 @@ prototype::
         for specialname, specialfunc in _SPECIAL_FUNCS:
             setattr(cls, specialname, globals()[specialfunc])
 
+# Everything has been added !
         return cls._from_parts(args)
 
 
@@ -1271,6 +1508,12 @@ _SUBPROCESS_METHOD = {
 # compilation. Indeed it returns all this stuff in one string.
     False: check_output
 }
+
+# Sources:
+#     * http://stackoverflow.com/a/430781/4589608
+#     * http://stackoverflow.com/a/30439865/4589608
+#     * http://stackoverflow.com/a/817117/4589608
+_ESCAPED_SPACE_PATTERN = re.compile(r"(?<!\\)((?:\\\\)*) ")
 
 def runthis(
     cmd,
@@ -1297,7 +1540,7 @@ prototype::
 
 
 For our example, let's consider the basic following script which has the path
-path::``/Users/projetmbc/script.py``.
+path::``/Users/projects/script.py``.
 
 python::
     print("Everything is ok.")
@@ -1309,16 +1552,48 @@ want to see what the script launched prints.
 
 pyterm::
     >>> from mistool.os_use import PPath, runthis
-    >>> pyfile = PPath("/Users/projetmbc/script.py")
+    >>> pyfile = PPath("/Users/projects/script.py")
     >>> runthis(cmd = "python3", ppath = pyfile)
     >>> runthis(cmd = "python3", ppath = pyfile  , showoutput = True)
     Everything is ok.
+
+
+warning::
+    The only way to use arguments containing spaces is to escape the spaces
+    using ``\ `` !
     """
-    cmds = [x.strip() for x in cmd.split(" ")]
+# We have to take care of escaped spaces.
+#
+# For example,
+#     "/Users/projects/git\ config\ perso/gitignore"
+# is a single argument but we have to take care of case like
+#     "/Users/projects/git\\ config\ perso/gitignore"
+# which is made of the two arguments
+#     "/Users/projects/git\\"
+# and
+#     "config\ perso/gitignore".
+    cmds    = []
+    lastarg = None
+
+    for arg in _ESCAPED_SPACE_PATTERN.split(cmd):
+        if arg == "\\\\":
+            if lastarg == '':
+                cmds.append(arg)
+
+            elif cmds:
+                cmds[-1] += arg
+
+            else:
+                cmds = [arg]
+
+        elif arg:
+            cmds.append(arg)
+
+        lastarg = arg
 
 # Commands that act one a file or a folder.
     if ppath != None:
-        cmds.append(str(ppath))
+        cmds.append('"{0}"'.format(ppath))
 
         fromprocess = _SUBPROCESS_METHOD[showoutput](
 # We go in the directory of the file to compile.

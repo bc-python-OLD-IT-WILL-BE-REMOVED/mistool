@@ -1,0 +1,5 @@
+==========
+2015-10-27
+==========
+
+**Réorganisation sur ¨github:** une organisation a été créée pour les outils ¨python à l'adresse cf::``https://github.com/bc-python-tools``. Ceci implique que ¨mistool sera dorénavant hebergé à l'adresse cf::``https://github.com/bc-python-tools/mistool``.

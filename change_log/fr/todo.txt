@@ -2,7 +2,6 @@
 misTool - TODO
 ==============
 
-
 ???? ---------->    **Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a passer à ``setuptools``, un outil plus sympathique à employer. Ceci se fait très efficacement grâce à ¨setytup un autre projet de l'auteur de ¨mistool. ¨setytup est disponible sur ¨pypi et ¨github.
 
 
@@ -18,33 +17,6 @@ misTool - TODO
     3) L'étrange package maison ``pdt`` n'est plus utilisé. À la place, on utilise tout simplement ¨orpyste qui est devenu totalement indépendant de ¨mistool. Et oui, on se professionnalise... ;-)
 
 
-
-
-> ---------------------------- <
-
-???? ---------->    os.scandir à utiliser au lieu de os.walk !!!!!
-
-
-???? ---------->    >>> subprocess.run
-    rend inutile runthis ????
-
-
-???? ---------->    BUG !!!!
-
-pb car ::...empty...:: renvoyé meêm sans xtra
-
-
-pb aussi
-
->>> from mistool.term_use import DirView, PPath
->>> dirview = DirView(dir, regpath="*(/*){0,2}", display="found")
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-  File "/anaconda/lib/python3.4/site-packages/mistool/term_use.py", line 1010, in __init__
-    self.display = display
-  File "/anaconda/lib/python3.4/site-packages/mistool/term_use.py", line 1060, in display
-    self._display.add(_SHORT_PATH)
-NameError: name '_SHORT_PATH' is not defined
 ???? ---------->    **Publication de la nouvelle version de ``mistool`` :** toutes les améliorations techniques ci-dessous  permettennt de rendre public l'actuelle nouvelle version qui casse la rétro-compatibilité (voir les ¨chgts depuis le date::``2015-05-26``). Autant considérer ce package comme un tout nouveau !
 
 
