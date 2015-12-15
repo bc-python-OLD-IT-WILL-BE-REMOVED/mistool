@@ -1,0 +1,5 @@
+==========
+2015-12-15
+==========
+
+**Amélioration du code de ``os_use.PPath``:** grâce à cf::``ce post ; http://stackoverflow.com/a/34116756/4589608``, le code est bien plus propre maintenant.

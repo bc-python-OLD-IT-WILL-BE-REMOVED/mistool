@@ -1,4 +1,14 @@
 ==========
+2015-11-08
+==========
+
+**Ajout d'une licence :** le projet est maintenant sous licence GNU GENERAL PUBLIC LICENSE Version 3, 29 Juin 2007.
+
+
+**Noms des versions :** les numéros de version deviennent standards en suivant la convention ``majeur.mineur.patch-extrainfo``. Cette norme étant suivie par tout le monde, soyons grégaire pour devenir clair... Cette version de ¨mistool a pour numéro ``0.1.0-beta`` car le projet ¨mistool reste à l'état très `¨beta` (il reste à l'utiliser un peu pour voir si le `¨beta` est de trop).
+
+
+==========
 2015-11-03
 ==========
 

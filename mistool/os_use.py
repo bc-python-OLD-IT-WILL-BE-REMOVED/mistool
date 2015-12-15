@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2015-11-03
+    date = 2015-12-15
 
 
 The main feature of this module is the class ``PPath`` which is an enhanced
@@ -64,7 +64,7 @@ prototype::
 class cd:
     """
 prototype::
-    type = cls ;
+    type = self ;
            this class i a context manager that allows to easily change the
            current directory as this can be done using term::``cd`` in a ¨unix
            system, or term::``chdir`` in a ¨win sytem
@@ -131,43 +131,90 @@ info::
         os.chdir(self._savedpath)
 
 
-# --------------------------------------------- #
-# -- SPECIAL FUNCTIONS FOR THE SPECIAL CLASS -- #
-# --------------------------------------------- #
+# ------------------------ #
+# -- OUR ENHANCED CLASS -- #
+# ------------------------ #
 
-# << Warning ! >>
+# Sublcassing ``pathlib.Path`` is not straightforward ! We have to use an uggly
+# way.
 #
-# Sublcassing ``pathlib.Path`` is not easy ! We have to dirty a little our
-# hands. Hints are hidden in the source and especially in the code of the class
-# ``pathlib.PurePath``.
-#
-# Sources:
-#     * http://stackoverflow.com/a/29851079/4589608
-#     * https://hg.python.org/cpython/file/151cab576cab/Lib/pathlib.py
-#
-# Extra methods added to ``PPath`` must be defined using functions. We choose to
-# use names which all llok like ``_ppath_somename`` where ``somename`` will be
-# the name used in the class ``PPath``.
+# Source :
+#     * http://stackoverflow.com/a/34116756/4589608
 
-
-# ----------- #
-# -- ABOUT -- #
-# ----------- #
-
-@property
-def _ppath_parent(cls):
+class PPath(type(pathlib.Path())):
     """
 prototype::
-    type = property ;
-           a hack is used so as to transform this function into a property
-           method ``parent`` of the class ``PPath`` (uggly but functional)
+    type = self ;
+           this class adds some functionalities to the standard class
+           ``pathlib.Path``
 
-    see = PPath
+    see = pathlib.Path
+    """
+# -- CONSTANTS FOR REGPATHS -- #
 
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``parent`` of the class ``PPath``
+# Sources for the regex:
+#
+#     * http://stackoverflow.com/a/430781/4589608
+#     * http://stackoverflow.com/a/30439865/4589608
+#     * http://stackoverflow.com/a/817117/4589608
+#     * http://stackoverflow.com/questions/20294704/which-pattern-has-been-found/20294987
 
+    _FILE, _DIR, _EMPTY, _OTHER_FILES \
+    = "file", "dir", "empty_dir", "dir_other_files"
+
+    _ALL, _NOT, _RELSEARCH, _XTRA \
+    = "all", "not", "relative", "xtra"
+
+    _PATH_QUERIES = set([_DIR, _EMPTY, _FILE, _ALL, _NOT, _RELSEARCH, _XTRA])
+
+    _LONG_PATH_QUERIES = {x[0]: x for x in _PATH_QUERIES}
+    _FILE_DIR_QUERIES  = set([_DIR, _FILE])
+
+    _RE_SPECIAL_CHARS = pattern = re.compile(
+        r"(?<!\\)((?:\\\\)*)((\*+)|(@)|(×)|(\.))"
+    )
+
+    _REPLACEMENTS = {
+        '**': ".+",
+        '.' : r"\.",
+        '@' : ".",
+        '×' : "*",
+    }
+
+    _SPE_CHARS = list(_REPLACEMENTS) + ["*"]
+
+    _REPLACEMENTS['\\'] = "[^\\]+"
+    _REPLACEMENTS['/']  = "[^/]+"
+
+# -- CONSTANTS FOR CREATION -- #
+
+    _ALL_CREATE_KINDS  = set([_FILE, _DIR])
+    _LONG_CREATE_KINDS = {x[0]: x for x in _ALL_CREATE_KINDS}
+
+
+# -- ABOUT -- #
+
+    def is_empty(self):
+        """
+    prototype::
+    return = bool ;
+         if ``PPath`` is not an existing directory an error is raised, but
+         if the ``PPath`` points to an empty directory, ``False`` is
+         returned, otherwise that is ``True`` that is returned
+         """
+        if not self.is_dir():
+            raise OSError("the path does not point to an existing directory")
+
+        for onepath in self.walk():
+            return False
+
+        return True
+
+
+    @property
+    def parent(self):
+        """
+prototype::
     return = PPath ;
              a new path corresponding to the first "parent folder" of the
              current path
@@ -181,24 +228,34 @@ pyterm::
     >>> path = PPath("dir/subdir/file.txt")
     >>> path.parent
     PosixPath('dir/subdir')
-    """
-    return cls.parents[0]
+        """
+
+        return self.parents[0]
 
 
-@property
-def _ppath_ext(cls):
-    """
+    @property
+    def depth(self):
+        """
 prototype::
-    type = property ;
-           a hack is used so as to transform this function into a property
-           method ``ext`` of the class ``PPath`` (uggly but functional)
+    return = int ;
+             the absolute depth of a path
 
-    see = PPath
 
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``ext`` of the class ``PPath``
+Here is an example of use.
 
+pyterm::
+    >>> from mistool.os_use import PPath
+    >>> path = PPath("/Users/projects/source/misTool/os_use.py")
+    >>> print(path.depth)
+    4
+        """
+        return len(self.parents) - 1
+
+
+    @property
+    def ext(self):
+        """
+prototype::
     return = str ;
              the extension of the path
 
@@ -214,23 +271,16 @@ pyterm::
     'txt'
     >>> print(path.suffix)
     '.txt'
-    """
+        """
 # An extension is a suffix without the leading point.
-    return cls.suffix[1:]
+        return self.suffix[1:]
 
 
-def _ppath_with_ext(cls, ext):
-    """
+# -- MODIFYING A PATH -- #
+
+    def with_ext(self, ext):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``with_ext`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``with_ext`` of the class ``PPath``
     arg = str: ext ;
           value of the extension
 
@@ -250,58 +300,17 @@ pyterm::
     >>> path = PPath("dir/subdir/file.txt")
     >>> path.with_ext("ext")
     PosixPath('dir/subdir/file.ext')
-    """
-    if ext:
-        ext = "." + ext
+        """
+        if ext:
+            ext = "." + ext
 
-    return cls.with_suffix(ext)
+        return self.with_suffix(ext)
 
 
-def _ppath_is_empty(cls):
-    """
+    @property
+    def normpath(self):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``with_ext`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``with_ext`` of the class ``PPath``
-
-    return = bool ;
-             if ``PPath`` is not an existing directory an error is raised, but
-             if the ``PPath`` points to an empty directory, ``False`` is
-             returned, otherwise that is ``True`` that is returned
-    """
-    if not cls.is_dir():
-        raise OSError("the path does not point to an existing directory")
-
-    for onepath in cls.walk():
-        return False
-
-    return True
-
-
-# ----------------------- #
-# -- FORMATTING A PATH -- #
-# ----------------------- #
-
-@property
-def _ppath_normpath(cls):
-    """
-prototype::
-    type = property ;
-           a hack is used so as to transform this function into a property
-           method ``normpath`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``normpath`` of the class ``PPath``
-
     return = PPath ;
              a new path obtained from the current path by interpreting the
              leading shortcut path::``~``, and the shortcuts path::``/../``
@@ -318,27 +327,17 @@ pyterm::
     >>> path.normpath
     PosixPath('/Users/projects/dir_1/file.txt')
     """
-    return PPath(
-        os.path.normpath(
-            os.path.expanduser(str(cls))
+        return PPath(
+            os.path.normpath(
+                os.path.expanduser(str(self))
+            )
         )
-    )
 
 
-@property
-def _ppath_shortpath(cls):
-    """
+    @property
+    def shortpath(self):
+        """
 prototype::
-    type = property ;
-           a hack is used so as to transform this function into a property
-           method ``shortpath`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``shortpath`` of the class ``PPath``
-
     return = PPath ;
              a new path obtained from the current path by trying to use the
              leading shortcut path::``~``, and by intepreting the shortcuts
@@ -351,33 +350,27 @@ the Unix version of ``PPath``.
 
 pyterm::
     >>> from mistool.os_use import PPath
-    >>> path = PPath("/Users/projects/dir_1/dir_2/dir_3/../../file.txt")
+    >>> path = PPath("/Users/projetmbc/dir_1/dir_2/dir_3/../../file.txt")
     >>> path.shortpath
     PosixPath('~/dir_1/file.txt')
-    """
-    path     = os.path.normpath(os.path.expanduser(str(cls)))
-    userpath = os.path.expanduser("~") + cls._flavour.sep
+        """
+        path     = os.path.normpath(os.path.expanduser(str(self)))
+        userpath = os.path.expanduser("~") + self._flavour.sep
 
-    if path.startswith(userpath):
-        path = "~" + cls._flavour.sep + path[len(userpath):]
+        if path.startswith(userpath):
+            path = "~" + self._flavour.sep + path[len(userpath):]
 
-    return PPath(path)
+        return PPath(path)
 
 
-# --------------------- #
 # -- COMPARING PATHS -- #
-# --------------------- #
 
-def _ppath_common_with(cls, *args):
-    """
+    def common_with(self, *args):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``common_with`` of the class ``PPath`` (uggly but functional)
+    see = self.__and__
 
-    see = PPath , _ppath___and__
-
-    arg  = PPath: cls ;
+    arg  = PPath: self ;
            this argument nearly refers to the ``self`` used by the associated
            method ``common_with`` of the class ``PPath``
     args = PPath ;
@@ -426,53 +419,49 @@ pyterm::
 info::
     The use of ``&`` was inspired by the analogy between the logical "AND" and
     the intersection of sets.
-    """
-    commonparts = list(cls.parts)
+        """
+        commonparts = list(self.parts)
 
-    paths = []
+        paths = []
 
-    for onearg in args:
-        if isinstance(onearg, list):
-            paths += onearg
+        for onearg in args:
+            if isinstance(onearg, list):
+                paths += onearg
 
-        elif isinstance(onearg, tuple):
-            paths += list(onearg)
+            elif isinstance(onearg, tuple):
+                paths += list(onearg)
 
-        else:
-            paths.append(onearg)
-
-    for path in paths:
-        i = 0
-
-        for common, current in zip(commonparts, path.parts):
-            if common == current:
-                i += 1
             else:
+                paths.append(onearg)
+
+        for path in paths:
+            i = 0
+
+            for common, current in zip(commonparts, path.parts):
+                if common == current:
+                    i += 1
+                else:
+                    break
+
+            commonparts = commonparts[:i]
+
+            if not commonparts:
                 break
 
-        commonparts = commonparts[:i]
+        commonpath = pathlib.Path("")
 
-        if not commonparts:
-            break
+        for part in commonparts:
+            commonpath /= part
 
-    commonpath = pathlib.Path("")
-
-    for part in commonparts:
-        commonpath /= part
-
-    return commonpath
+        return commonpath
 
 
-def _ppath___and__(cls, paths):
-    """
+    def __and__(self, paths):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into the magic
-           method ``__and__`` of the class ``PPath`` (uggly but functional)
+    see = self.common_with
 
-    see = PPath , _ppath_common_with
-
-    arg = PPath: cls ;
+    arg = PPath: self ;
           this argument nearly refers to the ``self`` used by the associated
           magic method ``__and__`` of the class ``PPath``
     arg = PPath , list(PPath) , tuple(PPath): paths
@@ -485,22 +474,13 @@ prototype::
 This magic method allows to use ``path & paths`` instead of the long version
 ``path.common_with(paths)`` where ``paths`` can be either a single path, or
 a list or a tuple of paths.
-    """
-    return cls.common_with(paths)
+        """
+        return self.common_with(paths)
 
 
-def _ppath___sub__(cls, path):
-    """
+    def __sub__(self, path):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into the magic
-           method ``__sub__`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath , relative_to (pathlib.Path)
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          magic method ``__sub__`` of the class ``PPath``
     arg = PPath: path
 
     return = PPath ;
@@ -510,22 +490,13 @@ prototype::
 
 This magic method allows to use ``path - anotherpath`` instead of the long
 version ``path.relative_to(anotherpath)`` given by ``pathlib.Path``.
-    """
-    return cls.relative_to(path)
+        """
+        return self.relative_to(path)
 
 
-def _ppath_depth_in(cls, path):
-    """
+    def depth_in(self, path):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``depth_in`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``depth_in`` of the class ``PPath``
     arg = PPath: path
 
     return = PPath ;
@@ -549,88 +520,15 @@ pyterm::
     Traceback (most recent call last):
     [...]
     ValueError: '/NoUser/projects' does not start with '/Users/projects'
-    """
-    return len(cls.relative_to(path).parts) - 1
+        """
+        return len(self.relative_to(path).parts) - 1
 
 
-@property
-def _ppath_depth(cls):
-    """
+# -- FOR THE REGPATHS -- #
+
+    def regexit(self, pattern):
+        """
 prototype::
-    type = property ;
-           a hack is used so as to transform this function into a property
-           method ``depth`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``parent`` of the class ``PPath``
-
-    return = int ;
-             the absolute depth of a path
-
-
-Here is an example of use.
-
-pyterm::
-    >>> from mistool.os_use import PPath
-    >>> path = PPath("/Users/projects/source/misTool/os_use.py")
-    >>> print(path.depth)
-    4
-    """
-    return len(cls.parents) - 1
-
-
-# -------------- #
-# -- REGPATHS -- #
-# -------------- #
-
-# Sources for the regex:
-#
-#     * http://stackoverflow.com/a/430781/4589608
-#     * http://stackoverflow.com/a/30439865/4589608
-#     * http://stackoverflow.com/a/817117/4589608
-#     * http://stackoverflow.com/questions/20294704/which-pattern-has-been-found/20294987
-
-_FILE, _DIR, _EMPTY, _OTHER_FILES \
-= "file", "dir", "empty_dir", "dir_other_files"
-
-_ALL, _NOT, _RELSEARCH, _XTRA \
-= "all", "not", "relative", "xtra"
-
-_PATH_QUERIES      = set([_DIR, _EMPTY, _FILE, _ALL, _NOT, _RELSEARCH, _XTRA])
-_LONG_PATH_QUERIES = {x[0]: x for x in _PATH_QUERIES}
-_FILE_DIR_QUERIES  = set([_DIR, _FILE])
-_ALL_QUERY         = set([_ALL])
-
-_RE_SPECIAL_CHARS = pattern = re.compile(
-    r"(?<!\\)((?:\\\\)*)((\*+)|(@)|(×)|(\.))"
-)
-
-_REPLACEMENTS = {
-    '**': ".+",
-    '.' : r"\.",
-    '@' : ".",
-    '×' : "*",
-}
-
-_SPE_CHARS = list(_REPLACEMENTS) + ["*"]
-
-_REPLACEMENTS['\\'] = "[^\\]+"
-_REPLACEMENTS['/']  = "[^/]+"
-
-
-def _ppath_regexit(cls, pattern):
-    """
-prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``regexit`` of the class ``PPath`` (uggly but functional)
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``regpath2meta`` of the class ``PPath``
     arg = str: pattern ;
           ``pattern`` is a pattern using the regpath syntax which tries to
           catch the best of the regex and the Unix-glob syntaxes (no special
@@ -639,36 +537,29 @@ prototype::
     return = str ;
              a regex uncompiled version of ``pattern``.
     """
-    onestar2regex = _REPLACEMENTS[cls._flavour.sep]
+        onestar2regex = self._REPLACEMENTS[self._flavour.sep]
 
-    newpattern = ""
-    lastpos    = 0
+        newpattern = ""
+        lastpos    = 0
 
-    for m in _RE_SPECIAL_CHARS.finditer(pattern):
-        spechar = m.group()
+        for m in self._RE_SPECIAL_CHARS.finditer(pattern):
+            spechar = m.group()
 
-        if spechar not in _SPE_CHARS:
-            raise ValueError("too much consecutive stars ''*''")
+            if spechar not in self._SPE_CHARS:
+                raise ValueError("too much consecutive stars ''*''")
 
-        spechar     = _REPLACEMENTS.get(spechar, onestar2regex)
-        newpattern += pattern[lastpos:m.start()] + spechar
-        lastpos     = m.end()
+            spechar     = self._REPLACEMENTS.get(spechar, onestar2regex)
+            newpattern += pattern[lastpos:m.start()] + spechar
+            lastpos     = m.end()
 
-    newpattern += pattern[lastpos:]
+        newpattern += pattern[lastpos:]
 
-    return newpattern
+        return newpattern
 
 
-def _ppath_regpath2meta(cls, regpath, regexit = True):
-    """
+    def regpath2meta(self, regpath, regexit = True):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``regpath2meta`` of the class ``PPath`` (uggly but functional)
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``regpath2meta`` of the class ``PPath``
     arg = str: regpath ;
           ``regpath`` uses a syntax trying to catch the best of the regex and
           the Unix-glob syntaxes with some little extra features
@@ -794,77 +685,67 @@ info::
     For each query, you can only use its initial letter. For example, ``f`` is
     a shortcut for ``file``, and ``a f`` is the same that ``all file``.
     """
-    queries, *pattern = regpath.split("::")
+        queries, *pattern = regpath.split("::")
 
-    if len(pattern) > 1:
-        raise ValueError("too much \"::\" in the regpath.")
+        if len(pattern) > 1:
+            raise ValueError("too much \"::\" in the regpath.")
 
 # Two pieces
-    if pattern:
-        pattern = pattern[0]
+        if pattern:
+            pattern = pattern[0]
 
-        queries = set(
-            _LONG_PATH_QUERIES.get(x.strip(), x.strip())
-            for x in queries.split(" ")
-        )
-
-        if not queries <= _PATH_QUERIES:
-            raise ValueError("illegal filter(s) in the regpath.")
-
-# One single piece
-    else:
-        queries, pattern = _FILE_DIR_QUERIES, queries
-
-# The query "empty" is used.
-    if _EMPTY in queries:
-        if _FILE in queries:
-            raise ValueError(
-                'filters "empty" and "file" can\'t be used together.'
+            queries = set(
+                self._LONG_PATH_QUERIES.get(x.strip(), x.strip())
+                for x in queries.split(" ")
             )
 
-        queries.add(_DIR)
+            if not queries <= self._PATH_QUERIES:
+                raise ValueError("illegal filter(s) in the regpath.")
+
+# One single piece
+        else:
+            queries, pattern = self._FILE_DIR_QUERIES, queries
+
+# The query "empty" is used.
+        if self._EMPTY in queries:
+            if self._FILE in queries:
+                raise ValueError(
+                    'filters "empty" and "file" can\'t be used together.'
+                )
+
+            queries.add(self._DIR)
 
 # The queries "file" and "dir" are not used.
-    elif _FILE not in queries and _DIR not in queries:
-        queries |= _FILE_DIR_QUERIES
+        elif self._FILE not in queries and self._DIR not in queries:
+            queries |= self._FILE_DIR_QUERIES
 
 # The regex uncompiled version : we just do replacing by taking care of
 # the escaping character. We play with regexes to do that.
 #
 # << Warning : >> ***, ****, ... are not allowed !
 
-    if regexit:
-        pattern = "^{0}$".format(cls.regexit(pattern))
+        if regexit:
+            pattern = "^{0}$".format(self.regexit(pattern))
 
-    return queries, pattern
+        return queries, pattern
 
 
-# ------------------ #
 # -- WALK AND SEE -- #
-# ------------------ #
 
-def __tagsreturnedbywalk(ppath, tag, givetags):
-    if givetags:
-        return ppath, tag
-    else:
-        return ppath
+    def __tagsreturnedbywalk(self, ppath, tag, givetags):
+        if givetags:
+            return ppath, tag
+        else:
+            return ppath
 
-def _ppath_walk(
-    cls,
-    regpath  = "relative::**",
-    givetags = False
-):
-    """
+
+    def walk(
+        self,
+        regpath  = "relative::**",
+        givetags = False
+    ):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``depth_in`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath , _ppath_regpath2meta
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``depth_in`` of the class ``PPath``
     arg = str: regpath = "relative::**" ;
           this is a string that follows some rules named regpath rules (see
           the documentation of the function ``_ppath_regpath2meta``)
@@ -963,193 +844,168 @@ info::
         + dir_other_files >>> /Users/projects/basic_dir/sub_dir
         + dir_other_files >>> /Users/projects/basic_dir/sub_dir/sub_sub_dir
 
-    The special names are stored in the global variables ``_FILE``, ``_DIR``,
-    ``_EMPTY`` and ``_OTHER_FILES`` which are strings.
+    The special names are stored in the global variables ``self._FILE``, ``self._DIR``,
+    ``self._EMPTY`` and ``self._OTHER_FILES`` which are strings.
     This is useful to avoid typing errors if you want to use the query ``xtra``
     together with ``givetags = True`` as the class ``DirView`` does.
-    """
+        """
 # Do we have an existing directory ?
-    if not cls.is_dir():
-        raise OSError("the path doesn't point to a directory.")
+        if not self.is_dir():
+            raise OSError("the path doesn't point to a directory.")
 
 # metadatas and the normal regex
-    queries, pattern = cls.regpath2meta(regpath)
+        queries, pattern = self.regpath2meta(regpath)
 
-    maindir   = str(cls)
-    keepdir   = _DIR in queries
-    keepfile  = _FILE in queries
-    keepempty = _EMPTY in queries
-    keepall   = _ALL in queries
-    relsearch = _RELSEARCH in queries
-    addextra  = _XTRA in queries
+        maindir   = str(self)
+        keepdir   = self._DIR in queries
+        keepfile  = self._FILE in queries
+        keepempty = self._EMPTY in queries
+        keepall   = self._ALL in queries
+        relsearch = self._RELSEARCH in queries
+        addextra  = self._XTRA in queries
 
-    regex_obj = re.compile(pattern)
+        regex_obj = re.compile(pattern)
 
 # Matching or unmatching, that is the question !
-    if _NOT in queries:
-        match = lambda x: not regex_obj.match(x)
+        if self._NOT in queries:
+            match = lambda x: not regex_obj.match(x)
 
-    else:
-        match = lambda x: regex_obj.match(x)
-
+        else:
+            match = lambda x: regex_obj.match(x)
 
 # Let's walk
-    for root, dirs, files in os.walk(maindir):
+        for root, dirs, files in os.walk(maindir):
 # Empty folders and unkept files
-        isdirempty         = not(bool(dirs) or bool(files))
-        nomatch_files_found = False
+            isdirempty         = not(bool(dirs) or bool(files))
+            nomatch_files_found = False
 
 # Do the current directory must be added ?
-        addthisdir = False
-        root_ppath = PPath(root)
+            addthisdir = False
+            root_ppath = PPath(root)
 
-        if keepempty:
-            if isdirempty:
-                addthisdir = True
+            if keepempty:
+                if isdirempty:
+                    addthisdir = True
 
-        elif keepdir and root != maindir and match(root):
-            if keepall \
-            or not any(
-                x.startswith('.')
-                for x in root_ppath.relative_to(cls).parts
-            ):
-                addthisdir = True
+            elif keepdir and root != maindir and match(root):
+                if keepall \
+                or not any(
+                    x.startswith('.')
+                    for x in root_ppath.relative_to(self).parts
+                ):
+                    addthisdir = True
 
 # A new file ?
-        if keepfile:
-            for file in files:
-                if not keepall and file.startswith('.'):
-                    continue
+            if keepfile:
+                for file in files:
+                    if not keepall and file.startswith('.'):
+                        continue
 
-                full_file = os.path.join(root, file)
+                    full_file = os.path.join(root, file)
 
-                if relsearch:
-                    ppath_full_file = PPath(full_file)
-                    rel_file = str(ppath_full_file.relative_to(cls))
+                    if relsearch:
+                        ppath_full_file = PPath(full_file)
+                        rel_file = str(ppath_full_file.relative_to(self))
 
-                    if match(rel_file):
-                        yield __tagsreturnedbywalk(
-                            ppath    = ppath_full_file,
-                            tag      = _FILE,
+                        if match(rel_file):
+                            yield self.__tagsreturnedbywalk(
+                                ppath    = ppath_full_file,
+                                tag      = self._FILE,
+                                givetags = givetags
+                            )
+
+                        else:
+                            nomatch_files_found = True
+
+                    elif match(full_file):
+                        yield self.__tagsreturnedbywalk(
+                            ppath    = PPath(full_file),
+                            tag      = self._FILE,
                             givetags = givetags
                         )
 
                     else:
                         nomatch_files_found = True
 
-                elif match(full_file):
-                    yield __tagsreturnedbywalk(
-                        ppath    = PPath(full_file),
-                        tag      = _FILE,
-                        givetags = givetags
-                    )
+# A new directory ?
+            if addthisdir:
+                if isdirempty:
+                    tag = self._EMPTY
 
                 else:
-                    nomatch_files_found = True
+                    tag = self._DIR
 
-# A new directory ?
-        if addthisdir:
-            if isdirempty:
-                tag = _EMPTY
+                yield self.__tagsreturnedbywalk(
+                    ppath    = root_ppath,
+                    tag      = tag,
+                    givetags = givetags
+                )
 
-            else:
-                tag = _DIR
+            elif addextra:
+                if isdirempty:
+                    tag = self._EMPTY
 
-            yield __tagsreturnedbywalk(
-                ppath    = root_ppath,
-                tag      = tag,
-                givetags = givetags
-            )
+                elif nomatch_files_found:
+                    tag = self._OTHER_FILES
 
-        elif addextra:
-            if isdirempty:
-                tag = _EMPTY
+                else:
+                    tag = self._DIR
 
-            elif nomatch_files_found:
-                tag = _OTHER_FILES
-
-            else:
-                tag = _DIR
-
-            yield __tagsreturnedbywalk(
-                ppath    = root_ppath,
-                tag      = tag,
-                givetags = givetags
-            )
+                yield self.__tagsreturnedbywalk(
+                    ppath    = root_ppath,
+                    tag      = tag,
+                    givetags = givetags
+                )
 
 
-def _ppath_see(cls):
-    """
+    def see(self):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``see`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``see`` of the class ``PPath``
-
     action = this method shows one directory or one file in the OS environment
              by trying to call an associated application
     """
 # Nothing to open...
-    if not cls.is_file() and not cls.is_dir():
-        raise OSError("the path points nowhere.")
+        if not self.is_file() and not self.is_dir():
+            raise OSError("the path points nowhere.")
 
 # We need the **string** long normalized version of the path.
-    strpath = str(cls.normpath)
+        strpath = str(self.normpath)
 
 # Each OS has its own method.
-    osname = system()
+        osname = system()
 
 # Windows
-    if osname == "windows":
-        if cls.is_file():
-            os.startfile(strpath)
-        else:
-            check_call(args = ['explorer', strpath])
+        if osname == "windows":
+            if self.is_file():
+                os.startfile(strpath)
+            else:
+                check_call(args = ['explorer', strpath])
 
 # Mac
-    elif osname == "mac":
-        check_call(args = ['open', strpath])
+        elif osname == "mac":
+            check_call(args = ['open', strpath])
 
 # Linux
 #
 # Source :
 #     * http://forum.ubuntu-fr.org/viewtopic.php?pid=3952590#p3952590
-    elif osname == "linux":
-        check_call(args = ['xdg-open', strpath])
+        elif osname == "linux":
+            check_call(args = ['xdg-open', strpath])
 
 # Unknown method...
-    else:
-        raise OSError(
-            "the opening of the file in the OS "
-            "<< {0} >> is not supported.".format(osname)
-        )
+        else:
+            raise OSError(
+                "the opening of the file in the OS "
+                "<< {0} >> is not supported.".format(osname)
+            )
 
 
-# ------------ #
 # -- CREATE -- #
-# ------------ #
 
-_ALL_CREATE_KINDS  = set([_FILE, _DIR])
-_LONG_CREATE_KINDS = {x[0]: x for x in _ALL_CREATE_KINDS}
-
-def _ppath_create(cls, kind):
-    """
+    def create(self, kind):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``create`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``create`` of the class ``PPath``
-    arg = str: kind in [_FILE, _DIR]
+    arg = str: kind in [self._FILE, self._DIR]
 
     action = this method creates the file or the directory having the current
              path except if this path points to an existing directory or file
@@ -1176,82 +1032,61 @@ pyterm::
 
 info::
     All the parent directories that don't yet exist are automatically created.
-    """
+        """
 # Good kind.
-    kind = _LONG_CREATE_KINDS.get(kind, kind)
+        kind = self._LONG_CREATE_KINDS.get(kind, kind)
 
-    if kind not in _ALL_CREATE_KINDS:
-        raise ValueError("illegal kind.")
+        if kind not in self._ALL_CREATE_KINDS:
+            raise ValueError("illegal kind.")
 
 # A new directory.
-    if kind == _DIR:
-        if cls.is_file():
-            raise ValueError("path points to an existing file.")
+        if kind == self._DIR:
+            if self.is_file():
+                raise ValueError("path points to an existing file.")
 
-        elif not cls.is_dir():
-            os.makedirs(str(cls))
+            elif not self.is_dir():
+                os.makedirs(str(self))
 
 # A new file.
-    elif cls.is_dir():
-        raise ValueError("path points to an existing directory.")
+        elif self.is_dir():
+            raise ValueError("path points to an existing directory.")
 
-    elif not cls.is_file():
-        cls.parent.create(_DIR)
+        elif not self.is_file():
+            self.parent.create(self._DIR)
 
-        with cls.open(mode = "w") as file:
-            ...
+            with self.open(mode = "w") as file:
+                ...
 
 
-# ------------ #
 # -- REMOVE -- #
-# ------------ #
 
-def _ppath_can_be_removed(cls, safemode):
-    """
+    def can_be_removed(self, safemode):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``with_ext`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``with_ext`` of the class ``PPath``
     arg = bool: safemode ;
           using ``safemode = True`` protects any existing file or directory
           whereas ``safemode = True`` makes any file or directory removable
 
     action = if the file or the directory can't be removed regarding to the
     value of ``safemode``, an OS error is raised.
-    """
-    if safemode:
-        if cls.is_file():
-            raise OSError(
-                "impossible to remove the file (use ``safemode = False`` "
-                "to force the erasing)"
-            )
+        """
+        if safemode:
+            if self.is_file():
+                raise OSError(
+                    "impossible to remove the file (use ``safemode = False`` "
+                    "to force the erasing)"
+                )
 
-        elif cls.is_dir():
-            raise OSError(
-                "impossible to remove the directory (use ``safemode = False`` "
-                "to force the erasing)"
-            )
+            elif self.is_dir():
+                raise OSError(
+                    "impossible to remove the directory (use ``safemode = False`` "
+                    "to force the erasing)"
+                )
 
 
-def _ppath_remove(cls):
-    """
+    def remove(self):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``create`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``create`` of the class ``PPath``
-
     action = this method removes the directory or the file corresponding to
              the current path
 
@@ -1259,84 +1094,64 @@ prototype::
 warning::
     Removing a directory will destroy anything within it using a recursive
     destruction of all subfolders and subfiles.
-    """
-    if cls.is_dir():
-        shutil.rmtree(str(cls))
+        """
+        if self.is_dir():
+            shutil.rmtree(str(self))
 
-    elif cls.is_file():
-        os.remove(str(cls))
+        elif self.is_file():
+            os.remove(str(self))
 
-    else:
-        raise OSError("path points nowhere.")
+        else:
+            raise OSError("path points nowhere.")
 
 
-def _ppath_clean(cls, regpath):
-    """
+    def clean(self, regpath):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``depth_in`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath , _ppath_regpath2meta , _ppath_walk
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``depth_in`` of the class ``PPath``
     arg = str: regpath ;
           this is a string that follows some rules named regpath rules (see
           the documentation of the function ``_ppath_regpath2meta``)
 
     action = every files and directories matching ``regpath`` are removed
-    """
+        """
 # We have to play with the queries and the pattern in ``regpath``.
-    queries, pattern = cls.regpath2meta(regpath, regexit = False)
+        queries, pattern = self.regpath2meta(regpath, regexit = False)
 
-    if _ALL in queries:
-        prefix = "all"
+        if self._ALL in queries:
+            prefix = "all"
 
-    elif _EMPTY in queries:
-        prefix = "empty"
+        elif self._EMPTY in queries:
+            prefix = "empty"
 
-    else:
-        prefix = ""
+        else:
+            prefix = ""
 
 # We must first remove the files. This is in case of folders to destroy.
-    if _FILE in queries:
-        filepattern = "{0} file::{1}".format(prefix, pattern)
+        if self._FILE in queries:
+            filepattern = "{0} file::{1}".format(prefix, pattern)
 
-        for path in cls.walk(filepattern):
-            path.remove()
+            for path in self.walk(filepattern):
+                path.remove()
 
 # Now, we can destroy folders but we can use an iterator (because of sub
 # directories).
-    if _DIR in queries:
-        dirpattern = "{0} dir::{1}".format(prefix, pattern)
+        if self._DIR in queries:
+            dirpattern = "{0} dir::{1}".format(prefix, pattern)
 
 # << Warning ! >> We have to be carefull with directories and sub folders.
-        sortedpaths = sorted(list(p for p in cls.walk(dirpattern)))
+            sortedpaths = sorted(list(p for p in self.walk(dirpattern)))
 
 # << Warning ! >> We have to be carefull with empty directories.
-        for path in sortedpaths:
-            path.remove()
+            for path in sortedpaths:
+                path.remove()
 
 
-# ----------------- #
 # -- MOVE & COPY -- #
-# ----------------- #
 
-def _ppath_copy_to(cls, dest, safemode = True):
-    """
+    def copy_to(self, dest, safemode = True):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``create`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``create`` of the class ``PPath``
-    arg = PPath: path
+    arg = PPath: dest
     arg = bool: safemode = True;
           this argument is a security to avoid the erasing of an existing file
           or directory. This allows the savvy developer to erase file or
@@ -1350,67 +1165,59 @@ prototype::
 warning::
      The use of ``safemode = False`` will erase **everything** at the destination
      path.
-    """
+     """
 # Is the copy allowed ?
-    dest.can_be_removed(safemode)
+        dest.can_be_removed(safemode)
 
 # We have to use a clean way !
-    try:
+        try:
 # Copy of a file.
-        if cls.is_file():
-            dest.parent.create(_DIR)
+            if self.is_file():
+                dest.parent.create(self._DIR)
 
-            shutil.copy(str(cls), str(dest))
+                shutil.copy(str(self), str(dest))
 
 # Copy of a directory.
 #
 # WARNING !!! We can't call the method ``create`` during the recursive walk !
-        elif cls.is_dir():
-            print("cls & dest", cls & dest)
-            if cls == cls & dest:
-                raise OSError(
-                    "copy of a directory inside one of its sub directory "
-                    "is not supported (be aware of recursive copying)"
-                )
-
-            dest.parent.create(_DIR)
-
-            for onepath in cls.walk():
-                relpath  = onepath - cls
-                destpath = dest / relpath
-
-                if onepath.is_file():
-                    onepath.copy_to(
-                        dest     = destpath,
-                        safemode = safemode
+            elif self.is_dir():
+                print("self & dest", self & dest)
+                if self == self & dest:
+                    raise OSError(
+                        "copy of a directory inside one of its sub directory "
+                        "is not supported (be aware of recursive copying)"
                     )
 
-                elif onepath.is_empty():
-                    destpath.create(_DIR)
+                dest.parent.create(self._DIR)
+
+                for onepath in self.walk():
+                    relpath  = onepath - self
+                    destpath = dest / relpath
+
+                    if onepath.is_file():
+                        onepath.copy_to(
+                            dest     = destpath,
+                            safemode = safemode
+                        )
+
+                    elif onepath.is_empty():
+                        destpath.create(self._DIR)
 
 # Path points nowhere !
-        else:
-            raise OSError("destination path points nowhere.")
+            else:
+                raise OSError("destination path points nowhere.")
 
 # Erase anything in case of any OS problem...
-    except OSError as e:
-        if dest.is_file() or dest.is_dir():
-            dest.remove()
+        except OSError as e:
+            if dest.is_file() or dest.is_dir():
+                dest.remove()
 
-        raise OSError(e)
+            raise OSError(e)
 
-def _ppath_move_to(cls, dest, safemode = True):
-    """
+
+    def move_to(self, dest, safemode = True):
+        """
 prototype::
-    type = method ;
-           a hack is used so as to transform this function into a method
-           ``create`` of the class ``PPath`` (uggly but functional)
-
-    see = PPath
-
-    arg = PPath: cls ;
-          this argument nearly refers to the ``self`` used by the associated
-          method ``create`` of the class ``PPath``
     arg = PPath: dest
     arg = bool: safemode = True;
           this argument is a security to avoid the erasing of an existing file
@@ -1427,72 +1234,39 @@ info::
 
 
 warning::
-     The use of ``safemode = False`` will erase **everything** at the destination
-     path.
-    """
+    The use of ``safemode = False`` will erase **everything** at the destination
+    path.
+        """
 # Moving a file...
-    if cls.is_file():
-        cls.copy_to(
-            dest     = dest,
-            safemode = safemode
-        )
+        if self.is_file():
+            self.copy_to(
+                dest     = dest,
+                safemode = safemode
+            )
 
 # Let's be cautious...
-        if dest.is_file():
-            cls.remove()
+            if dest.is_file():
+                self.remove()
 
-        else:
-            raise OSError("moving the file has failed.")
+            else:
+                raise OSError("moving the file has failed.")
 
 # Moving a directory...
-    elif cls.is_dir():
-        cls.copy_to(
-            dest     = dest,
-            safemode = safemode
-        )
+        elif self.is_dir():
+            self.copy_to(
+                dest     = dest,
+                safemode = safemode
+            )
 
 # Let's be cautious...
-        if dest.is_dir():
-            cls.remove()
+            if dest.is_dir():
+                self.remove()
+
+            else:
+                raise OSError("moving the diretory has failed.")
 
         else:
-            raise OSError("moving the diretory has failed.")
-
-    else:
-        raise OSError("current path points nowhere.")
-
-
-# ------------------------ #
-# -- OUR ENHANCED CLASS -- #
-# ------------------------ #
-
-_SPECIAL_FUNCS = [
-    (x[len("_ppath_"):], x)
-    for x in dir()
-    if x.startswith("_ppath_")
-]
-
-
-class PPath(pathlib.Path):
-    """
-prototype::
-    type = cls ;
-           a hack is used so as to mimic subclassing of the standard class
-           ``pathlib.Path``
-
-    see = pathlib.Path
-    """
-
-    def __new__(cls, *args):
-        if cls is PPath:
-            cls = pathlib.WindowsPath if os.name == 'nt' else pathlib.PosixPath
-
-# We have to add our additional methods using a short dirty way.
-        for specialname, specialfunc in _SPECIAL_FUNCS:
-            setattr(cls, specialname, globals()[specialfunc])
-
-# Everything has been added !
-        return cls._from_parts(args)
+            raise OSError("current path points nowhere.")
 
 
 # --------------- #
