@@ -1321,9 +1321,9 @@ pyterm::
     Everything is ok.
 
 
-warning::
-    The only way to use arguments containing spaces is to escape the spaces
-    using ``\ `` ! Quoted arguments are not supported !
+info::
+    For arguments containing spaces you can either escape the spaces using
+    ``\ ``, or put this arguments inside quotes.
     """
 # ``shlex.split`` takes care of escaped spaces and quotes.
 #
