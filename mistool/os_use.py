@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2015-12-15
+    date = 2016-02-15
 
 
 The main feature of this module is the class ``PPath`` which is an enhanced
@@ -17,6 +17,7 @@ import os
 import pathlib
 from random import randint
 import re
+import shlex
 import shutil
 import platform
 from subprocess import check_call, check_output
@@ -135,8 +136,8 @@ info::
 # -- OUR ENHANCED CLASS -- #
 # ------------------------ #
 
-# Sublcassing ``pathlib.Path`` is not straightforward ! We have to use an uggly
-# way.
+# Sublcassing ``pathlib.Path`` is not straightforward ! The following post gives
+# the less ugly way to do that.
 #
 # Source :
 #     * http://stackoverflow.com/a/34116756/4589608
@@ -196,11 +197,11 @@ prototype::
 
     def is_empty(self):
         """
-    prototype::
+prototype::
     return = bool ;
-         if ``PPath`` is not an existing directory an error is raised, but
-         if the ``PPath`` points to an empty directory, ``False`` is
-         returned, otherwise that is ``True`` that is returned
+             if ``PPath`` is not an existing directory an error is raised, but
+             if the ``PPath`` points to an empty directory, ``False`` is
+             returned, otherwise that is ``True`` that is returned
          """
         if not self.is_dir():
             raise OSError("the path does not point to an existing directory")
@@ -229,7 +230,6 @@ pyterm::
     >>> path.parent
     PosixPath('dir/subdir')
         """
-
         return self.parents[0]
 
 
@@ -313,8 +313,9 @@ pyterm::
 prototype::
     return = PPath ;
              a new path obtained from the current path by interpreting the
-             leading shortcut path::``~``, and the shortcuts path::``/../``
-             used to go higher in the tree structure
+             leading shortcut path::``~``, and the shortcuts for relative
+             paths like path::``/../`` that are used to go higher in the tree
+             structure
 
 
 Here is an example made on the ¨mac of the author of ¨mistool where the user's
@@ -370,9 +371,6 @@ pyterm::
 prototype::
     see = self.__and__
 
-    arg  = PPath: self ;
-           this argument nearly refers to the ``self`` used by the associated
-           method ``common_with`` of the class ``PPath``
     args = PPath ;
            the arguments can be given separated by comas, or in list, or in
            a tuple
@@ -461,9 +459,6 @@ info::
 prototype::
     see = self.common_with
 
-    arg = PPath: self ;
-          this argument nearly refers to the ``self`` used by the associated
-          magic method ``__and__`` of the class ``PPath``
     arg = PPath , list(PPath) , tuple(PPath): paths
 
     return = PPath ;
@@ -1283,12 +1278,6 @@ _SUBPROCESS_METHOD = {
     False: check_output
 }
 
-# Sources:
-#     * http://stackoverflow.com/a/430781/4589608
-#     * http://stackoverflow.com/a/30439865/4589608
-#     * http://stackoverflow.com/a/817117/4589608
-_ESCAPED_SPACE_PATTERN = re.compile(r"(?<!\\)((?:\\\\)*) ")
-
 def runthis(
     cmd,
     ppath      = None,
@@ -1334,9 +1323,9 @@ pyterm::
 
 warning::
     The only way to use arguments containing spaces is to escape the spaces
-    using ``\ `` !
+    using ``\ `` ! Quoted arguments are not supported !
     """
-# We have to take care of escaped spaces.
+# ``shlex.split`` takes care of escaped spaces and quotes.
 #
 # For example,
 #     "/Users/projects/git\ config\ perso/gitignore"
@@ -1346,40 +1335,26 @@ warning::
 #     "/Users/projects/git\\"
 # and
 #     "config\ perso/gitignore".
-    cmds    = []
-    lastarg = None
-
-    for arg in _ESCAPED_SPACE_PATTERN.split(cmd):
-        if arg == "\\\\":
-            if lastarg == '':
-                cmds.append(arg)
-
-            elif cmds:
-                cmds[-1] += arg
-
-            else:
-                cmds = [arg]
-
-        elif arg:
-            cmds.append(arg)
-
-        lastarg = arg
+    cmd_args = shlex.split(
+        s     = cmd,
+        posix = True
+    )
 
 # Commands that act one a file or a folder.
     if ppath != None:
-        cmds.append('"{0}"'.format(ppath))
+        cmd_args.append('"{0}"'.format(ppath))
 
         fromprocess = _SUBPROCESS_METHOD[showoutput](
 # We go in the directory of the file to compile.
             cwd = str(ppath.parent),
 # We use the terminal actions.
-            args = cmds
+            args = cmd_args
         )
 
 # Standalone commands.
     else:
 # We just use the terminal actions.
-        fromprocess = _SUBPROCESS_METHOD[showoutput](args = cmds)
+        fromprocess = _SUBPROCESS_METHOD[showoutput](args = cmd_args)
 
 # ``check_output`` being a byte string, we have to use ``decode('utf8')`` so as
 # to obtain an "utf-8" string.

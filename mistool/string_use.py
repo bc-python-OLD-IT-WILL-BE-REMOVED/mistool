@@ -1126,7 +1126,7 @@ Basic use
 
 The aim of this function is to give an ¨ascii translation of a text. The typical
 use is for avoiding strange names of files. Here is a standard use where you can
-see that non-¨ascii ponctuation mark are simply cleaned.
+see that none ¨ascii ponctuation mark is simply removed.
 
 pyterm::
     >>> from mistool.string_use import ascii
@@ -1139,7 +1139,7 @@ Doing more replacements
 =======================
 
 You can use the optional argument ``oldnew`` so as to do more replacements. In
-the code below we have choose to also clean ``!``.
+the code below we have choosen to also clean ``!``.
 
 pyterm::
     >>> from mistool.string_use import ascii
@@ -1153,7 +1153,7 @@ Partial cleaning
 ================
 
 Sometimes, you just want to change the most characters as possible. In the
-example below, we use ``strict`` so as to obtain ``L'Odyssee de (`` instead
+example below, we use ``strict`` so as to obtain ``L'Odyssee de ∏`` instead
 of an error as the second use of ``ascii`` shows.
 
 pyterm::

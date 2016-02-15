@@ -1,0 +1,5 @@
+==========
+2016-02-15
+==========
+
+**Amélioration de ``os_use.runthis``:** grâce à ``shlex``, on peut maintenant utiliser aussi des arguments entre des guillemets.
