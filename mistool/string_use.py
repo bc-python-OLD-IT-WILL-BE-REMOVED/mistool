@@ -1052,12 +1052,12 @@ prototype::
 Here is a small example.
 
 pyterm::
-    >>> from mistool.string_use import joinand, AND_TEXT
+    >>> from mistool.string_use import joinand
     >>> texts = ["1", "2", "3"]
     >>> print(joinand(texts))
     1, 2 and 3
-    >>> fr_andtext = "et"
-    >>> print(joinand(texts = texts, andtext= fr_andtext))
+    >>> andtext_fr = "et"
+    >>> print(joinand(texts = texts, andtext= andtext_fr))
     1, 2 et 3
     """
     if len(texts) == 1:

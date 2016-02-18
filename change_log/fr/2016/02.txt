@@ -1,4 +1,14 @@
 ==========
+2016-02-18
+==========
+
+**Amélioration du fichier ``README.md`` :** des exemples "en console" ont été ajoutés afin de rendre le package plus "bankable".
+
+
+**Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu passer à ``setuptools``.
+
+
+==========
 2016-02-15
 ==========
 

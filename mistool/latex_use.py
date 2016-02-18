@@ -12,7 +12,12 @@ This script gives a lot of useful functions in relation with the powerful langag
 from subprocess import CalledProcessError
 
 from mistool.config import latex
-from mistool.os_use import canmodify, pathenv, PPath, runthis, system
+from mistool.os_use import (
+    canmodify,
+    pathenv, PPath,
+    runthis,
+    system
+)
 
 
 # ------------------------- #

@@ -1,3 +1,6 @@
+What about this ?
+=================
+
 **misTool** is a contraction of **missing**, **miscellaneous** and **tool**.
 This package contains the following modules that could be useful for Python
 developments.
@@ -6,49 +9,435 @@ If you want more informations and examples than thereafter, just take a look at
 the docstrings.
 
 
+Warning about this new version `1.0.0`
+======================================
+
+This version breaks a lot of things regarding to the previous ones given on PyPI *(for example, the module ``log_test_use`` has been removed)*. See the change log for more informations.
+
+
 Which OS can use this program ?
 ===============================
 
-All the modules have been tested under Mac OS Maverick and Lubuntu 14.
+The modules have been tested under Mac OS El Capitan but they must work on all platforms.
 
 
-The module ``string_use``
-=========================
+Features of the module ``string_use``
+=====================================
 
-* **Auto completion** features easily.
-* **Replacement, split and join** advanced utilities.
-* **ASCII translation** of a text.
-* **Special cases for letters** so as to obtain for example easily "One example" from "one example".
-* **Testing the case of one text**.
-* **Camel case** transformations so as to obtain for example "One_Example" from "oneExample".
-* **ASCII frame** for multiline texts.
+Auto completion
+---------------
+
+```python
+>>> from mistool.string_use import AutoComplete
+>>> myac = AutoComplete(
+...     words = [
+...         "article", "artist", "art",
+...         "when", "who", "whendy",
+...         "bar", "barbie", "barber", "bar"
+...     ]
+... )
+>>> print(myac.matching("art"))
+['article', 'artist']
+>>> print(myac.matching(""))
+[
+    'art', 'article', 'artist',
+    'bar', 'barber', 'barbie',
+    'when', 'whendy', 'who'
+]
+>>> print(myac.missing("art", 'article'))
+icle
+```
+
+The class ``AutoComplete`` builds a special "magical" dictionary which is stored
+in the attribut ``self.assos`` that you can store somewhere, using ``pickle``
+for example, so as to not build each time the same auto-completions. Here is an
+example where the output has been enhanced and commented a little.
+
+```python
+>>> from mistool.string_use import AutoComplete
+>>> myac = AutoComplete(
+...     words = [
+...         "article", "artist", "art",
+...         "when", "who", "whendy",
+...         "bar", "barbie", "barber", "bar"
+...     ]
+... )
+>>> print(myac.assos)
+{
+    'words': [
+# A
+        'art', 'article', 'artist',
+# B
+        'bar', 'barber', 'barbie',
+# W
+        'when', 'whendy', 'who'
+    ],
+    'prefixes': {
+# A
+        'a'     : [0, 3],   # words in position 0 to 2 starts with "a"
+        'ar'    : [0, 3],
+        'art'   : [1, 3],   # "art" has not to be completed !
+        'arti'  : [1, 3],
+        'artic' : [1, 2],
+        'artis' : [2, 3],   # "artist" has not to be completed
+        'articl': [1, 2],   # so it is not a prefix like "artcile".
+# B
+        'b'    : [3, 6],
+        'ba'   : [3, 6],
+        'bar'  : [4, 6],
+        'barb' : [4, 6],
+        'barbe': [4, 5],
+        'barbi': [5, 6],
+# W
+        'w'    : [6, 9],
+        'wh'   : [6, 9],
+        'whe'  : [6, 8],
+        'when' : [7, 8],
+        'whend': [7, 8]
+    }
+}
+```
+
+```python
+>>> from mistool.string_use import AutoComplete
+>>> myac = AutoComplete(
+...     words = [
+...         "article", "artist", "art",
+...         "when", "who", "whendy",
+...         "bar", "barbie", "barber", "bar"
+...     ],
+...     minsize = 3
+... )
+>>> print(myac.assos)
+{
+    'words': [
+        'art', 'article', 'artist',
+        'bar', 'barber', 'barbie',
+        'when', 'whendy', 'who'
+    ],
+    'prefixes': {
+# A
+        'art'   : [1, 3],
+        'arti'  : [1, 3],
+        'artic' : [1, 2],
+        'articl': [1, 2],
+        'artis' : [2, 3],
+# B
+        'bar'  : [4, 6],
+        'barb' : [4, 6],
+        'barbe': [4, 5],
+        'barbi': [5, 6],
+# W
+        'whe'  : [6, 8],
+        'when' : [7, 8]
+        'whend': [7, 8],
+    }
+}
+```
+
+You can directly give the dictionary stored in ``self.assos`` like in the
+following fictive example where you can see the instance ``newoldac`` stores
+no words, and that there is no matching for ``"a"`` because the magic dictionary
+uses a depth of `3`.
+
+```python
+>>> oldassos = myac.assos
+>>> newoldac = AutoComplete(assos = myac.assos)
+>>> print(newoldac.matching("art"))
+['article', 'artist']
+>>> print(newoldac.matching("a"))
+[]
+>>> print(newoldac.words)
+None
+```
+
+This can be very useful when you always use the same list of words : just ask
+one time to the class to build the "magical" dictionary by giving one fixed
+list of words just one time, and then store this dictionary to reuse it later.
+
+Replace
+-------
+
+```python
+>>> from mistool.string_use import MultiReplace
+>>> oldnew = {
+...     'one'  : "1",
+...     'two'  : "2",
+...     'three': "3"
+... }
+>>> mreplace = MultiReplace(oldnew)
+>>> text = "one, two, three..."
+>>> print(mreplace(text))
+1, 2, 3...
+```
+
+```python
+>>> from mistool.string_use import MultiReplace
+>>> from mistool.config.pattern import PATTERNS_WORDS
+>>> oldnew = {
+...     'W1': "Word #1",
+...     'W2': "Word #2",
+...     'W3': "W1 and W2"
+... }
+>>> mreplace = MultiReplace(
+...     oldnew  = oldnew,
+...     mode    = "recu",
+...     pattern = PATTERNS_WORDS['var']
+... )
+>>> print(mreplace("W1 and W2 = W3"))
+Word #1 and Word #2 = Word #1 and Word #2
+>>> mreplace.mode = "norecu"
+>>> print(mreplace("W1 and W2 = W3"))
+Word #1 and Word #2 = W1 and W2
+```
+
+```python
+>>> from mistool.string_use import MultiReplace
+>>> from mistool.config.pattern import PATTERNS_WORDS
+>>> oldnew = {
+...     'WRONG_1': "one small text and  WRONG_2",
+...     'WRONG_2': "one small text, and then WRONG_3",
+...     'WRONG_3': "with WRONG_1, there is one problem here"
+... }
+>>> mreplace = MultiReplace(
+...     oldnew  = oldnew,
+...     mode    = "recu",
+...     pattern = PATTERNS_WORDS["var"]
+... )
+Traceback (most recent call last):
+[...]
+ValueError: the following viscious circle has been found.
+	 +  --> WRONG_2 --> WRONG_3 --> WRONG_1 --> WRONG_2
+```
+
+Split
+-----
+
+```python
+>>> from mistool.string_use import MultiSplit
+>>> msplit = MultiSplit(seps = "|")
+>>> print(msplit("p_1 ; p_2 ; p_3 | r_1 ; r_2 | s"))
+[
+    'p_1 ; p_2 ; p_3 ',
+    ' r_1 ; r_2 ', ' s'
+]
+>>> msplit.seps = ["|", ";"]
+>>> print(msplit("p_1 ; p_2 ; p_3 | r_1 ; r_2 | s"))
+[
+    ['p_1 ', ' p_2 ', ' p_3 '],
+    [' r_1 ', ' r_2 '], [' s']
+]
+```
+
+```python
+>>> from mistool.string_use import MultiSplit
+>>> msplit = MultiSplit(
+...     seps  = ["|", ";"],
+...     strip = True
+... )
+>>> print(msplit("p_1 ; p_2 ; p_3 | r_1 ; r_2 | s"))
+[
+    ['p_1', 'p_2', 'p_3'],
+    ['r_1', 'r_2'],
+    ['s']
+]
+
+```
+
+Escaping separators
 
 
-The module ``date_use``
+```python
+>>> from mistool.string_use import MultiSplit
+>>> msplit = MultiSplit(
+...     seps  = ["|", ";", ","],
+...     strip = True
+... )
+>>> listview = msplit("p_1 , p_2 ; p_3 | r_1 ; r_2 | s")
+>>> for infos in msplit.iterate():
+...     print("{0} ---> {1}".format(infos.type, infos.val))
+...
+sep ---> |
+sep ---> ;
+sep ---> ,
+val ---> p_1
+val ---> p_2
+sep ---> ;
+sep ---> ,
+val ---> p_3
+sep ---> |
+sep ---> ;
+sep ---> ,
+val ---> r_1
+sep ---> ;
+sep ---> ,
+val ---> r_2
+sep ---> |
+sep ---> ;
+sep ---> ,
+val ---> s
+```
+
+```python
+>>> from mistool.string_use import between
+>>> text = "f(x ; y) = x**2 + y**2"
+>>> seps = ["(", ")"]
+>>> print(between(text, seps))
+[
+    'f',                # Before
+    'x ; y',            # Between
+    ' = x**2 + y**2'    # After
+]
+>>> seps = ["{", "}"]
+>>> print(between(text, seps))
+None
+```
+
+Join
+----
+
+```python
+>>> from mistool.string_use import joinand
+>>> texts = ["1", "2", "3"]
+>>> print(joinand(texts))
+1, 2 and 3
+>>> andtext_fr = "et"
+>>> print(joinand(texts = texts, andtext= andtext_fr))
+1, 2 et 3
+```
+
+
+ASCII translation
+---------------
+
+```python
+>>> from mistool.string_use import isascii
+>>> print(isascii("Vive la France !"))
+True
+>>> print(isascii("¡Viva España!"))
+False
+```
+
+```python
+>>> from mistool.string_use import ascii
+>>> print(ascii("¡Viva España!"))
+Viva Espana!
+```
+
+```python
+>>> from mistool.string_use import ascii
+>>> oldnew = {'!': ""}
+>>> print(ascii(text = "¡Viva España!", oldnew = oldnew))
+Viva Espana
+```
+
+```python
+>>> from mistool.string_use import ascii
+>>> print(ascii(text = "L'Odyssée de ∏", strict = False))
+L'Odyssee de ∏
+>>> print(ascii("L'Odyssée de ∏"))
+Traceback (most recent call last):
+[...]
+ValueError: ASCII conversion can't be made because of the character << ∏ >>.
+You can use the function ``_ascii_report`` so as to report more precisely
+this fealure with eventually an ascii alternative.
+```
+
+
+Playing with cases of letters
+-----------------------------
+
+```python
+>>> from mistool.string_use import case
+>>> text = "onE eXamPLe"
+>>> for kind in ['lower', 'upper', 'sentence', 'title', 'firstlast']:
+...     print(case(text, kind),"  [{0}]".format(kind))
+...
+one example   [lower]
+ONE EXAMPLE   [upper]
+One example   [sentence]
+One Example   [title]
+One examplE   [firstlast]
+```
+
+
+```python
+>>> from mistool.string_use import camelto
+>>> text = "OneSmallExampLE"
+>>> for kind in ['lower', 'upper', 'sentence', 'title', 'firstlast']:
+...     print(camelto(text, kind),"  [{0}]".format(kind))
+...
+one_small_examp_l_e   [lower]
+ONE_SMALL_EXAMP_L_E   [upper]
+One_small_examp_l_e   [sentence]
+One_Small_Examp_L_E   [title]
+One_small_examp_l_E   [firstlast]
+```
+
+```python
+iscase(text, kind)
+```
+
+
+Features of the module ``date_use``
 =======================
 
-* **Translating dates**.
-* **Next day** having a fixed name.
+Translating dates
+-----------------
+
+```python
+>>> import datetime
+>>> from mistool.date_use import translate
+>>> onedate   = datetime.date(2015, 6, 2)
+>>> oneformat = "%A %d %B %Y"
+>>> print(translate(date = onedate, strformat = oneformat))
+Tuesday 02 June 2015
+>>> print(translate(date = onedate, strformat = oneformat, lang = "fr_FR"))
+Mardi 02 juin 2015
+```
+
+Next day having a fixed english name
+-----------------
+
+```python
+>>> from datetime import datetime
+>>> from mistool.date_use import nextday
+
+>>> onedate = datetime.strptime("2013-11-30", "%Y-%m-%d")
+>>> print(onedate.strftime("%Y-%m-%d is a %A"))
+2013-11-30 is a Saturday
+
+>>> nextsunday = nextday(date = onedate, name = "sunday")
+>>> print("Next Sunday:", nextsunday.strftime("%Y-%m-%d"))
+Next Sunday: 2013-12-01
+```
 
 
-The module ``url_use``
+Features of the module ``url_use``
 ======================
 
-* **Testing urls** so as to look for dead links.
-* **Escaping in urls** the special characters.
+Testing urls so as to look for dead links
+----
+
+```python
+>>> from mistool.url_use import islinked
+>>> islinked("http://www.google.com")
+True
+>>> islinked("http://www.g-o-o-g-l-e.com")
+False
+```
+
+Escaping in urls the special characters
+----
+
+```python
+>>> from mistool.url_use import escape
+>>> print(escape("http://www.vivaespaña.com/camión/"))
+http://www.vivaespa%C3%B1a.com/cami%C3%B3n/
+```
 
 
-The module ``latex_use``
-========================
-
-* Easy **compilation** of LaTeX files.
-* **Removing the temporary files** produced by LaTeX during one compilation.
-* **Automatic installation** of personal LaTeX packages.
-* Crucial **informations about your LaTeX distribution**.
-* **Escaping** the special characters used by the LaTeX syntax.
-
-
-The module ``os_use``
+??? Features of the module ``os_use``
 =====================
 
 * **Testing paths** so as to know if they point to one file, or one directory.
@@ -62,188 +451,383 @@ The module ``os_use``
 * **System** used and **environment's path**.
 
 
-The module ``log_test_use``
-===========================
-
-* **Launching test suite with unittest** very easily in a directory (all you need is to follow some very simple rules for naming testing files and classes).
-* **Special formatting** for logging during tests.
-* **Differences between two dictionaries** given in a string format.
-
-
-The module ``python_use``
+Features of the module ``term_use``
 =========================
 
-* **Launching several Python files** easily.
-* **Easy quoted text** with the least escaped quote symbols.
-* **List of single values of a dictionary**.
+Step
+------
+
+```python
+>>> from mistool.term_use import Step
+>>> mysteps = Step()
+>>> i = 0
+>>> while i <= 12:
+...     if i % 2:
+...         mysteps("Action #{0}".format(i))
+...     i += 1
+...
+1) Action #1
+2) Action #3
+3) Action #5
+4) Action #7
+5) Action #9
+6) Action #11
+```
+
+```python
+>>> from mistool.term_use import Step
+>>> mysteps = Step(start = 7)
+>>> for i in range(1, 6):
+...     mysteps("Text #{0}".format(i))
+...
+7) Text #1
+8) Text #2
+9) Text #3
+10) Text #4
+11) Text #5
+```
+
+```python
+>>> from mistool.term_use import Step
+>>> mysteps = Step(
+    textit = lambda n, t: "[{0}]-->> [[ {1} ]] <<--[{0}]".format(n, t)
+)
+>>> for i in range(1, 6):
+...     mysteps("Text #{0}".format(i))
+...
+[1]-->> [[ Text #1 ]] <<--[1]
+[2]-->> [[ Text #2 ]] <<--[2]
+[3]-->> [[ Text #3 ]] <<--[3]
+[4]-->> [[ Text #4 ]] <<--[4]
+[5]-->> [[ Text #5 ]] <<--[5]
+```
+
+Frame
+-----
+
+```python
+>>> from mistool.term_use import withframe
+>>> text = '''
+... One small
+... text
+... to do tests
+... '''.strip()
+>>> print(withframe(text))
+###############
+# One small   #
+# text        #
+# to do tests #
+###############
+```
+
+```python
+>>> from mistool.term_use import withframe, ALL_FRAMES
+>>> text = '''
+... One small
+... text
+... to do tests
+... '''.strip()
+>>> frame = ALL_FRAMES["python_pretty"]
+>>> print(
+...     withframe(
+...         text  = text,
+...         frame = frame
+...     )
+... )
+# ----------------- #
+# -- One small   -- #
+# -- text        -- #
+# -- to do tests -- #
+# ----------------- #
+```
+
+```python
+>>> from mistool.term_use import withframe
+>>> text = '''
+... One small
+... text
+... to do tests
+... '''.strip()
+>>> print(withframe(text))
+###############
+# One small   #
+# text        #
+# to do tests #
+###############
+
+>>> print(withframe(text = text, align = "center"))
+###############
+#  One small  #
+#    text     #
+# to do tests #
+###############
+
+>>> print(withframe(text = text, align = "right"))
+###############
+#   One small #
+#        text #
+# to do tests #
+###############
+```
+
+```python
+>>> from mistool.term_use import showallframes
+>>> showallframes()
+
+----> ascii_star
+
+***************
+* One small   *
+* text        *
+* to do tests *
+***************
 
 
-Log of the last main changes
-============================
+----> c_basic
 
-Only the major changes are in english. You can find all of them in the directory ``change_log/en``.
+/***************
+ * One small   *
+ * text        *
+ * to do tests *
+ ***************/
 
-If you want to know every changes, even the minor ones, there are in the directory ``change_log/fr`` but all of this is only in french.
+[...]
+```
 
-
-2014-08-31
-----------
-
-**Some improvements !** Here's what to discover.
-
-1. In the module ``python_use``, the new function ``runpys`` lets you launch different Python files using certain criteria related to the paths of the scripts to run.
-
-2. In the modules ``os_use``, the functions ``listfile`` and ``nextfile``, and also the class ``DirView`` have a new boolean argument ``unkeephidden`` so as to skip the hidden files and/or the hidden folders whose names usually begin with a period.
-
-3. In the module ``string_use``, to indicate several types of cases to the functions ``case`` and ``camelto``, it will be enough to simply separate these different formats using spaces.
+Just take a look at the documentation of the function ``buildframe`` that allows
+to build very easily a "frame" dictionary that can be used with ``withframe``.
 
 
-**One bug fixed in the function ``about`` of the module ``latex_use``:** an error was raised in the case of a non-standard installation of LaTeX (bug discovered under Lubuntu 14 with a TeX Live  distribution installed by hand). This type of installation is not supported at this time (but this is on the list of things to do).
+DirView
+---
+
+All of the following examples will use a folder with the structure above and
+having the whole path path::``/Users/projetmbc/dir``.
+
+```
++ dir
+    * code_1.py
+    * code_2.py
+    * file_1.txt
+    * file_2.txt
+    + doc
+        * code_A.py
+        * code_B.py
+        * slide_A.pdf
+        * slide_B.pdf
+        + licence
+            * doc.pdf
+    + emptydir
+```
 
 
-**One pseudo bug fixed in the module ``os_use``:** unlike what happens in Mac O$, under Lubuntu, folder paths returned by the standard function ``os.listdir`` do not appear in a logical order. This made impossible the practical use of the function ``listdir`` and class ``DirView`` (because it did not refer to standard output). This has been corrected.
+```python
+>>> from mistool.term_use import DirView, PPath
+>>> dir     = PPath("/Users/projetmbc/dir")
+>>> dirview = DirView(dir)
+>>> print(dirview.ascii)
++ dir
+    * code_1.py
+    * code_2.py
+    + doc
+        * code_A.py
+        * code_B.py
+        + licence
+            * doc.pdf
+        * slide_A.pdf
+        * slide_B.pdf
+    + emptydir
+    * file_1.txt
+    * file_2.txt
+```
+
+```python
+>>> from mistool.term_use import DirView, PPath
+>>> dir     = PPath("/Users/projetmbc/dir")
+>>> dirview = DirView(
+...     ppath   = dir,
+...     display = "main relative",
+...     sorting = "filefirst"
+... )
+>>> print(dirview.ascii)
++ dir
+    * code_1.py
+    * code_2.py
+    * file_1.txt
+    * file_2.txt
+    + doc
+        * doc/code_A.py
+        * doc/code_B.py
+        * doc/slide_A.pdf
+        * doc/slide_B.pdf
+        + doc/licence
+            * doc/licence/doc.pdf
+    + emptydir
+```
+
+Let's see a last example using the argument ``regpath``. The following code
+asks to keep only the files with the extension path::``py``. You can see that
+the empty folders are given, and that the other files than the ones wanted are
+indicated by ellipsis, this ones being always sorted at the end of the files.
+
+```python
+>>> from mistool.term_use import DirView, PPath
+>>> dir     = PPath("/Users/projetmbc/dir")
+>>> dirview = DirView(
+...     ppath   = dir,
+...     regpath = "file::**.py"
+... )
+>>> print(dirview.ascii)
++ dir
+    * code_1.py
+    * code_2.py
+    + doc
+        * code_A.py
+        * code_B.py
+        + licence
+            * ...
+        * ...
+    + emptydir
+    * ...
+```
 
 
-**Fork misTool on GitHub:** the project is now managed via Git and hosted on the website GitHub.
+```python
+>>> from mistool.term_use import DirView, PPath
+>>> dir     = PPath("/Users/projetmbc/dir")
+>>> dirview = DirView(
+...     ppath   = dir,
+...     regpath = "file::**.py",
+...     display = "main short found"
+... )
+>>> print(dirview.ascii)
++ dir
+    * code_1.py
+    * code_2.py
+    + doc
+        * code_A.py
+        * code_B.py
+```
+
+The documentation of the function ``_ppath_regpath2meta`` gives all the
+¨infos needed to use the regpaths.
 
 
-2014-08-27
-----------
 
-**Disappearance of certain features:** the author of misTool has started a new project lexTex. This implies that the functionalities below will no longer be in the module misTool.
-
-* The module ``parse_use``, and also the associated files ``config/group.py``, ``config/pattern.py`` and ``config/token.py`` have been deleted.
-
-* In the file ``config/pattern.py``, the constants ``PATTERN_VAR_NAME``, ``PATTERN_ROMAN_NUMERAL`` and ``PATTERN_NATURAL`` have been removed.
-
-* In the module ``string_use``, the function ``wrap`` has been deleted.
-
-* In the module ``python_use``, the functions ``pyRepr`` and ``lambdify`` have been deleted.
+aussi possible d'avoir ``dirview.tree``
 
 
-**Deep renamings in the code:** for the remaining modules, many things have been renamed in order to stick to more coherent, but also easier to use, internal specifications. Here are all the changes. Sorry for all this mess! :-)
+```python
+╸dir
+ ┣━ ╸code_1.py
+ ┣━ ╸code_2.py
+ ┣━ ╸file_1.txt
+ ┣━ ╸file_2.txt
+ ┣━ ╸doc
+ ┃   ┣━ ╸code_A.py
+ ┃   ┣━ ╸code_B.py
+ ┃   ┣━ ╸slide_A.pdf
+ ┃   ┣━ ╸slide_B.pdf
+ ┃   ┗━ ╸licence
+ ┃       ┗━ ╸doc.pdf
+ ┗━ ╸emptydir
+```
 
 
-Let's start with everything concerning **the dates**.
+``dirview.toc``
 
-+ In ``date_use.py``, it just has the following modifications.
-    * The constant ``LANG`` becomes ``DEFAULT_LANG``.
-    * The function ``nextDay`` becomes ``nextday``.
+```python
++ dir
+    * code_1.py
+    * code_2.py
+    * file_1.txt
+    * file_2.txt
 
-+ In ``config/date_name.py``, we have the following modifications.
-    * The constant ``__ALL_LANGS`` becomes ``LANGS``.
-    * The constant ``__POINTERS`` becomes ``_POINTERS``.
-    * The constant ``__FORMAT_TRANSLATIONS`` becomes ``_FORMATS_TRANSLATIONS``.
++ dir/doc
+    * code_A.py
+    * code_B.py
 
++ dir/doc/licence
+    * doc.pdf
+    * slide_A.pdf
+    * slide_B.pdf
 
-Regarding **the latex utilities**, here is what to remember.
-
-+ In ``latex_use.py``, we have the following modifications.
-    * The function ``makeMiktexLocalDir`` becomes ``make_localdir_miktex``.
-    * The function ``mikeTexLocalDir`` becomes ``localdir_miketex``.
-    * In the function ``install``, we have the following modification.
-        - The argument ``listFile`` becomes ``paths``.
-    * In the class ``Build`` and the function ``clean``, we have the following modification.
-        - The argument ``verbose`` becomes ``isverbose``.
-
-+ In ``config/latex.py``, we have the following modifications.
-    * The constant ``CLASSIFIED_TEMP_EXT`` becomes ``TEMP_EXTS``.
-    * The constant ``ALL_EXT_TO_CLEAN`` becomes ``EXTS_TO_CLEAN``.
-    * The constant ``CHAR_TO_ESCAPE`` becomes ``CHARS_TO_ESCAPE``.
-    * The constant ``CHAR_TO_LATEXIFY`` becomes ``CHARS_TO_LATEXIFY``.
++ dir/emptydir
+```
 
 
-Regarding **the module ``log_test_use.py``**, here is what has changed.
-
-+ In ``log_test_use.py``, we have the following modifications.
-    * The constant ``ASCII_ASSO`` becomes ``ASCII_ASSOS``.
-    * The function ``diffDict`` becomes ``diffdict``. For this function we have the following modification.
-        - The argument ``recursive`` becomes ``dorecursive``.
-    * The function ``launchTestSuite`` becomes ``runtests``.
-    * The function ``logPrint`` becomes ``logprint``.
-    * In the function ``what``, we have the following modification.
-        - The argument ``isMethod`` becomes ``ismethod``.
+``dirview.latex`` you will have the following ¨latex code
+than can be formated by the ¨latex package latex::``dirtree``.
 
 
-For **the module ``os_use``**, you have to pay attention to the following things.
-
-+ In ``os_use.py``, we have the following modifications.
-    * In the function ``clean``, we have the following modification.
-        - The argument ``ext`` becomes ``exts``.
-    * The function ``commonPath`` becomes ``commonpath``.
-    * The function ``fileName`` becomes ``filename``.
-    * The function ``hasExtIn`` becomes ``hasextin``. For this function we have the following modification.
-        - The argument ``listOfExt`` becomes ``exts``.
-    * The function ``isDir`` becomes ``isdir``.
-    * The function ``isFile`` becomes ``isfile``.
-    * The function ``listDir`` becomes ``listdir``.
-    * The function ``listFile`` becomes ``listfile``. For this function we have the following modifications.
-        - The argument ``keepDir`` becomes ``keepdir``.
-        - The argument ``ext`` becomes ``exts``.
-        - The argument ``prefix`` becomes ``prefixes``.
-    * The function ``makeDir`` becomes ``makedir``.
-    * The function ``makeTextFile`` becomes ``maketxtfile``.
-    * The function ``nextDir`` becomes ``nextdir``.
-    * The function ``nextFile`` becomes ``nextfile``. For this function we have the following modifications.
-        - The argument ``keepDir`` becomes ``keepdir``.
-        - The argument ``ext`` becomes ``exts``.
-        - The argument ``prefix`` becomes ``prefixes``.
-    * The function ``parentDir`` becomes ``parentdir``.
-    * The function ``pathEnv`` becomes ``pathenv``.
-    * The function ``pathNoExt`` becomes ``noext``.
-    * The function ``realPath`` becomes ``realpath``.
-    * The function ``readTextFile`` becomes ``readtxtfile``.
-    * The function ``relativeDepth`` becomes ``relativedepth``.
-    * The function ``relativePath`` becomes ``relativepath``.
-    * In the class ``DirView``, we have the following modifications.
-        - The constant of class ``ASCII_DECORATION`` becomes ``ASCII_DECOS``.
-        - The argument ``ext`` becomes ``exts``.
-        - The argument ``prefix`` becomes ``prefixes``.
-        - The argument ``seeMain`` becomes ``seemain``.
-        - The attribute ``listView`` becomes ``listview``.
-        - The method ``pathToDisplay`` becomes ``pathtodisplay``.
 
 
-The tools related to **python** are only concerned with one change.
+```python
+???
+```
 
-+ In ``python_use.py``, we have the following modification.
-    * The function ``dictSingleValues​​`` becomes ``dictvalues``.
+Features of the module ``python_use``
+=========================
 
+Easy quoted text with the least escaped quote symbols
+------
 
-Finally, for **string manipulations**, here is what has changed.
-
-+ In ``string_use.py``, we have the following modifications.
-    * In the function ``ascii``, we have the following modification.
-        - The argument ``replacement`` becomes ``replacements``.
-    * The function ``beforeAfter`` becomes ``between``.
-    * The function ``camelTo`` becomes ``camelto``.
-    * The function ``isAscii`` becomes ``isascii``.
-    * The function ``isCase`` becomes ``iscase``.
-    * The function ``joinAnd`` becomes ``joinand``. For this function we have the following modification.
-        - The argument ``andText`` becomes ``andtext``.
-    * In the function ``replace``, we have the following modification.
-        - The argument ``replacement`` becomes ``replacements``.
-    * In the function ``split``, we have the following modification.
-        - The argument ``sep`` becomes ``seps``.
-    * In the class ``AutoComplete``, we have the following modification.
-        - The argument ``dictAsso`` becomes ``assos``.
-    * In the class ``MultiReplace``, we have the following modifications.
-        - The argument ``replacement`` becomes ``replacements``.
-        - The attribute ``replacementasit`` becomes ``replaceasit``.
-    * In the class ``MultiSplit``, we have the following modifications.
-        - The argument ``sep`` becomes ``seps``.
-        - The attribute ``listView`` becomes ``listview``.
-
-+ In ``config/frame.py``, we have the following modifications.
-    * The constant ``_ABREV_FRAME`` becomes ``_ABREVS_FRAMES``.
-    * The constant ``_KEY_FRAME`` becomes ``_KEYS_FRAMES``.
-    * The constant ``FRAME_FORMATS`` becomes ``FRAMES_FORMATS``.
-
-+ In ``config/pattern.py``, we have the following modification.
-    * The constant ``PATTERN_GROUP_WORD`` becomes ``PATTERNS_WORDS``.
+```python
+???>>> from mistool.python_use import quote
+>>> print(quote('First example.'))
+'First example.'
+>>> print(quote("Same example."))
+'Same example.'
+>>> print(quote('One "small" example.'))
+'One "small" example.'
+>>> print(quote("The same kind of 'example'."))
+"The same kind of 'example'."
+>>> print(quote("An example a 'little' more \"problematic\"."))
+'An example a \'little\' more "problematic".'
+```
 
 
-2013-03-17
-----------
+List of single values of a dictionary
+----
 
-First downloadable version of the package.
+```python
+>>> from mistool.python_use import dictvalues
+>>> onedict = {"a": 1, "b": 2, "c": 1}
+>>> print(dictvalues(onedict))
+[1, 2]
+>>> print(list(onedict.values()))
+[2, 1, 1]
+```
+
+??? Features of the module ``latex_use``
+========================
+
+* Easy **compilation** of LaTeX files.
+
+```python
+???
+```
+
+* **Removing the temporary files** produced by LaTeX during one compilation.
+
+```python
+???
+```
+
+* **Automatic installation** of personal LaTeX packages.
+
+```python
+???
+```
+
+* Crucial **informations about your LaTeX distribution**.
+
+```python
+???
+```
+
+* **Escaping** the special characters used by the LaTeX syntax.
+
+```python
+???
+```

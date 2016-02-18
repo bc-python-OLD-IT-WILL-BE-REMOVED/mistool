@@ -15,11 +15,11 @@ simplify the use of a command line from ¨python codes.
 
 import os
 import pathlib
+import platform
 from random import randint
 import re
 import shlex
 import shutil
-import platform
 from subprocess import check_call, check_output
 
 
@@ -1317,7 +1317,7 @@ pyterm::
     >>> from mistool.os_use import PPath, runthis
     >>> pyfile = PPath("/Users/projects/script.py")
     >>> runthis(cmd = "python3", ppath = pyfile)
-    >>> runthis(cmd = "python3", ppath = pyfile  , showoutput = True)
+    >>> runthis(cmd = "python3", ppath = pyfile, showoutput = True)
     Everything is ok.
 
 
@@ -1326,15 +1326,6 @@ info::
     ``\ ``, or put this arguments inside quotes.
     """
 # ``shlex.split`` takes care of escaped spaces and quotes.
-#
-# For example,
-#     "/Users/projects/git\ config\ perso/gitignore"
-# is a single argument but we have to take care of case like
-#     "/Users/projects/git\\ config\ perso/gitignore"
-# which is made of the two arguments
-#     "/Users/projects/git\\"
-# and
-#     "config\ perso/gitignore".
     cmd_args = shlex.split(
         s     = cmd,
         posix = True

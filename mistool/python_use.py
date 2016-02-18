@@ -7,6 +7,7 @@ prototype::
 This module contains some simple tools about the ¨python programming language.
 """
 
+
 # ------------- #
 # -- QUOTING -- #
 # ------------- #

@@ -10,14 +10,18 @@ printed in a terminal.
 """
 
 from mistool.config.frame import ALL_FRAMES
-
-from mistool.os_use import PPath, \
-                           _XTRA, _FILE, _DIR, \
-                           _FILE_DIR_QUERIES, \
-                           _ALL, _NOT, _RELSEARCH, _XTRA, \
-                           _FILE, _DIR, _EMPTY, _OTHER_FILES
-
 from mistool.latex_use import escape as latex_escape
+from mistool.os_use import (
+    _ALL,
+    _DIR,
+    _EMPTY,
+    _FILE, _FILE_DIR_QUERIES,
+    _NOT,
+    _OTHER_FILES,
+    _RELSEARCH,
+    _XTRA,
+    PPath
+)
 
 
 # ------------------ #
@@ -636,23 +640,23 @@ in the text printed, the files and the folders are sorting regarding their names
 the documentation that you are reading).
 
 pyterm::
-    >>> from mistool.term_use import DirView, PPath
-    >>> dir     = PPath("/Users/projetmbc/dir")
-    >>> dirview = DirView(dir)
-    >>> print(dirview.ascii)
-    + dir
-        * code_1.py
-        * code_2.py
-        + doc
-            * code_A.py
-            * code_B.py
-            + licence
-                * doc.pdf
-            * slide_A.pdf
-            * slide_B.pdf
-        + emptydir
-        * file_1.txt
-        * file_2.txt
+>>> from mistool.term_use import DirView, PPath
+>>> dir     = PPath("/Users/projetmbc/dir")
+>>> dirview = DirView(dir)
+>>> print(dirview.ascii)
++ dir
+    * code_1.py
+    * code_2.py
+    + doc
+        * code_A.py
+        * code_B.py
+        + licence
+            * doc.pdf
+        * slide_A.pdf
+        * slide_B.pdf
+    + emptydir
+    * file_1.txt
+    * file_2.txt
 
 
 You can ask to have the files before the folders and also to have the relative
@@ -745,7 +749,7 @@ info::
 The "ruled" tree output
 =======================
 
-By default, ``DirView.tree`` give a tree view using rules similar to the ones
+By default, ``dirview.tree`` give a tree view using rules similar to the ones
 you can see in ¨gui applications displaying tree structure of a folder. Here we
 use only ¨utf8 characters.
 
@@ -769,7 +773,7 @@ term::
 The "toc" like output
 =====================
 
-Using ``DirView.toc`` with the sorting option ``sorting = "filefirst"``, this is
+Using ``dirview.toc`` with the sorting option ``sorting = "filefirst"``, this is
 the better sorting option here, you will obtain the following output which looks
 like a kind of table of contents with sections for folders, and subsections for
 files.
@@ -803,7 +807,7 @@ warning::
 A ¨latex version for the package latex::``dirtree``
 ===================================================
 
-By default, using ``DirView.latex`` you will have the following ¨latex code
+By default, using ``dirview.latex`` you will have the following ¨latex code
 than can be formated by the ¨latex package latex::``dirtree``.
 
 latex::
@@ -1090,19 +1094,16 @@ info::
 
     def buildviews(self):
         """
-????
-
-
 prototype::
     see = self.sort , self.ascii , self.latex , self.toc , self.tree
 
     action = this method builds one flat list ``self.listview`` of dictionaries,
              that store all the informations about the directory even the empty
-             folders and the unmatching files,
-             and also ``self.treeview`` another list of dictionaries which is
-             like the natural tree structure of the folder analyzed
-             (both of this objects are sorted regarding to the value of the
-             attribut ``self.sorting``)
+             folders and the unmatching files.
+             This method also builds ``self.treeview`` another list of
+             dictionaries which is like the natural tree structure of the folder
+             analyzed (both of this objects are sorted regarding to the value of
+             the attribut ``self.sorting``)
 
 
 ======================================
