@@ -151,14 +151,15 @@ info::
 class Build:
     """
 prototype::
-    arg = os_use.PPath: ppath ;
-          the path of the ¨latex file to compile.
-    arg = int: repeat = 1 ;
-          the number of compilations to be done (for example, if the ¨latex
-          document has one table of content, several compilations are needed).
-    arg = bool: showinfos = False ;
-          by default, ``showinfos = False`` asks to not show the informations
-          sent by ¨latex when it is compiling
+    arg-attr = os_use.PPath: ppath ;
+               the path of the ¨latex file to compile.
+    arg-attr = int: repeat = 1 ;
+               the number of compilations to be done (for example, if the
+               ¨latex document has one table of content, several compilations
+               are needed).
+    arg-attr = bool: showinfos = False ;
+               by default, ``showinfos = False`` asks to not show the
+               informations sent by ¨latex when it is compiling
 
 
 This class gives methods for compilate a ¨latex document. Let's consider the
@@ -177,7 +178,7 @@ latex::
 
 
 In the lines above, we have added call to the class ``term_use.DirView``
-so as to see the new files made by ¨latex (the ellipsis terminal::``[...]``
+so as to show the new files made by ¨latex (the ellipsis terminal::``[...]``
 indicates some lines not reproduced here).
 
 pyterm::
@@ -660,7 +661,9 @@ warning::
     This function can only be used with the "Super User" mode.
 
 
-Let's suppose that we a package named latex::``lyxam`` stored in a folder having the path path::``/Users/projetmbc/latex/lyxam`` and whose structure is the following one.
+Let's suppose that we have package named latex::``lyxam`` stored in a folder
+having the path path::``/Users/projetmbc/latex/lyxam`` and whose structure is
+the following one.
 
 dir::
     + lyxam
@@ -725,8 +728,8 @@ In this example we have used some default settings.
     (that is the case in our example).
 
 
-Let's suppose now that we do not want to install al the path::``TXT`` files.
-It is easy with "regptahs" as you can see in the following example (see the
+Let's suppose now that we do not want to install all the path::``TXT`` files.
+It is easy with "regpaths" as you can see in the following example (see the
 documentation of the special function ``os_use._ppath_regpath2meta``).
 
 pyterm::

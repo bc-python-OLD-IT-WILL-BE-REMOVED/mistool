@@ -49,11 +49,9 @@ day given by its name, for example the next nearest sunday after november the
 pyterm::
     >>> from datetime import datetime
     >>> from mistool.date_use import nextday
-
     >>> onedate = datetime.strptime("2013-11-30", "%Y-%m-%d")
     >>> print(onedate.strftime("%Y-%m-%d is a %A"))
     2013-11-30 is a Saturday
-
     >>> nextsunday = nextday(date = onedate, name = "sunday")
     >>> print("Next Sunday:", nextsunday.strftime("%Y-%m-%d"))
     Next Sunday: 2013-12-01
