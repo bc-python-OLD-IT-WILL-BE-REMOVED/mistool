@@ -33,7 +33,7 @@ prototype::
     pass
 
 
-def _raise_ioerror(
+def _raise_io_error(
     kind   = None,
     ppath  = None,
     action = None
@@ -45,7 +45,7 @@ prototype::
     arg = str: action in ['access' , 'exist' , 'notatex', 'superuser']
 
     return = str ;
-             this function simply eases the raising of some specific OS errors.
+             this function simply eases the raising of some specific IO errors.
     """
     if action == 'superuser':
         raise OSError("you must be a super user")
@@ -225,7 +225,7 @@ info::
     ):
 # Does the file to compile exist ?
         if not ppath.is_file():
-            _raise_ioerror(
+            _raise_io_error(
                 kind   = "file",
                 path   = ppath,
                 action = "exist"
@@ -233,7 +233,7 @@ info::
 
 # Do we have TEX file ?
         if ppath.ext != "tex":
-            _raise_ioerror(
+            _raise_io_error(
                 kind   = "file",
                 path   = path,
                 action = "notatex"
@@ -353,7 +353,7 @@ info::
 # One file
     if ppath.is_file():
         if ppath.ext != "tex":
-            _raise_ioerror(
+            _raise_io_error(
                 kind   = "file",
                 path   = main,
                 action = "notatex"
@@ -513,7 +513,7 @@ prototype::
     action = this function tests if we have "Super User" permissions
     """
     if not canmodify(aboutlatex['localdir']):
-        _raise_ioerror(action = "superuser")
+        _raise_io_error(action = "superuser")
 
 
 def _can_install(aboutlatex):
@@ -818,7 +818,7 @@ prototype::
     arg = str: name ;
           the name of a local ¨latex package
 
-    action = the package is reoved from the local ¨latex distribution
+    action = the package is removed from the local ¨latex distribution
 
 
 warning::
