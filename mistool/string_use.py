@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2015-06-08
+    date = 2016-02-19
 
 
 This module contains some tools to manipulate strings.
@@ -40,7 +40,7 @@ pyterm::
     >>> from mistool.string_use import case
     >>> text = "onE eXamPLe"
     >>> for kind in ['lower', 'upper', 'sentence', 'title', 'firstlast']:
-    ...     print(case(text, kind),"  [{0}]".format(kind))
+    ...     print("{0}  [{1}]".format(case(text, kind), kind))
     ...
     one example   [lower]
     ONE EXAMPLE   [upper]
@@ -107,7 +107,7 @@ pyterm::
     >>> from mistool.string_use import camelto
     >>> text = "OneSmallExampLE"
     >>> for kind in ['lower', 'upper', 'sentence', 'title', 'firstlast']:
-    ...     print(camelto(text, kind),"  [{0}]".format(kind))
+    ...     print("{0}  [{1}]".format(camelto(text, kind), kind))
     ...
     one_small_examp_l_e   [lower]
     ONE_SMALL_EXAMP_L_E   [upper]
@@ -347,7 +347,7 @@ pyterm::
     Traceback (most recent call last):
     [...]
     ValueError: the following viscious circle has been found.
-    	 +  --> WRONG_2 --> WRONG_3 --> WRONG_1 --> WRONG_2
+    	 + WRONG_2 --> WRONG_3 --> WRONG_1 --> WRONG_2
 
 
 ================================
@@ -485,7 +485,7 @@ prototype::
             elif old in wordsfound:
                 pos = wordsfound.index(old)
 
-                wordsfound = [""] + wordsfound[pos:]
+                wordsfound = wordsfound[pos:]
                 wordsfound.append(old)
 
                 raise ValueError(
@@ -1034,12 +1034,15 @@ pyterm::
 
 def joinand(
     texts,
+    sep     = ", ",
     andtext = "and"
 ):
     """
 prototype::
     arg = list(str): texts ;
           the texts to be joined
+    arg = str: sep = ", " ;
+          the text used to separate all but the two last strings
     arg = str: andtext = "and" ;
           the text used to separate the two last strings
 
@@ -1056,9 +1059,10 @@ pyterm::
     >>> texts = ["1", "2", "3"]
     >>> print(joinand(texts))
     1, 2 and 3
-    >>> andtext_fr = "et"
-    >>> print(joinand(texts = texts, andtext= andtext_fr))
+    >>> print(joinand(texts = texts, andtext = "et"))
     1, 2 et 3
+    >>> print(joinand(texts = texts, sep = " + ", andtext = "="))
+    1 + 2 = 3
     """
     if len(texts) == 1:
         return texts[0]
@@ -1067,7 +1071,7 @@ pyterm::
         andtext = AND_TEXT
 
     return "{0} {1} {2}".format(
-        ", ".join(texts[:-1]),
+        sep.join(texts[:-1]),
         andtext,
         texts[-1]
     )
@@ -1099,7 +1103,7 @@ pyterm::
     return bool(set(text) <= ASCII_CHARS)
 
 
-def ascii(
+def ascii_it(
     text,
     oldnew = {},
     strict = True
@@ -1129,8 +1133,8 @@ use is for avoiding strange names of files. Here is a standard use where you can
 see that none ¨ascii ponctuation mark is simply removed.
 
 pyterm::
-    >>> from mistool.string_use import ascii
-    >>> print(ascii("¡Viva España!"))
+    >>> from mistool.string_use import ascii_it
+    >>> print(ascii_it("¡Viva España!"))
     Viva Espana!
 
 
@@ -1142,9 +1146,9 @@ You can use the optional argument ``oldnew`` so as to do more replacements. In
 the code below we have choosen to also clean ``!``.
 
 pyterm::
-    >>> from mistool.string_use import ascii
+    >>> from mistool.string_use import ascii_it
     >>> oldnew = {'!': ""}
-    >>> print(ascii(text = "¡Viva España!", oldnew = oldnew))
+    >>> print(ascii_it(text = "¡Viva España!", oldnew = oldnew))
     Viva Espana
 
 
@@ -1157,10 +1161,10 @@ example below, we use ``strict`` so as to obtain ``L'Odyssee de ∏`` instead
 of an error as the second use of ``ascii`` shows.
 
 pyterm::
-    >>> from mistool.string_use import ascii
-    >>> print(ascii(text = "L'Odyssée de ∏", strict = False))
+    >>> from mistool.string_use import ascii_it
+    >>> print(ascii_it(text = "L'Odyssée de ∏", strict = False))
     L'Odyssee de ∏
-    >>> print(ascii("L'Odyssée de ∏"))
+    >>> print(ascii_it("L'Odyssée de ∏"))
     Traceback (most recent call last):
     [...]
     ValueError: ASCII conversion can't be made because of the character << ∏ >>.
@@ -1269,7 +1273,7 @@ prototype::
 
     for onechar in set(text) - ASCII_CHARS:
         try:
-            ascii(onechar)
+            ascii_it(onechar)
 
         except ValueError as e:
             problems.append(

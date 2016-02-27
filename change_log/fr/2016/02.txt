@@ -1,11 +1,43 @@
 ==========
-2016-02-18
+2016-02-26
 ==========
+
+**Trois modifications dans le module ``os_use`` :** voici ce qui a changé.
+
+    1) Étant donné l'ajout de ``os_use.cd`` pour changer le répertoire courant de travail, la fonction ``runthis`` ne fait plus appel à ``cwd`` de façon cachée, et l'argument ``ppath`` a été supprimé. Ceci signifie qu'il faudra au préalable utiliser ``cd`` comme on le ferait dans un terminal *(ceci est bien plus pratique et logique)*.
+
+    2) La fonction ``canmodify`` est devenu plus logiquement la méthode ``is_protected`` de la classe ``PPath``. La méthode utilisée maintenant est plus sûre car basée sur ``os.access``.
+
+    3) L'argument ``safemode`` de la méthode ``can_be_removed`` de la classe ``PPath`` est devenu optionnel, et il admet la valeur ``True`` par défaut.
+
 
 **Amélioration du fichier ``README.md`` :** des exemples "en console" ont été ajoutés afin de rendre le package plus "bankable".
 
 
-**Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu passer à ``setuptools``.
+**Utilisation de ``setuptools`` :** comme ``pip`` a décidé d'abandonner le support de ``distutils``, il a fallu passer à ``setuptools`` *(rien de bien douloureux)*.
+
+
+==========
+2016-02-19
+==========
+
+**Du mieux dans le module ``string_use`` :** voici les améliorations apportées.
+
+    1) La fonction ``ascii`` a été rebaptisée ``ascii_it`` car ``ascii`` est proposé par ¨python. Oups !...
+
+    2) La fonction ``joinand`` possède un nouvel argument optionnel ``sep`` afin de pouvoir choisir tous les premiers séparateurs lors de la jonction. Par défaut, ``sep = ", "``.
+
+
+
+==========
+2016-02-19
+==========
+
+**Du mieux dans le module ``string_use`` :** voici les améliorations apportées.
+
+    1) La fonction ``ascii`` a été rebaptisée ``ascii_it`` car ``ascii`` est proposé par ¨python. Oups !...
+
+    2) La fonction ``joinand`` possède un nouvel argument optionnel ``sep`` afin de pouvoir choisir les premiers séparateurs lors de la jonction. Par défaut, ``sep = ", "``.
 
 
 ==========

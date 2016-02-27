@@ -31,16 +31,16 @@ from mistool.os_use import (
 class Step:
     """
 prototype::
-    arg = int: start = 1 ;
-          the first number used for the steps
-    arg = func: textit = lambda n, t: "{0}) {1}".format(n, t) ;
-          the function called to make the text corresponding to one action using
-          two variables two variables ``n`` for the number, and ``t`` for the
-          users's text
-    arg = bool: isprinted = True ;
-          this is to ask to print the texts in the terminal
-    arg = bool: isreturned = False ;
-          this is to ask to return the texts
+    arg-attr = int: start = 1 ;
+               the first number used for the steps
+    arg-attr = func: textit = lambda n, t: "{0}) {1}".format(n, t) ;
+               the function called to make the text corresponding to one action
+               using two variables two variables ``n`` for the number, and ``t``
+               for the users's text
+    arg-attr = bool: isprinted = True ;
+               this is to ask to print the texts in the terminal
+    arg-attr = bool: isreturned = False ;
+               this is to ask to return the texts
 
     action = this tiny class allows to print ¨andor obtain texts for step by
              step actions that are automatically numbered.

@@ -33,8 +33,8 @@ def pathenv():
     """
 prototype::
     return = str ;
-             the variable ``PATH`` that contains paths of some executables
-             known by your OS
+             the variable ``PATH`` that contains paths of executables known
+             by your OS
     """
     return os.getenv('PATH')
 
@@ -145,11 +145,11 @@ info::
 class PPath(type(pathlib.Path())):
     """
 prototype::
+    see = pathlib.Path
+
     type = self ;
            this class adds some functionalities to the standard class
            ``pathlib.Path``
-
-    see = pathlib.Path
     """
 # -- CONSTANTS FOR REGPATHS -- #
 
@@ -158,7 +158,7 @@ prototype::
 #     * http://stackoverflow.com/a/430781/4589608
 #     * http://stackoverflow.com/a/30439865/4589608
 #     * http://stackoverflow.com/a/817117/4589608
-#     * http://stackoverflow.com/questions/20294704/which-pattern-has-been-found/20294987
+#     * http://stackoverflow.com/a/20294987/4589608
 
     _FILE, _DIR, _EMPTY, _OTHER_FILES \
     = "file", "dir", "empty_dir", "dir_other_files"
@@ -201,7 +201,7 @@ prototype::
     return = bool ;
              if ``PPath`` is not an existing directory an error is raised, but
              if the ``PPath`` points to an empty directory, ``False`` is
-             returned, otherwise that is ``True`` that is returned
+             returned, otherwise that is ``True`` which is returned
          """
         if not self.is_dir():
             raise OSError("the path does not point to an existing directory")
@@ -210,6 +210,37 @@ prototype::
             return False
 
         return True
+
+
+    def is_protected(self):
+        """
+prototype::
+    return = bool ;
+             if the path doe not point to an existing file or folder, an
+             ``OSError`` error is raised,
+             if the path is the one of a folder, the answer returned is
+             ``True`` for a modifiable directory and ``False`` othrewise,
+             and finally if the path points to a file, then that is its
+             parent folder which is tested
+        """
+        if self.is_file():
+            ppath = self.parent
+
+        elif self.is_dir():
+            ppath = self
+
+        else:
+            raise OSError(
+                "the path doesn't point to something "
+                "inside an existing directory"
+            )
+
+# Source :
+#     * http://stackoverflow.com/q/2113427/4589608
+        return os.access(
+            path = str(ppath),
+            mode = os.W_OK | os.X_OK
+        )
 
 
     @property
@@ -221,14 +252,13 @@ prototype::
              current path
 
 
-Here is an example made using a ¨mac. The ``PosixPath`` refers to the Unix
-version of ``PPath``.
+Here is a complete example.
 
 pyterm::
     >>> from mistool.os_use import PPath
     >>> path = PPath("dir/subdir/file.txt")
     >>> path.parent
-    PosixPath('dir/subdir')
+    PPath('dir/subdir')
         """
         return self.parents[0]
 
@@ -237,6 +267,8 @@ pyterm::
     def depth(self):
         """
 prototype::
+    see = self.depth_in
+
     return = int ;
              the absolute depth of a path
 
@@ -256,6 +288,8 @@ pyterm::
     def ext(self):
         """
 prototype::
+    see = self.with_ext
+
     return = str ;
              the extension of the path
 
@@ -276,7 +310,7 @@ pyterm::
         return self.suffix[1:]
 
 
-# -- MODIFYING A PATH -- #
+# -- CHANGING A PATH -- #
 
     def with_ext(self, ext):
         """
@@ -289,17 +323,16 @@ prototype::
              the extension using the value of ``ext``
 
 
-Here is ane example made using a ¨mac. The ``PosixPath`` refers to the Unix
-version of ``PPath``.
+Here are two examples.
 
 pyterm::
     >>> from mistool.os_use import PPath
     >>> path = PPath("dir/subdir")
     >>> path.with_ext("ext")
-    PosixPath('dir/subdir.ext')
+    PPath('dir/subdir.ext')
     >>> path = PPath("dir/subdir/file.txt")
     >>> path.with_ext("ext")
-    PosixPath('dir/subdir/file.ext')
+    PPath('dir/subdir/file.ext')
         """
         if ext:
             ext = "." + ext
@@ -319,14 +352,13 @@ prototype::
 
 
 Here is an example made on the ¨mac of the author of ¨mistool where the user's
-folder is path::``/Users/projects``. The ``PosixPath`` refers to the Unix
-version of ``PPath``.
+folder is path::``/Users/projects``.
 
 pyterm::
     >>> from mistool.os_use import PPath
     >>> path = PPath("~/dir_1/dir_2/dir_3/../../file.txt")
     >>> path.normpath
-    PosixPath('/Users/projects/dir_1/file.txt')
+    PPath('/Users/projects/dir_1/file.txt')
     """
         return PPath(
             os.path.normpath(
@@ -346,14 +378,13 @@ prototype::
 
 
 Here is an example made on the Mac of the author of ¨mistool. In that case
-path::``/Users/projects`` is the user's folder. The ``PosixPath`` refers to
-the Unix version of ``PPath``.
+path::``/Users/projects`` is the user's folder.
 
 pyterm::
     >>> from mistool.os_use import PPath
     >>> path = PPath("/Users/projetmbc/dir_1/dir_2/dir_3/../../file.txt")
     >>> path.shortpath
-    PosixPath('~/dir_1/file.txt')
+    PPath('~/dir_1/file.txt')
         """
         path     = os.path.normpath(os.path.expanduser(str(self)))
         userpath = os.path.expanduser("~") + self._flavour.sep
@@ -391,15 +422,15 @@ pyterm::
     >>> path_2      = PPath("/Users/projects/source/misTool/os_use.py")
     >>> path_danger = PPath("/NoUser/projects")
     >>> path.common_with(path_1)
-    PosixPath('/Users/projects')
+    PPath('/Users/projects')
     >>> path.common_with(path_2)
-    PosixPath('/Users/projects/source')
+    PPath('/Users/projects/source')
     >>> path.common_with(path_danger)
-    PosixPath('/')
+    PPath('/')
     >>> path.common_with(path_1, path_2)
-    PosixPath('/Users/projects')
+    PPath('/Users/projects')
     >>> path.common_with([path_1, path_2])
-    PosixPath('/Users/projects')
+    PPath('/Users/projects')
 
 
 You can also use the magic method ``&`` as a shortcut to ``common_with``. Some
@@ -407,11 +438,11 @@ of the preceding examples becomes then the following ones.
 
 pyterm::
     >>> path & path_1
-    PosixPath('/Users/projects')
+    PPath('/Users/projects')
     >>> path & path_1 & path_2
-    PosixPath('/Users/projects')
+    PPath('/Users/projects')
     >>> path & [path_1, path_2]
-    PosixPath('/Users/projects')
+    PPath('/Users/projects')
 
 
 info::
@@ -484,7 +515,21 @@ prototype::
 
 
 This magic method allows to use ``path - anotherpath`` instead of the long
-version ``path.relative_to(anotherpath)`` given by ``pathlib.Path``.
+version ``path.relative_to(anotherpath)`` given by ``pathlib.Path``. Here are some examples of use.
+
+pyterm::
+    >>> from mistool.os_use import PPath
+    >>> main    = PPath("/Users/projects")
+    >>> path_1  = PPath("/Users/projects/README")
+    >>> path_2  = PPath("/Users/projects/source/misTool/os_use.py")
+    >>> path_1 - main
+    PPath('README')
+    >>> path_2 - main
+    PPath('source/misTool/os_use.py')
+    >>> path_2 - path_1
+    Traceback (most recent call last):
+    [...]
+    ValueError: '/Users/projects/source/misTool/os_use.py' does not start with '/Users/projects/README'
         """
         return self.relative_to(path)
 
@@ -671,7 +716,7 @@ spaces.
     kept or a folder is empty (this feature is used by the class ``DirView``).
 
 
-For example, to keep only the Python files, in a folder or not, just use
+For example, to keep only the ¨python files, in a folder or not, just use
 ``"file::**.py"``. This is not the same that ``"**.py"`` which will also catch
 folders with a name finishing by path::``.py`` (that is legal).
 
@@ -727,6 +772,48 @@ info::
 
 # -- WALK AND SEE -- #
 
+    def see(self):
+        """
+prototype::
+    action = this method shows one directory or one file in the OS environment
+             by trying to call an associated application
+    """
+# Nothing to open...
+        if not self.is_file() and not self.is_dir():
+            raise OSError("the path points nowhere.")
+
+# We need the **string** long normalized version of the path.
+        strpath = str(self.normpath)
+
+# Each OS has its own method.
+        osname = system()
+
+# Windows
+        if osname == "windows":
+            if self.is_file():
+                os.startfile(strpath)
+            else:
+                check_call(args = ['explorer', strpath])
+
+# Mac
+        elif osname == "mac":
+            check_call(args = ['open', strpath])
+
+# Linux
+#
+# Source :
+#     * http://forum.ubuntu-fr.org/viewtopic.php?pid=3952590#p3952590
+        elif osname == "linux":
+            check_call(args = ['xdg-open', strpath])
+
+# Unknown method...
+        else:
+            raise OSError(
+                "the opening of the file in the OS "
+                "<< {0} >> is not supported.".format(osname)
+            )
+
+
     def __tagsreturnedbywalk(self, ppath, tag, givetags):
         if givetags:
             return ppath, tag
@@ -741,9 +828,10 @@ info::
     ):
         """
 prototype::
+    see = self.regpath2meta
+
     arg = str: regpath = "relative::**" ;
-          this is a string that follows some rules named regpath rules (see
-          the documentation of the function ``_ppath_regpath2meta``)
+          this is a string that follows some rules named regpath rules
     arg = bool: givetags = False ;
           by default, the walk yields only ``PPath``, but if you use ``givetags
           = True``, then the walk yields a couple made of a ``PPath`` and an
@@ -781,21 +869,21 @@ dir::
                 * doc.pdf
 
 
-Here are three examples of use where you can see that the regpaths ``"*"`` and
-``"**"`` don't do the same thing : there are two much files with ``"**"``. Just
-go to the documentation of the function ``_ppath_regpath2meta`` so as to know
-why (you have to remember that by default the search is relative).
+Here are easy to understand examples where the regpath ``"*"`` is for a
+non-recursive search contrary to the regpath ``"**"``. Just go to the
+documentation of the method ``regpath2meta`` so as to know why (you have
+to remember that by default the search is relative).
 
 pyterm::
     >>> from mistool.os_use import PPath
-    >>> folder = PPath("/Users/projects/dir")
+    >>> folder = PPath("/Users/projects/basic_dir")
     >>> for p in folder.walk("dir::**"):
     ...     print("+", p)
     ...
     + /Users/projects/basic_dir/empty_dir
     + /Users/projects/basic_dir/sub_dir
     + /Users/projects/basic_dir/sub_dir/sub_sub_dir
-    >>> for p in folder.walk("**.py"):
+    >>> for p in folder.walk("file::**.py"):
     ...     print("+", p)
     ...
     + /Users/projects/basic_dir/python_1.py
@@ -804,7 +892,7 @@ pyterm::
     + /Users/projects/basic_dir/python_4.py
     + /Users/projects/basic_dir/sub_dir/code_A.py
     + /Users/projects/basic_dir/sub_dir/code_B.py
-    >>> for p in folder.walk("relative file::*.py"):
+    >>> for p in folder.walk("file::*.py"):
     ...     print("+", p)
     ...
     + /Users/projects/basic_dir/python_1.py
@@ -816,8 +904,8 @@ pyterm::
 info::
     If you want to see the existing files that do not match the regpath and also
     the empty folders, you will have to use the query ``xtra`` together with
-    ``givetags = True`` (this feature is used  by the class ``DirView``). Here
-    is an example.
+    ``givetags = True`` (this feature is used by the class ``DirView`` of the
+    module ``term_use``). Here is an example of use.
 
     pyterm::
         >>> from mistool.os_use import PPath
@@ -839,8 +927,8 @@ info::
         + dir_other_files >>> /Users/projects/basic_dir/sub_dir
         + dir_other_files >>> /Users/projects/basic_dir/sub_dir/sub_sub_dir
 
-    The special names are stored in the global variables ``self._FILE``, ``self._DIR``,
-    ``self._EMPTY`` and ``self._OTHER_FILES`` which are strings.
+    The special names are stored in the global variables ``self._FILE``,
+    ``self._DIR``, ``self._EMPTY`` and ``self._OTHER_FILES`` which are strings.
     This is useful to avoid typing errors if you want to use the query ``xtra``
     together with ``givetags = True`` as the class ``DirView`` does.
         """
@@ -953,48 +1041,6 @@ info::
                 )
 
 
-    def see(self):
-        """
-prototype::
-    action = this method shows one directory or one file in the OS environment
-             by trying to call an associated application
-    """
-# Nothing to open...
-        if not self.is_file() and not self.is_dir():
-            raise OSError("the path points nowhere.")
-
-# We need the **string** long normalized version of the path.
-        strpath = str(self.normpath)
-
-# Each OS has its own method.
-        osname = system()
-
-# Windows
-        if osname == "windows":
-            if self.is_file():
-                os.startfile(strpath)
-            else:
-                check_call(args = ['explorer', strpath])
-
-# Mac
-        elif osname == "mac":
-            check_call(args = ['open', strpath])
-
-# Linux
-#
-# Source :
-#     * http://forum.ubuntu-fr.org/viewtopic.php?pid=3952590#p3952590
-        elif osname == "linux":
-            check_call(args = ['xdg-open', strpath])
-
-# Unknown method...
-        else:
-            raise OSError(
-                "the opening of the file in the OS "
-                "<< {0} >> is not supported.".format(osname)
-            )
-
-
 # -- CREATE -- #
 
     def create(self, kind):
@@ -1008,7 +1054,8 @@ prototype::
 
 
 Here is an example of creations relatively to a current directory having path
-path::``/Users/projects``. You can see that some exceptions can be raised.
+path::``/Users/projects``, and containing no subfolder (you can see that some
+exceptions can be raised).
 
 pyterm::
     >>> from mistool.os_use import PPath
@@ -1055,10 +1102,10 @@ info::
 
 # -- REMOVE -- #
 
-    def can_be_removed(self, safemode):
+    def can_be_removed(self, safemode = True):
         """
 prototype::
-    arg = bool: safemode ;
+    arg = bool: safemode = True ;
           using ``safemode = True`` protects any existing file or directory
           whereas ``safemode = True`` makes any file or directory removable
 
@@ -1068,20 +1115,22 @@ prototype::
         if safemode:
             if self.is_file():
                 raise OSError(
-                    "impossible to remove the file (use ``safemode = False`` "
-                    "to force the erasing)"
+                    "existing file can't be removed with ``safemode = True`` "
+                    "(use ``safemode = False`` to force the erasing)"
                 )
 
             elif self.is_dir():
                 raise OSError(
-                    "impossible to remove the directory (use ``safemode = False`` "
-                    "to force the erasing)"
+                    "existing folder can't be removed with ``safemode = True`` "
+                    "(use ``safemode = False`` to force the erasing)"
                 )
 
 
     def remove(self):
         """
 prototype::
+    see = self.can_be_removed
+
     action = this method removes the directory or the file corresponding to
              the current path
 
@@ -1103,9 +1152,10 @@ warning::
     def clean(self, regpath):
         """
 prototype::
+    see = self.regpath2meta
+
     arg = str: regpath ;
-          this is a string that follows some rules named regpath rules (see
-          the documentation of the function ``_ppath_regpath2meta``)
+          this is a string that follows some rules named regpath rules
 
     action = every files and directories matching ``regpath`` are removed
         """
@@ -1149,7 +1199,7 @@ prototype::
     arg = PPath: dest
     arg = bool: safemode = True;
           this argument is a security to avoid the erasing of an existing file
-          or directory. This allows the savvy developer to erase file or
+          or directory. This allows the savy developer to erase file or
           directory during a copy by using ``safemode = False``
 
     action = if the current ``PPath`` is an existing file or directory, the
@@ -1176,7 +1226,6 @@ warning::
 #
 # WARNING !!! We can't call the method ``create`` during the recursive walk !
             elif self.is_dir():
-                print("self & dest", self & dest)
                 if self == self & dest:
                     raise OSError(
                         "copy of a directory inside one of its sub directory "
@@ -1280,26 +1329,23 @@ _SUBPROCESS_METHOD = {
 
 def runthis(
     cmd,
-    ppath      = None,
     showoutput = False
 ):
     """
 prototype::
+    see = cd, PPath.is_protected
+
     arg = str: cmd ;
           a single string that can contain several commands separated by
-          spaces as in a terminal
-    arg = None, PPath: ppath = None ;
-          this argument can be either ``None`` for standalone commands, or
-          one path of a directory or a file on which the command ``cmd`` acts
+          spaces as in a ¨unix terminal
     arg = bool: showoutput ;
           by default, ``showoutput = False`` asks to not show what the script
           launched by the command prints
 
     return = str ;
-             this function runs the commands indicated in ``cmd`` to the file or
-             directory indicated via ``ppath`` and also returns either an empty
-             string if ``showoutput = False``, or the output of the process (a
-             string that we encode in ¨utf8)
+             this function runs the commands indicated in ``cmd``, and then it
+             returns either an empty string if ``showoutput = False``, or the
+             output of the process (a string that we encode in ¨utf8)
 
 
 For our example, let's consider the basic following script which has the path
@@ -1309,21 +1355,22 @@ python::
     print("Everything is ok.")
 
 
-Then we can launch this program like in the following lines. You can see that by
-default, nothing is printed, so you have to use ``showoutput = True`` if you
-want to see what the script launched prints.
+Then we can launch this program like in the following lines. You can see that
+by default nothing is printed, so you have to use ``showoutput = True`` if
+you want to see what the script launched prints.
 
 pyterm::
     >>> from mistool.os_use import PPath, runthis
     >>> pyfile = PPath("/Users/projects/script.py")
-    >>> runthis(cmd = "python3", ppath = pyfile)
-    >>> runthis(cmd = "python3", ppath = pyfile, showoutput = True)
+    >>> runthis(cmd = "python3 {0}".format(ppath))
+    >>> runthis(cmd = "python3 {0}".format(ppath), showoutput = True)
     Everything is ok.
 
 
 info::
     For arguments containing spaces you can either escape the spaces using
-    ``\ ``, or put this arguments inside quotes.
+    ``\ ``, or put this arguments inside quotes like on ¨unix systems. You
+    can use ``python_use.quote`` to put easily a spaced command inside quotes.
     """
 # ``shlex.split`` takes care of escaped spaces and quotes.
     cmd_args = shlex.split(
@@ -1331,21 +1378,8 @@ info::
         posix = True
     )
 
-# Commands that act one a file or a folder.
-    if ppath != None:
-        cmd_args.append('"{0}"'.format(ppath))
-
-        fromprocess = _SUBPROCESS_METHOD[showoutput](
-# We go in the directory of the file to compile.
-            cwd = str(ppath.parent),
-# We use the terminal actions.
-            args = cmd_args
-        )
-
-# Standalone commands.
-    else:
-# We just use the terminal actions.
-        fromprocess = _SUBPROCESS_METHOD[showoutput](args = cmd_args)
+# We keep the current working directory and use the terminal actions.
+    fromprocess = _SUBPROCESS_METHOD[showoutput](args = cmd_args)
 
 # ``check_output`` being a byte string, we have to use ``decode('utf8')`` so as
 # to obtain an "utf-8" string.
@@ -1356,36 +1390,3 @@ info::
         fromprocess = fromprocess.decode('utf8').strip()
 
     return fromprocess
-
-
-def canmodify(ppath):
-    """
-prototype::
-    arg = PPath; ppath;
-          the path of a directory where we want to do some changes
-
-    action = this function tests if the script can act on a folder
-    """
-    if ppath.is_file():
-        ppath = ppath.parent
-
-    tempfile = ppath / '0.t.e.m.p'
-
-    while tempfile.is_file():
-        tempfile = tempfile.parent / '{0}.t.e.m.p'.format(randint(500))
-
-    try:
-        tempfile.create("file")
-        tempfile.remove()
-        alterable = True
-
-    except:
-        alterable = False
-
-    if tempfile.is_file():
-        raise OSError(
-            "ONE BIG PROBLEM ! You have to remove by yourself the file:" \
-            + "\n    * {0}".format(tempfile)
-        )
-
-    return alterable

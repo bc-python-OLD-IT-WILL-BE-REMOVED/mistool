@@ -387,8 +387,8 @@ info::
 # ---------------------------------- #
 
 # Sources :
-#    * http://tex.stackexchange.com/questions/68730/terminal-commands-to-have-information-about-latex-distribution
-#    * http://tex.stackexchange.com/questions/69483/create-a-local-texmf-tree-in-miktex
+#    * http://tex.stackexchange.com/a/68820/6880
+#    * http://tex.stackexchange.com/a/69484/6880
 #    * https://groups.google.com/forum/?hl=fr&fromgroups=#!topic/fr.comp.text.tex/ivuCnUlW7i8
 
 # << Warning ! >> The following path is the recommended one for the folder to
