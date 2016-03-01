@@ -1,7 +1,7 @@
 What about this package  ?
 ==========================
 
-**misTool** is a contraction of **missing**, **miscellaneous** and **tool**.
+**misTool** is the contraction of **missing**, **miscellaneous** and **tool**.
 This package contains some modules that could be useful for Python
 developments.
 
@@ -9,10 +9,10 @@ developments.
 a look in the docstrings.***
 
 
-Sorry for my english...
-=======================
+I beg your pardon for my english...
+===================================
 
-Because english is not my natural language, be kind if you see any misunderstanding, mispelling or grammatical error in my documents and codes.
+English is not my native language, so be nice if you notice misunderstandings, misspellings or grammatical errors in my documents and my codes.
 
 
 Warning about this new version `1.0.0`
@@ -29,9 +29,9 @@ The module ``os_use``
 Changing the working directory for commands
 -------------------------------------------
 
-With ``os_use.cd``, you have a context which changes temporarily the directory where to launch some commands. When the context is closed, the working directory goes back to the one just before calling ``os_use.cd``.
+With ``os_use.cd``, you have a context which changes temporarily the directory where launching terminal like commands. When the context is closed, the working directory goes back to the one just before the call of ``os_use.cd``.
 
-Let's see an example. We suppose that we have the following directory with the full path ``/Users/projects/basic_dir`` in a Unix system.
+Let's see an example. We suppose that we have the following directory with the absolute path ``/Users/projects/basic_dir`` in a Unix system.
 
 ```
 + basic_dir
@@ -55,7 +55,7 @@ Let's see an example. We suppose that we have the following directory with the f
 ```
 
 
-The following code first goes inside ``/Users/projects/basic_dir`` and then it moves to ``/Users/projects/basic_dir/sub_dir``. With ``subprocess.call("ls")``, we simply use the Unix command ``ls`` which gives all files and folders inside the current working directory.
+The following code first goes inside ``/Users/projects/basic_dir`` and then it moves to ``/Users/projects/basic_dir/sub_dir``. With ``subprocess.call("ls")``, we simply use the Unix command ``ls`` so as to list files and folders inside the current working directory.
 
 ```python
 >>> import subprocess
@@ -75,7 +75,7 @@ code_B.py	slide_B.pdf
 Launching commands like in a terminal
 -------------------------------------
 
-The aim of the function ``os_use.runthis`` is to simplify  a lot the launching of subprocesses *(just use commands as you were inside your terminal)*. Let's consider the basic following script which has the absolute path ``/Users/projects/script.py``.
+The aim of the function ``os_use.runthis`` is to simplify  a lot the launching of subprocesses *(just use commands as you were inside your terminal)*. Let's consider the basic following Python script with absolute path ``/Users/projects/script.py``.
 
 ```python
 print("Everything is ok.")
@@ -105,7 +105,7 @@ The call to ``os_use.system()`` returns the name, in lower case, of the OS used 
 Enhanced version of the class ``pathlib.Path``
 ----------------------------------------------
 
-The class ``os_use.PPath`` adds several methods to the useful class ``pathlib.Path``. Here are some examples.
+The class ``os_use.PPath`` adds several methods to the useful class ``pathlib.Path``. Here are examples.
 
 
 ### Informations about one path
@@ -124,9 +124,9 @@ PPath('dir/subdir')
 ```
 
 
-Another useful method is ``is_protected`` which works as explained below.
+Another useful method named ``is_protected`` works as explained below.
 
-1. If the path doe not point to an existing file or folder, an OS error is raised.
+1. If the path does not point to an existing file or folder, an OS error is raised.
 
 1. If the path is the one of a folder, the answer returned is ``True`` for a modifiable directory and ``False`` otherwise.
 
@@ -145,7 +145,7 @@ returned.
 
 ### Changing one path
 
-Changing/adding an extension is very easy with the method ``with_ext``.
+Changing or adding an extension is very easy with the method ``with_ext``.
 
 ```python
 >>> from mistool.os_use import PPath
@@ -173,7 +173,7 @@ PPath('~/dir_1/file.txt')
 
 ### Comparing paths
 
-The common "folder" of several paths is obtained by using the method ``common_with`` or equivalently the magic operator ``&``.
+The "common" folder of several paths is obtained by using the method ``common_with`` or equivalently the magic operator ``&``.
 
 ```python
 >>> from mistool.os_use import PPath
@@ -232,7 +232,7 @@ ValueError: '/NoUser/projects' does not start with '/Users/projects'
 
 ### The special concept of "regpath"
 
-A "regpath" is a query mixing all the power of regexes with the easy to use special characters of the Unix-glob syntax *(there are also some additional query
+A "regpath" is a query mixing all the power of regexes and the Unix-glob special characters  *(there are also some additional query
 features)*. We will use some "regpaths" in the incoming examples.
 
 **See the docstring of the method ``regpath2meta`` for complete informations about the "regpaths".**
@@ -240,7 +240,7 @@ features)*. We will use some "regpaths" in the incoming examples.
 
 ### Walk and see
 
-The method ``see`` tries to open the current path with an associated application. For example, an HTML file will be opened by your default browser.
+The method ``see`` **tries** to open the current path with a possible associated application. For example, an HTML file will be opened by your default browser.
 
 
 You can walk very easily inside a directory thanks to the method ``walk`` and the "regpaths" *(see the previous section)*. For example, let's suppose that we have the following directory with absolute path
@@ -301,7 +301,7 @@ non-recursive search contrary to the regpath ``"**"``.
 
 ### Create
 
-Creating file or folder is straight forward with the method ``create`` even if this needs to add several parent directories that don't yet exist. In the following example, we suppose that the current directory has absolute path ``/Users/projects``, and doesn't contain any subfolder.
+Creating files and folders is straight forward with the method ``create`` even if this needs to add several parent directories that don't yet exist. In the following example, we suppose that the current directory has absolute path ``/Users/projects``, and doesn't contain any subfolder.
 
 ```python
 >>> from mistool.os_use import PPath
@@ -327,7 +327,7 @@ If you want to destroy a whole directory, or simply a file, given by its ``PPath
 **Warning ! Because removing a file or a directory can be a dangerous thing, you can use the method ``can_be_removed`` which by default will raise an OS error if the ``PPath`` is one of an existing file or folder.**
 
 
-The method ``clean`` allows to remove any file and/or directory matching a regpath given as an argument.
+The method ``clean`` allows to remove specific files and/or directories matching a regpath given as an argument.
 
 
 ### Move & copy
@@ -341,7 +341,7 @@ The module ``string_use``
 Multi-replacements
 ------------------
 
-The following example shows that the class ``string_use.MultiReplace`` makes possible to do multi-replacements recursively or not *(by default ``mode = "norecu"``)*.
+The class ``string_use.MultiReplace`` makes possible to do multi-replacements recursively or not *(by default ``mode = "norecu"``)*.
 
 ```python
 >>> from mistool.string_use import MultiReplace
@@ -363,7 +363,7 @@ Word #1 and Word #2 = Word #1 and Word #2
 Word #1 and Word #2 = W1 and W2
 ```
 
-Cyclic definitions like in the code above will raise a ``ValueError`` exception.
+The code above show that cyclic definitions will raise a ``ValueError`` exception.
 
 ```python
 >>> from mistool.string_use import MultiReplace
@@ -412,7 +412,8 @@ The aim of the class ``string_use.MultiSplit`` is to split a text on several sem
 Before, between and after
 -------------------------
 
-The function ``string_use.between`` looks for two separators such as to return the text before, between and after the first matching of this separators, or ``None`` if no matching has been found. Just take a look at a concrete example.
+The function ``string_use.between`` looks for two separators such as to return the text before, between and after the first matching of this separators.
+``None`` is returned if no matching has been found. Just take a look at a concrete example.
 
 ```python
 >>> from mistool.string_use import between
@@ -432,7 +433,7 @@ None
 Join with a last special text
 -----------------------------
 
-You can join several strings with a special final separator as the examples abov show.
+You can join several strings with a special final separator as the examples above show.
 
 ```python
 >>> from mistool.string_use import joinand
@@ -583,13 +584,13 @@ The class ``term_use.Step`` has two optional arguments.
 
 1. ``start`` gives the first number which is ``1`` by default.
 
-2. ``textit`` is a lambda function of two variables ``(n, t)`` building the text containing the step number ``n`` and the text ``t``. By default, ``textit = lambda n, t: "{0}) {1}".format(n, t)``.
+2. ``textit`` is a function of two variables ``(n, t)`` returning the text containing the step number ``n`` and the text ``t``. By default, ``textit = lambda n, t: "{0}) {1}".format(n, t)``.
 
 
 Frame
 -----
 
-The function ``term_use.withframe`` puts a text inside an ASCII frame *(you can choose the alignment and use other kinds of frames if necessary)*.
+The function ``term_use.withframe`` puts a text inside an ASCII frame *(you can choose the alignment and use other kinds of frames if necessary as it is explained in the docstrings)*.
 
 ```python
 >>> from mistool.term_use import withframe
@@ -610,7 +611,7 @@ The function ``term_use.withframe`` puts a text inside an ASCII frame *(you can 
 ASCII tree views of one directory
 ---------------------------------
 
-For our examples, we consider a folder with the following structure and the long path ``/Users/projetmbc/dir``.
+For our examples, we consider a folder with the following structure and the absolute path ``/Users/projetmbc/dir``.
 
 ```
 + dir
@@ -628,7 +629,7 @@ For our examples, we consider a folder with the following structure and the long
     + emptydir
 ```
 
-Indeed the preceding ASCII tree view was built using the following code.
+The preceding ASCII tree view was built easily using the following code *(``PPath`` is the class defined in ``os_use`` added in ``term_use`` for you comfort)*.
 
 ```python
 >>> from mistool.term_use import DirView, PPath
@@ -654,7 +655,7 @@ Indeed the preceding ASCII tree view was built using the following code.
 ```
 
 
-Using the "regpath" concept of the module ``os_use``, we can filter folders and/or files shown as in the example above *(we also use the argument ``display`` so as to customize the output)*.
+Using the "regpath" concept of the module ``os_use``, we can filter folders and files shown as in the example above *(we also use the argument ``display`` so as to customize the output)*.
 
 ```python
 >>> from mistool.term_use import DirView, PPath
@@ -689,7 +690,7 @@ The module ``python_use``
 Easy quoted text with the least escaped quote symbols
 -----------------------------------------------------
 
-With ``python_use.quote`` you can add withou pain quotes around a text.
+With ``python_use.quote`` you can add without pain quotes around a text.
 
 ```python
 >>> from mistool.python_use import quote
@@ -776,7 +777,7 @@ False
 Escaping special characters in urls
 -----------------------------------
 
-It is safe to not use none ASCII characters in a url. Here is one way to do that.
+It is safe to not use non-ASCII characters in a url. Here is one way to do that.
 
 ```python
 >>> from mistool.url_use import escape
@@ -806,8 +807,8 @@ The function ``latex_use.escape`` will escape all special characters for you reg
 Easy LaTeX compilation(s)
 -------------------------
 
-The class ``latex_use.Build`` compiles LaTeX file for you *(for the moment only the PDF copilation is implemented)*. Let's consider the
-following LaTeX file with the path ``/Users/projetmbc/latex/file.tex``.
+The class ``latex_use.Build`` compiles a LaTeX file for you *(for the moment only the PDF compilation is implemented)*. Let's consider the
+following LaTeX file with the absolute path ``/Users/projetmbc/latex/file.tex``.
 
 ```latex
 \documentclass[11pt, oneside]{article}
@@ -821,7 +822,7 @@ One basic formula : $E = mc^2$.
 \end{document}
 ```
 
-In the following example, we call to the class ``term_use.DirView`` so as to show the new files made by LaTeX *(the ellipsis ``[...]``
+In the following code, we call to the class ``term_use.DirView`` so as to show the new files made by LaTeX *(the ellipsis ``[...]``
 indicates some lines not reproduced here)*.
 
 ```python
@@ -855,7 +856,7 @@ Transcript written on file.log.
     * file.tex
 ```
 
-The PDF file has been build by LaTeX but there are also temporary. If you need several compilations, so as to build a table of content for example, just use the attribut-argument ``repeat``, and if you don't want to see the LaTeX ouput, just set the attribut-argument ``showinfos`` to ``False``.
+The PDF file has been build by LaTeX but there are also temporary ones. If you need several compilations, so as to build a table of content for example, just use the attribut-argument ``repeat``, and if you don't want to see the LaTeX ouput, just set the attribut-argument ``showinfos`` to ``False``.
 
 
 Removing the temporary files produced by LaTeX
@@ -887,7 +888,7 @@ We keep the same LaTeX example file. The function ``latex_use.clean`` cleans all
 Automatic installation of personal LaTeX packages
 -------------------------------------------------
 
-Let's suppose that we have package named ``lyxam`` stored in a folder having the path ``/Users/projetmbc/latex/lyxam`` and whose structure is the following one.
+Let's suppose that we have package named ``lyxam`` stored in a folder having the absolute path ``/Users/projetmbc/latex/lyxam`` and whose structure is the following one.
 
 ```
 + lyxam
@@ -942,7 +943,7 @@ Starting installation of the package locally.
 ```
 
 
-Using the concept of "regpath" of the module ``os_use``, you can easily choose to not install all the ``TXT`` files.
+Using the concept of "regpath" of the module ``os_use``, you can for example choose to not install all the ``TXT`` files.
 
 ```python
 >>> from mistool.os_use import PPath

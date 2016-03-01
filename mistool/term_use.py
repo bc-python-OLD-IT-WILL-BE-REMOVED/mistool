@@ -16,9 +16,7 @@ from mistool.os_use import (
     _DIR,
     _EMPTY,
     _FILE, _FILE_DIR_QUERIES,
-    _NOT,
     _OTHER_FILES,
-    _RELSEARCH,
     _XTRA,
     PPath
 )

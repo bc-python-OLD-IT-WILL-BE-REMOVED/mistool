@@ -1,4 +1,11 @@
 ==========
+2016-02-27
+==========
+
+**Amélioration de la méthode ``walk`` de la classe ``os_use.PPath`` :** toutes les recerches se font automatiquement de façon relative ! Bien plus logique...
+
+
+==========
 2016-02-26
 ==========
 
@@ -26,18 +33,6 @@
     1) La fonction ``ascii`` a été rebaptisée ``ascii_it`` car ``ascii`` est proposé par ¨python. Oups !...
 
     2) La fonction ``joinand`` possède un nouvel argument optionnel ``sep`` afin de pouvoir choisir tous les premiers séparateurs lors de la jonction. Par défaut, ``sep = ", "``.
-
-
-
-==========
-2016-02-19
-==========
-
-**Du mieux dans le module ``string_use`` :** voici les améliorations apportées.
-
-    1) La fonction ``ascii`` a été rebaptisée ``ascii_it`` car ``ascii`` est proposé par ¨python. Oups !...
-
-    2) La fonction ``joinand`` possède un nouvel argument optionnel ``sep`` afin de pouvoir choisir les premiers séparateurs lors de la jonction. Par défaut, ``sep = ", "``.
 
 
 ==========

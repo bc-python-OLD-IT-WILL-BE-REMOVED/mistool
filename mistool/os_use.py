@@ -74,7 +74,7 @@ prototype::
                this gives the path where to go
 
 
-Let's suppose that we have the following directory having the full path
+Let's suppose that we have the following directory having the absolute path
 path::``/Users/projects/basic_dir`` in a ¨unix system.
 
 dir::
@@ -709,7 +709,7 @@ spaces.
     containing only invisible objects are not considered empty.
 
     7) ``relative`` indicates that the pattern after ``::`` is relatively to
-    the current directory and not to a full path.
+    the current directory and not to a absolute path.
 
     8) ``xtra`` add respectively special names path::``::...files...::``
     and path::``::...empty...::`` whenever some files have been found but not
@@ -823,14 +823,14 @@ prototype::
 
     def walk(
         self,
-        regpath  = "relative::**",
+        regpath  = "**",
         givetags = False
     ):
         """
 prototype::
     see = self.regpath2meta
 
-    arg = str: regpath = "relative::**" ;
+    arg = str: regpath = "**" ;
           this is a string that follows some rules named regpath rules
     arg = bool: givetags = False ;
           by default, the walk yields only ``PPath``, but if you use ``givetags
@@ -845,7 +845,7 @@ prototype::
             information that is used by the class ``term_use.DirView``)
 
 
-Let's suppose that we have the following directory having the full path
+Let's suppose that we have the following directory having the absolute path
 path::``/Users/projects/basic_dir`` in a ¨unix system.
 
 dir::
@@ -935,6 +935,9 @@ info::
 # Do we have an existing directory ?
         if not self.is_dir():
             raise OSError("the path doesn't point to a directory.")
+
+# All walks are relative !
+        regpath = "relative {0}".format(regpath)
 
 # metadatas and the normal regex
         queries, pattern = self.regpath2meta(regpath)
