@@ -237,7 +237,7 @@ prototype::
 
 # Source :
 #     * http://stackoverflow.com/q/2113427/4589608
-        return os.access(
+        return not os.access(
             path = str(ppath),
             mode = os.W_OK | os.X_OK
         )
@@ -872,7 +872,7 @@ dir::
 Here are easy to understand examples where the regpath ``"*"`` is for a
 non-recursive search contrary to the regpath ``"**"``. Just go to the
 documentation of the method ``regpath2meta`` so as to know why (you have
-to remember that by default the search is relative).
+to remember that the search is relative).
 
 pyterm::
     >>> from mistool.os_use import PPath
@@ -937,7 +937,7 @@ info::
             raise OSError("the path doesn't point to a directory.")
 
 # All walks are relative !
-        regpath = "relative {0}".format(regpath)
+        regpath = "relative::{0}".format(regpath)
 
 # metadatas and the normal regex
         queries, pattern = self.regpath2meta(regpath)

@@ -13,7 +13,6 @@ from subprocess import CalledProcessError
 
 from mistool.config import latex
 from mistool.os_use import (
-    canmodify,
     pathenv, PPath,
     runthis,
     system
@@ -157,8 +156,8 @@ prototype::
                the number of compilations to be done (for example, if the
                ¨latex document has one table of content, several compilations
                are needed).
-    arg-attr = bool: showinfos = False ;
-               by default, ``showinfos = False`` asks to not show the
+    arg-attr = bool: showoutput = False ;
+               by default, ``showoutput = False`` asks to not show the
                informations sent by ¨latex when it is compiling
 
 
@@ -222,7 +221,7 @@ info::
         self,
         ppath,
         repeat    = 1,
-        showinfos = True
+        showoutput = True
     ):
 # Does the file to compile exist ?
         if not ppath.is_file():
@@ -243,7 +242,7 @@ info::
 # Infos given by the user.
         self.ppath     = ppath
         self.repeat    = repeat
-        self.showinfos = showinfos
+        self.showoutput = showoutput
 
         self.cmd = None
 
@@ -266,19 +265,18 @@ prototype::
             end_compile   = '\n# -- End of compilation Nb.{0} -- #'
 
         for i in range(1, imax):
-            if self.showinfos:
+            if self.showoutput:
                 if i != 1:
                     print("")
 
                 print(start_compile.format(i))
 
             runthis(
-                ppath     = self.ppath,
-                cmd       = self.cmd,
-                showinfos = self.showinfos
+                cmd        = "{0} {1}".format(self.cmd, self.ppath),
+                showoutput = self.showoutput
             )
 
-            if self.showinfos:
+            if self.showoutput:
                 print(end_compile.format(i))
 
         self.cmd = None
@@ -305,7 +303,7 @@ EXTS_TO_CLEAN = latex.EXTS_TO_CLEAN
 def clean(
     ppath,
     exts      = EXTS_TO_CLEAN,
-    showinfos = False
+    showoutput = False
 ):
     """
 prototype::
@@ -314,8 +312,8 @@ prototype::
     arg = list(str): exts = EXTS_TO_CLEAN ;
           the list of extensions of the special files made by ¨latex that
           have to be removed
-    arg = bool: showinfos = False ;
-          by default, ``showinfos = False`` asks to not show the informations
+    arg = bool: showoutput = False ;
+          by default, ``showoutput = False`` asks to not show the informations
           about the cleaning
 
     action = this function removes extra files build during a ¨latex compilation
@@ -339,7 +337,7 @@ pyterm::
         * file.pdf
         * file.synctex.gz
         * file.tex
-    >>> clean(ppath = latexdir, showinfos = True)
+    >>> clean(ppath = latexdir, showoutput = True)
     * Cleaning for "/Users/projetmbc/latex/file.tex"
     >>> print(DirView(latexdir.parent).ascii)
     + latex
@@ -372,7 +370,7 @@ info::
 
 # Clean now !
     for p in texpaths:
-        if showinfos:
+        if showoutput:
             print('* Cleaning for "{0}"'.format(p))
 
         for ext in exts:
@@ -439,7 +437,7 @@ python::
         'osname'    : 'mac',
         'latexname' : 'texlive',
         'latexfound': True,
-        'localdir'  : PosixPath('/usr/local/texlive/texmf-local')
+        'localdir'  : PPath('/usr/local/texlive/texmf-local')
     }
 
 The key ``'localdir'`` contains the path to use to install special packages.
@@ -513,7 +511,7 @@ prototype::
 
     action = this function tests if we have "Super User" permissions
     """
-    if not canmodify(aboutlatex['localdir']):
+    if aboutlatex['localdir'].is_protected():
         _raise_io_error(action = "superuser")
 
 

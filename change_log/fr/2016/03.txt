@@ -1,0 +1,12 @@
+==========
+2016-03-03
+==========
+
+**Oubli idiot dans la méthode ``walk`` de la classe ``os_use.PPath`` :** les doubles points dans ``"relative::{0}".format(regpath)`` avaient été omis.
+
+
+**Mise à jour du module ``latex_use`` relativement à ``os_use`` :** l'utilisation de ``latex_use`` a révélé deux oublis.
+
+    1) On fait appel à la méthode ``is_protected`` de la classe ``os_use.PPath`` au lieu de feu la fonction ``canmodify``.
+
+    2) La classe ``Build`` a été mise à jour relativement à la dernière version de ``os_use.runthis``. Ceci a impliqué de renommer l'argument ``showinfos`` en ``showoutput``.
