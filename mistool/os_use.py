@@ -75,7 +75,7 @@ prototype::
 
 
 Let's suppose that we have the following directory having the absolute path
-path::``/Users/projects/basic_dir`` in a ¨unix system.
+path::``/Users/projetmbc/basic_dir`` in a ¨unix system.
 
 dir::
     + basic_dir
@@ -107,12 +107,12 @@ with the class ``cd``.
 pyterm::
     >>> import subprocess
     >>> from mistool.os_use import cd
-    >>> with cd("/Users/projects/basic_dir"):
+    >>> with cd("/Users/projetmbc/basic_dir"):
     ...     subprocess.call("ls")
     empty_dir	python_1.py	python_4.py	text_2.txt
     latex_1.tex	python_2.py	sub_dir		text_3.txt
     latex_2.tex	python_3.py	text_1.txt
-    >>> with cd("/Users/projects/basic_dir/sub_dir"):
+    >>> with cd("/Users/projetmbc/basic_dir/sub_dir"):
     ...     subprocess.call("ls")
     code_A.py	slide_A.pdf	sub_sub_dir
     code_B.py	slide_B.pdf
@@ -277,7 +277,7 @@ Here is an example of use.
 
 pyterm::
     >>> from mistool.os_use import PPath
-    >>> path = PPath("/Users/projects/source/misTool/os_use.py")
+    >>> path = PPath("/Users/projetmbc/source/misTool/os_use.py")
     >>> print(path.depth)
     4
         """
@@ -352,13 +352,13 @@ prototype::
 
 
 Here is an example made on the ¨mac of the author of ¨mistool where the user's
-folder is path::``/Users/projects``.
+folder is path::``/Users/projetmbc``.
 
 pyterm::
     >>> from mistool.os_use import PPath
     >>> path = PPath("~/dir_1/dir_2/dir_3/../../file.txt")
     >>> path.normpath
-    PPath('/Users/projects/dir_1/file.txt')
+    PPath('/Users/projetmbc/dir_1/file.txt')
     """
         return PPath(
             os.path.normpath(
@@ -378,7 +378,7 @@ prototype::
 
 
 Here is an example made on the Mac of the author of ¨mistool. In that case
-path::``/Users/projects`` is the user's folder.
+path::``/Users/projetmbc`` is the user's folder.
 
 pyterm::
     >>> from mistool.os_use import PPath
@@ -417,20 +417,20 @@ different paths.
 
 pyterm::
     >>> from mistool.os_use import PPath
-    >>> path        = PPath("/Users/projects/source/doc")
-    >>> path_1      = PPath("/Users/projects/README")
-    >>> path_2      = PPath("/Users/projects/source/misTool/os_use.py")
+    >>> path        = PPath("/Users/projetmbc/source/doc")
+    >>> path_1      = PPath("/Users/projetmbc/README")
+    >>> path_2      = PPath("/Users/projetmbc/source/misTool/os_use.py")
     >>> path_danger = PPath("/NoUser/projects")
     >>> path.common_with(path_1)
-    PPath('/Users/projects')
+    PPath('/Users/projetmbc')
     >>> path.common_with(path_2)
-    PPath('/Users/projects/source')
+    PPath('/Users/projetmbc/source')
     >>> path.common_with(path_danger)
     PPath('/')
     >>> path.common_with(path_1, path_2)
-    PPath('/Users/projects')
+    PPath('/Users/projetmbc')
     >>> path.common_with([path_1, path_2])
-    PPath('/Users/projects')
+    PPath('/Users/projetmbc')
 
 
 You can also use the magic method ``&`` as a shortcut to ``common_with``. Some
@@ -438,11 +438,11 @@ of the preceding examples becomes then the following ones.
 
 pyterm::
     >>> path & path_1
-    PPath('/Users/projects')
+    PPath('/Users/projetmbc')
     >>> path & path_1 & path_2
-    PPath('/Users/projects')
+    PPath('/Users/projetmbc')
     >>> path & [path_1, path_2]
-    PPath('/Users/projects')
+    PPath('/Users/projetmbc')
 
 
 info::
@@ -519,9 +519,9 @@ version ``path.relative_to(anotherpath)`` given by ``pathlib.Path``. Here are so
 
 pyterm::
     >>> from mistool.os_use import PPath
-    >>> main    = PPath("/Users/projects")
-    >>> path_1  = PPath("/Users/projects/README")
-    >>> path_2  = PPath("/Users/projects/source/misTool/os_use.py")
+    >>> main    = PPath("/Users/projetmbc")
+    >>> path_1  = PPath("/Users/projetmbc/README")
+    >>> path_2  = PPath("/Users/projetmbc/source/misTool/os_use.py")
     >>> path_1 - main
     PPath('README')
     >>> path_2 - main
@@ -529,7 +529,7 @@ pyterm::
     >>> path_2 - path_1
     Traceback (most recent call last):
     [...]
-    ValueError: '/Users/projects/source/misTool/os_use.py' does not start with '/Users/projects/README'
+    ValueError: '/Users/projetmbc/source/misTool/os_use.py' does not start with '/Users/projetmbc/README'
         """
         return self.relative_to(path)
 
@@ -548,9 +548,9 @@ Here are some examples of use.
 
 pyterm::
     >>> from mistool.os_use import PPath
-    >>> main    = PPath("/Users/projects")
-    >>> path_1  = PPath("/Users/projects/README")
-    >>> path_2  = PPath("/Users/projects/source/misTool/os_use.py")
+    >>> main    = PPath("/Users/projetmbc")
+    >>> path_1  = PPath("/Users/projetmbc/README")
+    >>> path_2  = PPath("/Users/projetmbc/source/misTool/os_use.py")
     >>> path_pb = PPath("/NoUser/projects")
     >>> print(path_1.depth_in(main))
     0
@@ -559,7 +559,7 @@ pyterm::
     >>> print(path_pb.depth_in(main))
     Traceback (most recent call last):
     [...]
-    ValueError: '/NoUser/projects' does not start with '/Users/projects'
+    ValueError: '/NoUser/projects' does not start with '/Users/projetmbc'
         """
         return len(self.relative_to(path).parts) - 1
 
@@ -846,7 +846,7 @@ prototype::
 
 
 Let's suppose that we have the following directory having the absolute path
-path::``/Users/projects/basic_dir`` in a ¨unix system.
+path::``/Users/projetmbc/basic_dir`` in a ¨unix system.
 
 dir::
     + basic_dir
@@ -876,29 +876,29 @@ to remember that the search is relative).
 
 pyterm::
     >>> from mistool.os_use import PPath
-    >>> folder = PPath("/Users/projects/basic_dir")
+    >>> folder = PPath("/Users/projetmbc/basic_dir")
     >>> for p in folder.walk("dir::**"):
     ...     print("+", p)
     ...
-    + /Users/projects/basic_dir/empty_dir
-    + /Users/projects/basic_dir/sub_dir
-    + /Users/projects/basic_dir/sub_dir/sub_sub_dir
+    + /Users/projetmbc/basic_dir/empty_dir
+    + /Users/projetmbc/basic_dir/sub_dir
+    + /Users/projetmbc/basic_dir/sub_dir/sub_sub_dir
     >>> for p in folder.walk("file::**.py"):
     ...     print("+", p)
     ...
-    + /Users/projects/basic_dir/python_1.py
-    + /Users/projects/basic_dir/python_2.py
-    + /Users/projects/basic_dir/python_3.py
-    + /Users/projects/basic_dir/python_4.py
-    + /Users/projects/basic_dir/sub_dir/code_A.py
-    + /Users/projects/basic_dir/sub_dir/code_B.py
+    + /Users/projetmbc/basic_dir/python_1.py
+    + /Users/projetmbc/basic_dir/python_2.py
+    + /Users/projetmbc/basic_dir/python_3.py
+    + /Users/projetmbc/basic_dir/python_4.py
+    + /Users/projetmbc/basic_dir/sub_dir/code_A.py
+    + /Users/projetmbc/basic_dir/sub_dir/code_B.py
     >>> for p in folder.walk("file::*.py"):
     ...     print("+", p)
     ...
-    + /Users/projects/basic_dir/python_1.py
-    + /Users/projects/basic_dir/python_2.py
-    + /Users/projects/basic_dir/python_3.py
-    + /Users/projects/basic_dir/python_4.py
+    + /Users/projetmbc/basic_dir/python_1.py
+    + /Users/projetmbc/basic_dir/python_2.py
+    + /Users/projetmbc/basic_dir/python_3.py
+    + /Users/projetmbc/basic_dir/python_4.py
 
 
 info::
@@ -909,23 +909,23 @@ info::
 
     pyterm::
         >>> from mistool.os_use import PPath
-        >>> folder = PPath("/Users/projects/dir")
+        >>> folder = PPath("/Users/projetmbc/dir")
         >>> for p, tag in folder.walk(
         ...     regpath = "xtra file::**.py",
         ...     givetags = True
         ... ):
         ...     print("+", tag, ">>>", p)
         ...
-        + file >>> /Users/projects/basic_dir/python_1.py
-        + file >>> /Users/projects/basic_dir/python_2.py
-        + file >>> /Users/projects/basic_dir/python_3.py
-        + file >>> /Users/projects/basic_dir/python_4.py
-        + dir_other_files >>> /Users/projects/basic_dir
-        + empty_dir >>> /Users/projects/basic_dir/empty_dir
-        + file >>> /Users/projects/basic_dir/sub_dir/code_A.py
-        + file >>> /Users/projects/basic_dir/sub_dir/code_B.py
-        + dir_other_files >>> /Users/projects/basic_dir/sub_dir
-        + dir_other_files >>> /Users/projects/basic_dir/sub_dir/sub_sub_dir
+        + file >>> /Users/projetmbc/basic_dir/python_1.py
+        + file >>> /Users/projetmbc/basic_dir/python_2.py
+        + file >>> /Users/projetmbc/basic_dir/python_3.py
+        + file >>> /Users/projetmbc/basic_dir/python_4.py
+        + dir_other_files >>> /Users/projetmbc/basic_dir
+        + empty_dir >>> /Users/projetmbc/basic_dir/empty_dir
+        + file >>> /Users/projetmbc/basic_dir/sub_dir/code_A.py
+        + file >>> /Users/projetmbc/basic_dir/sub_dir/code_B.py
+        + dir_other_files >>> /Users/projetmbc/basic_dir/sub_dir
+        + dir_other_files >>> /Users/projetmbc/basic_dir/sub_dir/sub_sub_dir
 
     The special names are stored in the global variables ``self._FILE``,
     ``self._DIR``, ``self._EMPTY`` and ``self._OTHER_FILES`` which are strings.
@@ -1057,7 +1057,7 @@ prototype::
 
 
 Here is an example of creations relatively to a current directory having path
-path::``/Users/projects``, and containing no subfolder (you can see that some
+path::``/Users/projetmbc``, and containing no subfolder (you can see that some
 exceptions can be raised).
 
 pyterm::
@@ -1352,7 +1352,7 @@ prototype::
 
 
 For our example, let's consider the basic following script which has the path
-path::``/Users/projects/script.py``.
+path::``/Users/projetmbc/script.py``.
 
 python::
     print("Everything is ok.")
@@ -1364,7 +1364,7 @@ you want to see what the script launched prints.
 
 pyterm::
     >>> from mistool.os_use import PPath, runthis
-    >>> pyfile = PPath("/Users/projects/script.py")
+    >>> pyfile = PPath("/Users/projetmbc/script.py")
     >>> runthis(cmd = "python3 {0}".format(ppath))
     >>> runthis(cmd = "python3 {0}".format(ppath), showoutput = True)
     Everything is ok.

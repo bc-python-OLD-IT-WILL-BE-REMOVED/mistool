@@ -150,7 +150,7 @@ info::
 class Build:
     """
 prototype::
-    arg-attr = os_use.PPath: ppath ;
+    arg-attr = PPath: ppath ;
                the path of the ¨latex file to compile.
     arg-attr = int: repeat = 1 ;
                the number of compilations to be done (for example, if the
@@ -181,8 +181,7 @@ so as to show the new files made by ¨latex (the ellipsis terminal::``[...]``
 indicates some lines not reproduced here).
 
 pyterm::
-    >>> from mistool.os_use import PPath
-    >>> from mistool.latex_use import Build
+    >>> from mistool.latex_use import Build, PPath
     >>> from mistool.term_use import DirView
     >>> latexdir = PPath("/Users/projetmbc/latex/file.tex")
     >>> print(DirView(latexdir.parent).ascii)
@@ -307,7 +306,7 @@ def clean(
 ):
     """
 prototype::
-    arg = os_use.PPath: ppath ;
+    arg = PPath: ppath ;
           the path of either one ¨latex file or a directory
     arg = list(str): exts = EXTS_TO_CLEAN ;
           the list of extensions of the special files made by ¨latex that
@@ -326,8 +325,7 @@ the changes in the folder path::``/Users/projetmbc/latex`` of the ¨latex file
 path::``file.tex`` for which we want to do some cleanings.
 
 pyterm::
-    >>> from mistool.latex_use import clean
-    >>> from mistool.os_use import PPath
+    >>> from mistool.latex_use import clean, PPath
     >>> from mistool.term_use import DirView
     >>> latexdir = PPath("/Users/projetmbc/latex")
     >>> print(DirView(latexdir.parent).ascii)
@@ -638,7 +636,7 @@ def install(
 prototype::
     see = os_use._ppath_regpath2meta , about
 
-    arg = os_use.PPath: ppath;
+    arg = PPath: ppath;
           the path of folder containg the package
     arg = str: name = "" ;
           you can use this variable so as to give explicitly the name of the
@@ -692,8 +690,7 @@ You can easily install this package locally in your ¨latex distribution like it
 is done in the lines of code above.
 
 pyterm::
-    >>> from mistool.os_use import PPath
-    >>> from mistool.latex_use import install
+    >>> from mistool.latex_use import install, PPath
     >>> package = PPath("/Users/projetmbc/latex/lyxam")
     >>> install(package)
     Starting installation of the package locally.
@@ -731,8 +728,7 @@ It is easy with "regpaths" as you can see in the following example (see the
 documentation of the special function ``os_use._ppath_regpath2meta``).
 
 pyterm::
-    >>> from mistool.os_use import PPath
-    >>> from mistool.latex_use import install
+    >>> from mistool.latex_use import install, PPath
     >>> package = PPath("/Users/projetmbc/latex/lyxam")
     >>> install(ppath = package, regpath = "file not::**.txt")
     Starting installation of the package locally.

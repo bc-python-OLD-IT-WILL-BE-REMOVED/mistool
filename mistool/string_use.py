@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-02-19
+    date = 2016-03-06
 
 
 This module contains some tools to manipulate strings.
@@ -194,18 +194,16 @@ prototype::
                this dictionary uses couples ``(key, value)`` that are of the
                kind ``(old text to find, new text for replacement)`` where the
                replacements can eventually contain also texts to be replaced
-    arg-attr = str: mode = "norecu" in cls._MODES or
-                                    in cls._LONG_MODES ;
+    arg-attr = bool: recursive = False ;
                the default value asks to not do replacements recursively in the
-               new texts used for replacements contrary to ``mode = "recu"``,
-               this second mode needing to use also the argument ``pattern``
-               (you can use ``"n"`` and ``"r"`` instead of ``"norecu"`` and
-               ``"recu"``)
+               new texts used for replacements contrary to ``recursive = True``,
+               this second mode needs the argument ``pattern`` to be a regex
     arg-attr = regex: pattern = None ;
                ``pattern = None`` simply asks to do replacements everywhere it
-               is possible, as the method ``replace`` does with strings, but if
-               you give a "grouping" pattern regex::``(...)`` defining what a
-               word is, then the replacemnts will only concern this words.
+               is possible, as the standard method ``replace`` does with
+               strings, but if you give a "grouping" pattern regex::``(...)``
+               defining what a word is, then the replacemnts will only concern
+               this words.
 
     action = after defining an instance of this class, you can use your instance
              as a "superpower" replacing function
@@ -215,10 +213,10 @@ prototype::
 Unrecursive replacements
 ========================
 
-By default we have ``mode = "norecu"`` which allows to do replacements
-sequentially, the old texts being replaced from the longest to
-the shortest ones, and for old texts of same length, the alphabetic order will
-be used. Here is an example.
+By default we have ``recursive = False`` which allows to do replacements
+sequentially, the old texts being replaced from the longest to the shortest
+ones, and for old texts of same length, the alphabetic order will be used.
+Here is an example.
 
 pyterm::
     >>> from mistool.string_use import MultiReplace
@@ -237,7 +235,7 @@ pyterm::
 Recursive replacements
 ======================
 
-Used with ``mode = "recu"``, an instance of the class ``MultiReplace`` allows
+Used with ``recursive = True``, an instance of the class ``MultiReplace`` allows
 to use replacement texts that also contains also texts to be replaced like in the
 following example.
 
@@ -250,9 +248,9 @@ pyterm::
     ...     'W3': "W1 and W2"
     ... }
     >>> mreplace = MultiReplace(
-    ...     oldnew  = oldnew,
-    ...     mode    = "recu",
-    ...     pattern = PATTERNS_WORDS['var']
+    ...     oldnew    = oldnew,
+    ...     recursive = True,
+    ...     pattern   = PATTERNS_WORDS['var']
     ... )
     >>> print(mreplace("W1 and W2 = W3"))
     Word #1 and Word #2 = Word #1 and Word #2
@@ -260,9 +258,9 @@ pyterm::
 
 The only technical thing here is the use of ``PATTERNS_WORDS["var"]`` which is
 a regex grouping pattern indicated that words starts with an ¨ascii letters
-followed by ¨ascii letters, digits and underscores eventually.
-Here is the definition of ``PATTERNS_WORDS`` (later there is a section showing
-how to use an homemade kind of words).
+followed by ¨ascii letters, digits and underscores eventually. Here is the
+definition of ``PATTERNS_WORDS`` (later there is a section showing how to use
+an homemade kind of words).
 
 python::
     FR_ACCENTUED_LETTERS = "âàéèêëîïôùüç"
@@ -282,13 +280,13 @@ python::
 
 
 info::
-    We don't obtain the same result if we use ``mode = "norecu"`` as you can see
-    in the following lines where no replacements have been done in the new text
-    ``"W1 and W2"`` associated to the old one ``"W3"``. Be also careful about
-    the fact that we only update the attribut ``mode``.
+    We don't obtain the same result if we use ``recursive = False`` as you can
+    see in the following lines where no replacements have been done in the new
+    text ``"W1 and W2"`` associated to the old one ``"W3"``. Be also careful
+    about the fact that we only update the attribut ``recursive``.
 
     ...pyterm::
-        >>> mreplace.mode = "norecu"
+        >>> mreplace.recursive = False
         >>> print(mreplace("W1 and W2 = W3"))
         Word #1 and Word #2 = W1 and W2
 
@@ -314,8 +312,8 @@ info::
             'W2': 'Word #2',
             'W3': 'W1 and W2'
         }
-        >>> mreplace.mode    = "recu"
-        >>> mreplace.pattern = PATTERNS_WORDS['var']
+        >>> mreplace.recursive = True
+        >>> mreplace.pattern   = PATTERNS_WORDS['var']
         >>> print(mreplace.asit)
         {
             'W1': 'Word #1',
@@ -329,7 +327,7 @@ Cyclic replacements
 ===================
 
 In the following code, there are cyclic replacements that is why the class is
-complaining if ``mode = "recu"``.
+complaining if ``recursive = True``.
 
 pyterm::
     >>> from mistool.string_use import MultiReplace
@@ -340,9 +338,9 @@ pyterm::
     ...     'WRONG_3': "with WRONG_1, there is one problem here"
     ... }
     >>> mreplace = MultiReplace(
-    ...     oldnew  = oldnew,
-    ...     mode    = "recu",
-    ...     pattern = PATTERNS_WORDS["var"]
+    ...     oldnew    = oldnew,
+    ...     recursive = True,
+    ...     pattern   = PATTERNS_WORDS["var"]
     ... )
     Traceback (most recent call last):
     [...]
@@ -372,19 +370,17 @@ pyterm::
     >>> print(mreplace(text))
     "REpresentational State Transfer" is a technology used to produce "Hypertext Markup Language" website.
     """
-    _MODES      = ["recu", "norecu"]
-    _LONG_MODES = {x[0]: x for x in _MODES}
 
     def __init__(
         self,
-        oldnew  = {},
-        mode    = "norecu",
-        pattern = None
+        oldnew    = {},
+        recursive = False,
+        pattern   = None
     ):
 # User's arguments
-        self.oldnew  = oldnew
-        self.mode    = mode
-        self.pattern = pattern
+        self.oldnew    = oldnew
+        self.recursive = recursive
+        self.pattern   = pattern
 
 # Update the value of ``self.asit``
         self._updateit = True
@@ -415,19 +411,13 @@ pyterm::
 
 
     @property
-    def mode(self):
-        return self._mode
+    def recursive(self):
+        return self._recursive
 
-    @mode.setter
-    def mode(self, value):
-        self._updateit = True
-
-        value = self._LONG_MODES.get(value, value)
-
-        if value not in self._MODES:
-            raise ValueError("unknown mode.")
-
-        self._mode = value
+    @recursive.setter
+    def recursive(self, value):
+        self._updateit  = True
+        self._recursive = value
 
 # ---------------------------- #
 # -- BUILDINS ``self.asit`` -- #
@@ -442,7 +432,7 @@ prototype::
              job is done recursively by ``self._noviciouscycle``).
         """
 # Nothing to do...
-        if self.mode == "norecu":
+        if not self.recursive:
             return None
 
 # Building the crossing replacements.
@@ -505,25 +495,25 @@ prototype::
         """
 prototype::
     action = this method builds the direct replacements dictionary ``self.asit``
-             (all the job is done by ``self._replace_in_new`` if ``self.mode =
-             "norecu"``)
+             (all the job is done by ``self._replace_in_new`` if
+             ``self.recursive = False``)
         """
-        if self.mode == "norecu":
-            self.asit = self.oldnew
-
-        else:
+        if self.recursive:
             self.asit = {}
 
             for old, new in self.oldnew.items():
                 self.asit[old] = self._replace_in_new(new)
+
+        else:
+            self.asit = self.oldnew
 
 
     def _replace_in_new(self, text):
         """
 prototype::
     action = this method builds the direct replacements dictionary ``self.asit``
-             (all the job is done by ``self._replace_in_new`` if ``self.mode =
-             "norecu"``)
+             (all the job is done by ``self._replace_in_new`` if
+             ``self.recursive = False``)
         """
 # Nothing ot do.
         if not text:
@@ -567,9 +557,9 @@ prototype::
              the text where all the replacements have been done.
         """
         if self._updateit:
-            if not self.pattern and self.mode == "recu":
+            if self.recursive and not self.pattern:
                 raise ValueError(
-                    'the mode "recu" must be used with a regex pattern.'
+                    'the recursive mode must be used with a regex pattern.'
                 )
 
             self._lookforcycle()
@@ -577,7 +567,7 @@ prototype::
 
             self._updateit = False
 
-        if self.mode == "recu":
+        if self.recursive:
             text = self.pattern.sub(self._apply_asit, text)
 
         else:

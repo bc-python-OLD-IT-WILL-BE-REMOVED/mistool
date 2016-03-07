@@ -1,0 +1,11 @@
+france::
+    date        = 2013-09-21
+    lang        = fr_FR
+    format      = %A (%a) %d %B (%b) %Y
+    translation = Samedi (Sam) 21 septembre (sep) 2013
+
+espana::
+    date        = 2013-09-21
+    lang        = es_ES
+    format      = %A (%a) %d %B (%b) %Y
+    translation = sábado (sáb) 21 septiembre (sep) 2013

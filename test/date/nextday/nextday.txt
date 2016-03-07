@@ -1,0 +1,10 @@
+test_1::
+    start = 2013-11-30
+    name  = sunday
+    next  = 2013-12-01
+
+
+test_2::
+    start = 2016-03-06
+    name  = sunday
+    next  = 2016-03-13

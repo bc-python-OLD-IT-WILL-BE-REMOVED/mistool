@@ -1,12 +1,27 @@
 ==========
+2016-03-07
+==========
+
+**Amélioration et début de la mise à jour des tests :** voici ce qui a été fait.
+
+    1) On utilise maintenant ¨pytest ce qui simplifie énormément les choses. On va enfin à l'essentiel !
+
+    2) Les tests sont disponibles sur ¨github afin que les utilisateurs avertis puissent tester leur installation, mais ils ne le seront pas sur ¨pypi pour ne pas polluer une distribution ¨python lors d'une installation de ¨mistool.
+
+    3) L'étrange package maison ``pdt`` a été totalement abandonné ! À la place, on utilise tout simplement ¨orpyste qui est devenu totalement indépendant de ¨mistool et le très pratique package ``pathlib``. Et oui, on se professionnalise... ;-)
+
+    4) << ATTENTION ! >> Seuls les tests du module ``date_use`` ont été mis à jour pour le moment afin de valider la nouvelle façon de procéder. Le reste viendra petit à petit...
+
+
+==========
 2016-03-03
 ==========
 
-**Oubli idiot dans la méthode ``walk`` de la classe ``os_use.PPath`` :** les doubles points dans ``"relative::{0}".format(regpath)`` avaient été omis.
+**Un oubli idiot dans la méthode ``walk`` de la classe ``os_use.PPath`` :** les doubles points dans ``"relative::{0}".format(regpath)`` avaient été omis.
 
 
-**Mise à jour du module ``latex_use`` relativement à ``os_use`` :** l'utilisation de ``latex_use`` a révélé deux oublis.
+**Mise à jour du module ``latex_use`` relativement à ``os_use`` :** l'utilisation en production de ``latex_use`` a révélé deux oublis.
 
-    1) On fait appel à la méthode ``is_protected`` de la classe ``os_use.PPath`` au lieu de feu la fonction ``canmodify``.
+    1) On fait maintenant appel à la méthode ``is_protected`` de la classe ``os_use.PPath`` au lieu de feu la fonction ``canmodify``.
 
-    2) La classe ``Build`` a été mise à jour relativement à la dernière version de ``os_use.runthis``. Ceci a impliqué de renommer l'argument ``showinfos`` en ``showoutput``.
+    2) La classe ``Build`` a été mise à jour relativement à la dernière version de ``os_use.runthis``. Ceci s'est accompagné par le changement du nom de l'argument ``showinfos`` en ``showoutput``.

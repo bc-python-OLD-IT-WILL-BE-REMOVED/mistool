@@ -2,7 +2,7 @@
 2016-02-27
 ==========
 
-**Amélioration de la méthode ``walk`` de la classe ``os_use.PPath`` :** toutes les recerches se font automatiquement de façon relative ! Bien plus logique...
+**Amélioration de la méthode ``walk`` de la classe ``os_use.PPath`` :** toutes les recherches se font automatiquement de façon relative ! Bien plus logique...
 
 
 ==========
