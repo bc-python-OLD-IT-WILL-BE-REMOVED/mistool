@@ -13,10 +13,25 @@ from subprocess import CalledProcessError
 
 from mistool.config import latex
 from mistool.os_use import (
+# Classes and functions
     pathenv, PPath,
     runthis,
-    system
+    system,
+# Safe constants
+    OS_MAC,
+    OS_LINUX,
+    OS_WIN
 )
+
+
+# -------------------- #
+# -- SAFE CONSTANTS -- #
+# -------------------- #
+
+ACCCESS_ERROR, EXIST_ERROR, NOT_TEX_ERROR, SUPERUSER_ERROR = range(4)
+
+TEXLIVE = "texlive"
+MIKTEX  = "miktex"
 
 
 # ------------------------- #
@@ -41,21 +56,22 @@ def _raise_io_error(
 prototype::
     arg = str: kind
     arg = PPath: ppath
-    arg = str: action in ['access' , 'exist' , 'notatex', 'superuser']
+    arg = str: action in [ACCCESS_ERROR , EXIST_ERROR ,
+                          NOT_TEX_ERROR, SUPERUSER_ERROR]
 
     return = str ;
              this function simply eases the raising of some specific IO errors.
     """
-    if action == 'superuser':
+    if action == SUPERUSER_ERROR:
         raise OSError("you must be a super user")
 
-    if action == 'access':
+    if action == ACCCESS_ERROR:
         action = 'needs the "Super User\'s rights"'
 
-    elif action == 'exist':
+    elif action == EXIST_ERROR:
         action = "doesn't exist"
 
-    elif action == 'notatex':
+    elif action == NOT_TEX_ERROR:
         action = "is not a TeX one"
 
     raise OSError(
@@ -227,7 +243,7 @@ info::
             _raise_io_error(
                 kind   = "file",
                 path   = ppath,
-                action = "exist"
+                action = EXIST_ERROR
             )
 
 # Do we have TEX file ?
@@ -235,12 +251,12 @@ info::
             _raise_io_error(
                 kind   = "file",
                 path   = path,
-                action = "notatex"
+                action = NOT_TEX_ERROR
             )
 
 # Infos given by the user.
-        self.ppath     = ppath
-        self.repeat    = repeat
+        self.ppath      = ppath
+        self.repeat     = repeat
         self.showoutput = showoutput
 
         self.cmd = None
@@ -271,7 +287,7 @@ prototype::
                 print(start_compile.format(i))
 
             runthis(
-                cmd        = "{0} {1}".format(self.cmd, self.ppath),
+                cmd        = '{0} "{1}"'.format(self.cmd, self.ppath),
                 showoutput = self.showoutput
             )
 
@@ -301,7 +317,7 @@ EXTS_TO_CLEAN = latex.EXTS_TO_CLEAN
 
 def clean(
     ppath,
-    exts      = EXTS_TO_CLEAN,
+    exts       = EXTS_TO_CLEAN,
     showoutput = False
 ):
     """
@@ -353,7 +369,7 @@ info::
             _raise_io_error(
                 kind   = "file",
                 path   = main,
-                action = "notatex"
+                action = NOT_TEX_ERROR
             )
 
         texpaths = [ppath]
@@ -372,10 +388,10 @@ info::
             print('* Cleaning for "{0}"'.format(p))
 
         for ext in exts:
-            file = p.with_ext(ext)
+            tempfile = p.with_ext(ext)
 
-            if file.is_file():
-                file.remove()
+            if tempfile.is_file():
+                tempfile.remove()
 
 
 # ---------------------------------- #
@@ -395,7 +411,7 @@ MIKETEX_LOCALDIR = PPath('C:/texmf-local')
 def _localdir_texlive(osname = ""):
     """
 prototype::
-    arg = str: osname = "" in ["windows" , "linux" , "mac"];
+    arg = str: osname = "" in [OS_WIN , OS_LINUX , OS_MAC];
           the name of the ¨os (logical, isn't it ?), that can be found
           automatically if you use the default value ``osname = ""``
 
@@ -406,11 +422,11 @@ prototype::
     if osname == "":
         osname = system()
 
-    if osname == "windows":
+    if osname == OS_WIN:
         localdir = runthis("kpsexpand '$TEXMFLOCAL'")
         localdir = PPath(localdir.strip()).normpath
 
-    elif osname in ["linux", "mac"]:
+    elif osname in [OS_LINUX, OS_MAC]:
         localdir = runthis('kpsewhich --var-value=TEXMFLOCAL')
         localdir = PPath(localdir.strip()).normpath
 
@@ -447,13 +463,13 @@ The key ``'localdir'`` contains the path to use to install special packages.
     localdir   = None
 
 # Windows
-    if osname == "windows":
+    if osname == OS_WIN:
         winpath = pathenv()
 
 # Is MiKTeX installed ?
         if '\\miktex\\' in winpath:
             latexfound = True
-            latexname  = 'miktex'
+            latexname  = MIKTEX
 
             if MIKETEX_LOCALDIR.is_dir():
                 localdir = MIKETEX_LOCALDIR
@@ -461,16 +477,16 @@ The key ``'localdir'`` contains the path to use to install special packages.
 # Is TeX Live installed ?
         elif '\\texlive\\' in winpath:
             latexfound = True
-            latexname  = 'texlive'
+            latexname  = TEXLIVE
             localdir   = _localdir_texlive(osname)
 
 # Linux and Mac
-    elif osname in ["linux", "mac"]:
+    elif osname in [OS_LINUX, OS_MAC]:
 # Is LaTeX installed ?
         try:
             if runthis('which pdftex'):
                 latexfound = True
-                latexname  = 'texlive'
+                latexname  = TEXLIVE
                 localdir   = _localdir_texlive(osname)
 
         except CalledProcessError:
@@ -510,7 +526,7 @@ prototype::
     action = this function tests if we have "Super User" permissions
     """
     if aboutlatex['localdir'].is_protected():
-        _raise_io_error(action = "superuser")
+        _raise_io_error(action = SUPERUSER_ERROR)
 
 
 def _can_install(aboutlatex):
@@ -528,13 +544,13 @@ prototype::
     if aboutlatex['localdir'] == None:
         message = "no local directory for special packages has been found."
 
-        if aboutlatex['latexname'] == "miktex":
+        if aboutlatex['latexname'] == MIKTEX:
             message += "You can use the function << make_miktex_localdir >>."
 
         raise LatexError(message)
 
 # Installation suported only on Mac O$, Linux and Windows
-    if aboutlatex['osname'] not in ['mac', 'linux', 'windows']:
+    if aboutlatex['osname'] not in [OS_MAC, OS_LINUX, OS_WIN]:
         raise LatexError(
             'the installation of local packages is not yet supported '
             'with the OS << {0} >>.'.format(aboutlatex['osname'])
@@ -567,11 +583,11 @@ warning::
     _must_be_su(aboutlatex)
 
 # TeX Live
-    if aboutlatex['latexname'] == 'texlive':
+    if aboutlatex['latexname'] == TEXLIVE:
         runthis('mktexlsr')
 
 # MiKTex
-    elif aboutlatex['latexname'] == 'miktex':
+    elif aboutlatex['latexname'] == MIKTEX:
         runthis('initexmf --update-fndb --verbose')
 
 # Unkonwn !!!
@@ -599,8 +615,8 @@ info::
     Even it is a really bad idea, you can change the path ``MIKETEX_LOCALDIR``
     to put your homemade packages where you want.
     """
-    if aboutlatex['osname'] != "windows" \
-    or aboutlatex['latexname'] != "miktex":
+    if aboutlatex['osname'] != OS_WIN \
+    or aboutlatex['latexname'] != MIKTEX:
         raise OSError(
             'this function can only be used with the OS "window" '
             'and the LaTeX distribution "miktex".'
@@ -806,7 +822,6 @@ pyterm::
 
     else:
         print('{0}<< Warning ! >> The package is empty !'.format(_DECO_1))
-
 
 
 def remove(name):

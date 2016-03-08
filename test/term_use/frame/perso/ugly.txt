@@ -1,0 +1,21 @@
+gene::
+    align = left
+
+model::
+    @@@------------%
+       |-| {text} +
+      &============$
+
+text::
+    one
+    text
+    to put
+    in one frame
+
+output::
+    @@@------------------%
+       |-| one          +
+       |-| text         +
+       |-| to put       +
+       |-| in one frame +
+      &==================$

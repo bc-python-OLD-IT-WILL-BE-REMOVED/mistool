@@ -1,0 +1,16 @@
+no_quote_symbol::
+    text   = Essayons pour voir.
+    quoted = 'Essayons pour voir.'
+
+double_quote_symbol::
+    text   = Essayons "pour" voir.
+    quoted = 'Essayons "pour" voir.'
+
+simple_quote_symbol::
+    text   = Essayons 'pour' voir.
+    quoted = "Essayons 'pour' voir."
+
+
+each_kind_of_quote_symbol::
+    text   = Essayons 'pour' "voir".
+    quoted = 'Essayons \'pour\' "voir".'

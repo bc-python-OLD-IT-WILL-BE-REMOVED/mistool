@@ -6,6 +6,7 @@
 
 import datetime
 from pathlib import Path
+from pytest import fixture
 
 from orpyste.data import ReadBlock as READ
 
@@ -35,33 +36,40 @@ THE_DATAS_FOR_TESTING = READ(
     mode    = {"keyval:: =": ":default:"}
 )
 
+@fixture(scope="module")
+def or_datas(request):
+    THE_DATAS_FOR_TESTING.build()
+
+    def remove():
+        THE_DATAS_FOR_TESTING.remove()
+
+    request.addfinalizer(remove)
+
 
 # ---------------- #
 # -- NEXT DAY ? -- #
 # ---------------- #
 
-def test_date_use_nextday():
-    THE_DATAS_FOR_TESTING.build()
+def test_date_use_nextday(or_datas):
+    tests = THE_DATAS_FOR_TESTING.dico(
+        nosep    = True,
+        nonbline = True
+    )
 
-    for oneinfo in THE_DATAS_FOR_TESTING:
-        if oneinfo.isdata():
-            datas = oneinfo.short_rtu_data
+    for name, datas in tests.items():
+        date_start = datas["start"]
+        y, m, d    = [int(x) for x in date_start.split('-')]
+        date_start = datetime.date(y, m, d)
 
-            date_start = datas["start"]["value"]
-            y, m, d    = [int(x) for x in date_start.split('-')]
-            date_start = datetime.date(y, m, d)
+        next_date = datas["next"]
+        y, m, d   = [int(x) for x in next_date.split('-')]
+        next_date = datetime.date(y, m, d)
 
-            next_date = datas["next"]["value"]
-            y, m, d   = [int(x) for x in next_date.split('-')]
-            next_date = datetime.date(y, m, d)
+        name = datas["name"]
 
-            name = datas["name"]["value"]
+        date_found = NEXTDAY_FUNCTION(
+            date = date_start,
+            name = name
+        )
 
-            date_found = NEXTDAY_FUNCTION(
-                date = date_start,
-                name = name
-            )
-
-            assert next_date == date_found
-
-    THE_DATAS_FOR_TESTING.remove()
+        assert next_date == date_found

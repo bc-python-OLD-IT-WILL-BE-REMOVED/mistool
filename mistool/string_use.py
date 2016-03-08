@@ -18,7 +18,9 @@ from mistool.config.pattern import PATTERNS_WORDS
 # -- CASE FORMATTING -- #
 # --------------------- #
 
-_CASE_VARIANTS      = ['firstlast', 'lower', 'sentence', 'title', 'upper']
+_CASE_VARIANTS = FIRSTLAST, LOWER, SENTENCE, TITLE, UPPER \
+               = 'firstlast', 'lower', 'sentence', 'title', 'upper'
+
 _LONG_CASE_VARIANTS = {x[0]:x for x in _CASE_VARIANTS}
 
 def case(text, kind):
@@ -26,8 +28,8 @@ def case(text, kind):
 prototype::
     arg = str: text ;
           the text to modify
-    arg = str: kind in _CASE_VARIANTS or
-                    in _LONG_CASE_VARIANTS ;
+    arg = str: kind in _CASE_VARIANTS
+                 or in _LONG_CASE_VARIANTS ;
           the kind of case you want
 
     return = str ;
@@ -64,19 +66,19 @@ info::
         raise ValueError('unknown kind of case formatting.')
 
 # Let's work...
-    if kind == 'lower':
+    if kind == LOWER:
         return text.lower()
 
-    elif kind == 'upper':
+    elif kind == UPPER:
         return text.upper()
 
-    elif kind == 'sentence':
+    elif kind == SENTENCE:
         return text[0].upper() + text[1:].lower()
 
-    elif kind == 'title':
+    elif kind == TITLE:
         return text.title()
 
-    elif kind == 'firstlast':
+    elif kind == FIRSTLAST:
         return text[0].upper() + text[1:-1].lower() + text[-1].upper()
 
 
@@ -90,8 +92,8 @@ prototype::
     arg = str: text ;
           the text to modify that uses the camel case (so it can't contain
           spaces)
-    arg = str: kind in _CASE_VARIANTS or
-                    in _LONG_CASE_VARIANTS ;
+    arg = str: kind in _CASE_VARIANTS
+                 or in _LONG_CASE_VARIANTS ;
           the kind of case you want
 
     return = str ;
@@ -173,10 +175,10 @@ prototype::
         raise ValueError('unknown kind of case for testing.')
 
 # Let's work...
-    if kind == "lower":
+    if kind == LOWER:
         return text.islower()
 
-    elif kind == "upper":
+    elif kind == UPPER:
         return text.isupper()
 
     else:
@@ -1217,10 +1219,10 @@ It's easy to increase the list of special characters managed by default.
             asciichar = None
 
             if "SMALL" in infos:
-                caseformat = "lower"
+                caseformat = LOWER
 
             else:
-                caseformat = "upper"
+                caseformat = UPPER
 
             if "LETTER" in infos:
                 i = infos.index("LETTER")

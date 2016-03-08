@@ -12,14 +12,31 @@ printed in a terminal.
 from mistool.config.frame import ALL_FRAMES
 from mistool.latex_use import escape as latex_escape
 from mistool.os_use import (
-    _ALL,
-    _DIR,
-    _EMPTY,
-    _FILE, _FILE_DIR_QUERIES,
-    _OTHER_FILES,
-    _XTRA,
-    PPath
+# Class
+    PPath,
+# Safe constants
+    DIR_QUERY,
+    EMPTY_DIR_QUERY,
+    FILE_QUERY, FILE_DIR_QUERY,
+    OTHER_FILES_QUERY,
+    XTRA_DISPLAY,
 )
+
+
+# -------------------- #
+# -- SAFE CONSTANTS -- #
+# -------------------- #
+
+UPLEFT    = "upleft"
+UPRIGHT   = "upright"
+DOWNLEFT  = "downleft"
+DOWNRIGHT = "downright"
+
+LEFT     = "left"
+CENTER   = "center"
+RIGHT    = "right"
+UPRULE   = "up"
+DOWNRULE = "down"
 
 
 # ------------------ #
@@ -206,17 +223,17 @@ prototype::
 DEFAULT_FRAME = ALL_FRAMES['python_basic']
 
 # Source: https://docs.python.org/3/library/string.html#format-specification-mini-language
-_ALIGNMENTS = {
-    'left'  : "<",
-    'center': "^",
-    'right' : ">"
+ALIGNMENTS = {
+    LEFT  : "<",
+    CENTER: "^",
+    RIGHT : ">"
 }
-_LONG_ALIGNMENTS = {x[0]: x for x in _ALIGNMENTS}
+LONG_ALIGNMENTS = {x[0]: x for x in ALIGNMENTS}
 
 def withframe(
     text,
     frame = DEFAULT_FRAME,
-    align = "left"
+    align = LEFT
 ):
     """
 prototype::
@@ -227,7 +244,7 @@ prototype::
     arg = {str: str}: frame = DEFAULT_FRAME ;
           this dictionary indicates how to draw the frame (you can easily add
           new frames with the help of the function ``buildframe``)
-    arg = str: align = "left" ;
+    arg = str: align = LEFT in ALIGNMENTS.keys() + LONG_ALIGNMENTS.keys() ;
           this indicates how to align the text inside the frame
 
     return = str ;
@@ -312,7 +329,7 @@ pyterm::
     # to do tests #
     ###############
 
-    >>> print(withframe(text = text, align = "right"))
+    >>> print(withframe(text = text, align = RIGHT))
     ###############
     #   One small #
     #        text #
@@ -360,9 +377,9 @@ Just take a look at the documentation of the function ``buildframe`` that allows
 to build very easily a "frame" dictionary that can be used with ``withframe``.
     """
 # Long name of the position
-    align = _LONG_ALIGNMENTS.get(align, align)
+    align = LONG_ALIGNMENTS.get(align, align)
 
-    if align not in _ALIGNMENTS:
+    if align not in ALIGNMENTS:
         raise ValueError("unknown name for the positionning of the text.")
 
 # The lines of the text.
@@ -371,7 +388,7 @@ to build very easily a "frame" dictionary that can be used with ``withframe``.
 
 # Formatting each line of text inside the frame.
     howtoput = '{' + ':{0}{1}'.format(
-        _ALIGNMENTS[align],
+        ALIGNMENTS[align],
         width
     ) + '}'
 
@@ -382,9 +399,9 @@ to build very easily a "frame" dictionary that can be used with ``withframe``.
 
 # First rule
     hrule = "{0}{1}{2}".format(
-        frame["upleft"],
-        frame["uprule"]*width,
-        frame["upright"]
+        frame[UPLEFT],
+        frame[UPRULE]*width,
+        frame[UPRIGHT]
     )
 
     if hrule:
@@ -394,24 +411,24 @@ to build very easily a "frame" dictionary that can be used with ``withframe``.
     for oneline in lines:
         frametexts.append(
             "{0}{1}{2}".format(
-                frame["left"],
+                frame[LEFT],
                 oneline,
-                frame["right"]
+                frame[RIGHT]
             )
         )
 
 # Last rule
     hrule = "{0}{1}{2}".format(
-        frame["downleft"],
-        frame["downrule"]*width,
-        frame["downright"]
+        frame[DOWNLEFT],
+        frame[DOWNRULE]*width,
+        frame[DOWNRIGHT]
     )
 
     if hrule:
         frametexts.append(hrule)
 
 # Here we are...
-    return "\n".join(frametexts)
+    return "\n".join([x.rstrip() for x in frametexts])
 
 
 def showallframes():
@@ -441,16 +458,16 @@ def buildframe(text):
     """
 prototype::
     arg = str: text ;
-          a text representatiing a frame with its content indicated using
-          ``{text}`` (see the example)
+          this string represents a frame with its content indicated using
+          ``{text}`` (see the example below)
 
     return = {str: str} ;
-             a dictionary that can be used with the argument ``frame`` of the
+             a dictionary that can be used as the argument ``frame`` of the
              function ``withframe``
 
 
 To understand how this function has to be used, let's suppose we want to define
-the following ugly frame.
+the following so ugly frame.
 
 code::
     @@ --------------------%%
@@ -461,7 +478,7 @@ code::
 
 
 To do that, you just have to use the special string ``{text}`` instead of a real
-text as we have done in the following text.
+text as we have done in the following text (be careful of spaces).
 
 code::
     @@ --------------%%
@@ -470,7 +487,7 @@ code::
 
 
 This string can be directly given to the function ``buildframe`` that will return
-a dictionary directly usable with the function ``withframe``. That's all !
+a dictionary to be used with the function ``withframe``. That's all !
 
 pyterm::
     >>> from mistool.term_use import buildframe
@@ -485,14 +502,14 @@ pyterm::
     {
     # UP
         'upleft' : '@@ ----',
-        'uprule' : '-',
+        'up'     : '-',
         'upright': '----%%',
-    # INSIDE
+    # BETWEEN UP & DOWN
         'left' : '   |-> ',
         'right': ' <-+',
     # DOWN
         'downleft' : '&&=====',
-        'downrule' : '=',
+        'down'     : '=',
         'downright': '==== $$'
     }
 
@@ -509,13 +526,15 @@ warning::
 # Do we have a good number of lines ?
     nblines = len(lines)
 
-    if nblines == 0 or nblines > 3:
-        raise ValueError(
-            "you must use at least one line and at most three lines."
-        )
+    if nblines == 0:
+        raise ValueError("you have given an empty string")
 
-# Up, inside and down
+    elif nblines > 3:
+        raise ValueError("you can't use more than three lines.")
+
+# Up, (in)side, down
     inside = None
+
     for i in range(nblines):
         if "{text}" in lines[i]:
             if nblines == 3 and (i == 0 or i == 2):
@@ -546,29 +565,45 @@ warning::
 
     frame = {
     # UP
-        "upleft" : up[:start],
-        "upright": up[end:],
+        UPLEFT : up[:start],
+        UPRIGHT: up[end:],
     # INSIDE
-        "left" : inside[:start],
-        "right": inside[end:],
+        LEFT : inside[:start],
+        RIGHT: inside[end:],
     # DOWN
-        "downleft" : down[:start],
-        "downright": down[end:],
+        DOWNLEFT : down[:start],
+        DOWNRIGHT: down[end:],
     }
 
-    if len(set(up[start:end])) != 1:
+# We have to take care os spaces !
+    up_start_end = up[start:end]
+
+    if not up_start_end:
+        frame[UPRULE] = " "
+
+    elif len(set(up_start_end)) > 1:
         raise ValueError(
-            "only one character can be used to draw the line upside the text."
+            "at most one character can be used to draw "
+            "the line upside the text."
         )
 
-    frame["uprule"] = up[start]
+    else:
+        frame[UPRULE] = up[start]
 
-    if len(set(down[start:end])) != 1:
+
+    down_start_end = down[start:end]
+
+    if not down_start_end:
+        frame[DOWNRULE] = " "
+
+    elif len(set(down_start_end)) > 1:
         raise ValueError(
-            "only one character can be used to draw the line downside the text."
+            "at most one character can be used to draw "
+            "the line downside the text."
         )
 
-    frame["downrule"] = down[start]
+    else:
+        frame[DOWNRULE] = down[start]
 
     return frame
 
@@ -593,7 +628,7 @@ prototype::
                this argument follows some rules named "regpath" rules so as to
                choose the files and the directories that must be kept (see the
                documentation of ``os_use._ppath_regpath2meta``)
-    arg-attr = str: display = "main short" in self._FORMATS;
+    arg-attr = str: display = "main short" in self.FORMATS;
                this argument gives informations about the output to produce (you
                can just use the initials of the options)
     arg-attr = str: sorting = "alpha" in [x[0] for x in cls.LAMBDA_SORT] or
@@ -926,14 +961,38 @@ info::
             special ellipsis ``"..."`` is met (ellipsis are used to indicate
             unmatching files).
     """
+
+# Safe constants
+    _CONTENT_TAG   = "content"
+    _DEPTH_TAG     = "depth"
+    _EMPTY_DIR_TAG = "empty_dir"
+    _PPATH_TAG     = "ppath"
+    _TAG_TAG       = "tag"
+
+    _ASCII_TAG = "ascii"
+    _LATEX_TAG = "latex"
+    _TOC_TAG   = "toc"
+    _TREE_TAG  = "tree"
+
+    _HRULE_TAG = "hrule"
+    _VRULE_TAG = "vrule"
+
+    _FNODE_TAG = "fnode"
+    _LNODE_TAG = "lnode"
+    _VNODE_TAG = "vnode"
+
+    _DECO_TAG = 'deco'
+    _TAB_TAG  = 'tab'
+
     _ELLIPSIS = "..."
 
+# Trees
     ASCII_DECOS = {
         k: v
         for v, keys in {
-            "+"  : [_DIR, _EMPTY, _OTHER_FILES],
-            "*"  : [_FILE],
-            " "*4: ['tab'],
+            "+"  : [DIR_QUERY, EMPTY_DIR_QUERY, OTHER_FILES_QUERY],
+            "*"  : [FILE_QUERY],
+            " "*4: [_TAB_TAG],
         }.items()
         for k in keys
     }
@@ -943,53 +1002,56 @@ info::
 
     UTF8_DECOS = {
 # Horizontal and vertical rules
-        'hrule': "\u2501", #--->  ━
-        'vrule': "\u2503", #--->  ┃
-# First, last, horizontal and vertical nodes
-        'fnode': "\u250F", #--->  ┏
-        'lnode': "\u2517", #--->  ┗
-        'vnode': "\u2523", #--->  ┣
+        _HRULE_TAG: "\u2501",   #--->  ━
+        _VRULE_TAG: "\u2503",   #--->  ┃
+# First, vertical and horizontal nodes
+        _FNODE_TAG: "\u250F",   #--->  ┏
+        _VNODE_TAG: "\u2523",   #--->  ┣
+        _LNODE_TAG: "\u2517",   #--->  ┗
 # Decorations
-        'deco': "\u2578",  #--->  ╸
+        _DECO_TAG: "\u2578",    #--->  ╸
     }
 
     LAMBDA_SORT = {
         ("alpha", "a"): [
-            lambda x: str(x['ppath']),
+            lambda x: str(x[_PPATH_TAG]),
             'z'*500
         ],
         ("name", "n"): [
             lambda x: (
-                str(x['ppath'].stem),
-                int("dir" in x['kind'])
+                str(x[_PPATH_TAG].stem),
+                int(DIR_QUERY in x['kind'])
             ),
             ('z'*500, 0)
         ],
         ("filefirst", "f"): [
             lambda x: (
-                int("dir" in x['kind']),
-                str(x['ppath'])
+                int(DIR_QUERY in x['kind']),
+                str(x[_PPATH_TAG])
             ),
             (0, 'z'*500)
         ],
         ("date", "d"): [
-            lambda x: -x['ppath'].stat().st_mtime,
+            lambda x: -x[_PPATH_TAG].stat().st_mtime,
             float('inf')
         ],
     }
 
 # Additional paths
-    _ONLY_FOUND_PATHS, _MAIN_PATH = "found", "main"
+    ONLY_FOUND_PATHS, MAIN_PATH = "found", "main"
 
 # Formattings of the paths
-    _LONG_PATH, _REL_PATH, _SHORT_PATH = "long", "relative", "short"
-    _FORMATS = set([
-        _LONG_PATH, _MAIN_PATH, _ONLY_FOUND_PATHS, _REL_PATH, _SHORT_PATH
+    LONG_PATH, REL_PATH, SHORT_PATH = "long", "relative", "short"
+
+    PATH_FORMATS = set([LONG_PATH, REL_PATH, SHORT_PATH])
+
+# All formats
+    FORMATS = set([
+        LONG_PATH, MAIN_PATH, ONLY_FOUND_PATHS, REL_PATH, SHORT_PATH
     ])
-    _PATH_FORMATS = set([_LONG_PATH, _REL_PATH, _SHORT_PATH])
 
 # Special query
-    _INTERNAL_QUERIES = set([_XTRA, _FILE, _DIR])
+    INTERNAL_QUERIES = set([XTRA_DISPLAY, FILE_QUERY, DIR_QUERY])
 
     def __init__(
         self,
@@ -1007,7 +1069,7 @@ info::
 
         self._sorting_long_names = {x[1]: x[0] for x in self.LAMBDA_SORT}
 
-        self._display_long_names = {x[0]: x for x in self._FORMATS}
+        self._display_long_names = {x[0]: x for x in self.FORMATS}
 
 # Verifications are done by the build method !
         self.ppath   = ppath
@@ -1056,13 +1118,13 @@ info::
             if x.strip()
         )
 
-        if not self._display <= self._FORMATS:
+        if not self._display <= self.FORMATS:
             raise ValueError("illegal formatting rule (see ``display``).")
 
-        nb_path_formats = len(self._display & self._PATH_FORMATS)
+        nb_path_formats = len(self._display & self.PATH_FORMATS)
 
         if nb_path_formats == 0:
-            self._display.add(self._SHORT_PATH)
+            self._display.add(self.SHORT_PATH)
 
         elif nb_path_formats != 1:
             raise ValueError(
@@ -1144,16 +1206,16 @@ info::
             regexit = False
         )
 
-        allqueries = queries | self._INTERNAL_QUERIES
+        allqueries = queries | self.INTERNAL_QUERIES
         allregpath = "{0}::{1}".format(" ".join(allqueries), pattern)
 
-        self._extradepth = int(self._MAIN_PATH in self._display)
+        self._extradepth = int(self.MAIN_PATH in self._display)
 
         self._all_listview = [
             {
-                'tag'  : tag,
-                'depth': ppath.depth_in(self.ppath) + self._extradepth,
-                'ppath': ppath
+                self._TAG_TAG  : tag,
+                self._DEPTH_TAG: ppath.depth_in(self.ppath) + self._extradepth,
+                self._PPATH_TAG: ppath
             }
             for ppath, tag in self.ppath.walk(
                 regpath  = allregpath,
@@ -1181,46 +1243,48 @@ prototype::
              ``self._all_listview``
         """
 # Sub fles and folders found
-        addall    = bool(self._ONLY_FOUND_PATHS not in self._display)
+        addall    = bool(self.ONLY_FOUND_PATHS not in self._display)
         _listview = []
 
         for metadatas in self._all_listview:
             addthis = bool(
-                self._MAIN_PATH in self._display
+                self.MAIN_PATH in self._display
                 or
-                metadatas['ppath'] != self.ppath
+                metadatas[self._PPATH_TAG] != self.ppath
             )
 
-            if metadatas['tag'] in [_EMPTY, _OTHER_FILES]:
+            if metadatas[self._TAG_TAG] in [EMPTY_DIR_QUERY, OTHER_FILES_QUERY]:
                 if addall:
                     if addthis:
                         _listview.append(metadatas)
 
-                    if metadatas['tag'] == _OTHER_FILES:
+                    if metadatas[self._TAG_TAG] == OTHER_FILES_QUERY:
+                        ppath =  metadatas[self._PPATH_TAG] / self._ELLIPSIS
+
                         _listview.append({
-                            'tag'  : _FILE,
-                            'depth': metadatas['depth'] + 1,
-                            'ppath': metadatas['ppath'] / self._ELLIPSIS
+                            self._TAG_TAG  : FILE_QUERY,
+                            self._DEPTH_TAG: metadatas[self._DEPTH_TAG] + 1,
+                            self._PPATH_TAG: ppath
                         })
 
-            elif metadatas['tag'] in self._filedir_queries:
+            elif metadatas[self._TAG_TAG] in self._filedir_queries:
                 if addthis:
                     _listview.append(metadatas)
 
-        _listview.sort(key = lambda x: str(x['ppath']))
+        _listview.sort(key = lambda x: str(x[self._PPATH_TAG]))
 
 
 # We have to find folders with only unmacthing files or with matching and
 # unmacthing files, and also all the parent directories.
 #
 # Main or not main, that is the question.
-        if self._MAIN_PATH in self._display:
+        if self.MAIN_PATH in self._display:
             if _listview \
-            and _listview[0]["ppath"] != self.ppath:
+            and _listview[0][self._PPATH_TAG] != self.ppath:
                 self.listview = [{
-                    'tag'  : _DIR,
-                    'depth': 0,
-                    'ppath': self.ppath
+                    self._TAG_TAG  : DIR_QUERY,
+                    self._DEPTH_TAG: 0,
+                    self._PPATH_TAG: self.ppath
                 }]
 
             else:
@@ -1233,27 +1297,29 @@ prototype::
             lastreldirs   = []
 
         for metadatas in _listview:
-            relpath = metadatas['ppath'].relative_to(self.ppath)
+            relpath = metadatas[self._PPATH_TAG].relative_to(self.ppath)
             parents = relpath.parents
 
 # We have to add all the parent directories !
-            if "dir" in metadatas['tag']:
-                lastreldirs.append(metadatas['ppath'].relative_to(self.ppath))
+            if DIR_QUERY in metadatas[self._TAG_TAG]:
+                lastreldirs.append(
+                    metadatas[self._PPATH_TAG].relative_to(self.ppath)
+                )
 
             else:
                 for parent in reversed(parents):
                     if parent not in lastreldirs:
                         ppath = self.ppath / parent
 
-                        if self._MAIN_PATH in self._display \
+                        if self.MAIN_PATH in self._display \
                         or ppath != self.ppath:
                             self.listview.insert(
                                 -1,
                                 {
-                                    'tag'  : _DIR,
-                                    'depth': ppath.depth_in(self.ppath) \
-                                             + self._extradepth,
-                                    'ppath': ppath
+                                    self._TAG_TAG  : DIR_QUERY,
+                                    self._DEPTH_TAG: ppath.depth_in(self.ppath) \
+                                                   + self._extradepth,
+                                    self._PPATH_TAG: ppath
                                 }
                             )
 
@@ -1287,20 +1353,20 @@ prototype::
             metadatas = listview[i]
 
 # Simply a file.
-            if metadatas['tag'] == _FILE:
+            if metadatas[self._TAG_TAG] == FILE_QUERY:
                 treeview.append(metadatas)
                 i += 1
 
 # For a directory, we have to catch its content that will be analyzed
 # recursively.
             else:
-                depth   = metadatas['depth']
+                depth   = metadatas[self._DEPTH_TAG]
                 content = []
                 i += 1
 
                 while(i < imax):
                     submetadatas = listview[i]
-                    subdepth     = submetadatas['depth']
+                    subdepth     = submetadatas[self._DEPTH_TAG]
 
                     if subdepth > depth:
                         content.append(submetadatas)
@@ -1310,10 +1376,10 @@ prototype::
                         break
 
                 if content:
-                    metadatas['content'] = self._rbuild_treeview(content)
+                    metadatas[self._CONTENT_TAG] = self._rbuild_treeview(content)
 
                 else:
-                    metadatas['content'] = []
+                    metadatas[self._CONTENT_TAG] = []
 
                 treeview.append(metadatas)
 
@@ -1334,7 +1400,7 @@ prototype::
     return = str ;
              the value to use for the sorting
         """
-        if metadatas['ppath'].name == self._ELLIPSIS:
+        if metadatas[self._PPATH_TAG].name == self._ELLIPSIS:
             return self._ellipsi_sort_value
 
         else:
@@ -1380,8 +1446,8 @@ prototype::
         treeview.sort(key = self._ellipsis_sort)
 
         for i, metadatas in enumerate(treeview):
-            if 'content' in metadatas:
-                metadatas['content'] = self._rsort(metadatas['content'])
+            if self._CONTENT_TAG in metadatas:
+                metadatas[self._CONTENT_TAG] = self._rsort(metadatas[self._CONTENT_TAG])
                 treeview[i] = metadatas
 
         return treeview
@@ -1401,8 +1467,8 @@ prototype::
         listview = []
 
         for metadatas in treeview:
-            if 'content' in metadatas:
-                content = metadatas['content']
+            if self._CONTENT_TAG in metadatas:
+                content = metadatas[self._CONTENT_TAG]
 
 # << Warning ! >> We can't use ``del metadatas['content']`` because this will
 # always change self.treeview (we could have used a deepcopy but this  would
@@ -1410,7 +1476,7 @@ prototype::
                 newmetadatas = {}
 
                 for k, v in metadatas.items():
-                    if k != "content":
+                    if k != self._CONTENT_TAG:
                         newmetadatas[k] = v
 
                 listview.append(newmetadatas)
@@ -1448,14 +1514,14 @@ prototype::
              the string to print for a path
         """
 # << Warning ! >> The paths are whole ones by default !
-        ppath = metadatas["ppath"]
+        ppath = metadatas[self._PPATH_TAG]
         name  = ppath.name
 
         if name == self._ELLIPSIS \
-        or self._SHORT_PATH in self._display:
+        or self.SHORT_PATH in self._display:
             strpath = name
 
-        elif self._REL_PATH in self._display:
+        elif self.REL_PATH in self._display:
             if ppath == self.ppath:
                 strpath = name
 
@@ -1478,24 +1544,24 @@ prototype::
              a basic tree using only ¨ascii characters
         """
 # The job has to be done.
-        if self.havetobuild('ascii'):
+        if self.havetobuild(self._ASCII_TAG):
             text = []
 
             for metadatas in self.listview:
-                depth = metadatas["depth"]
-                tab   = self.ASCII_DECOS['tab']*depth
+                depth = metadatas[self._DEPTH_TAG]
+                tab   = self.ASCII_DECOS[self._TAB_TAG]*depth
 
-                decokind    = self.ASCII_DECOS[metadatas["tag"]]
+                decokind    = self.ASCII_DECOS[metadatas[self._TAG_TAG]]
                 pathtoprint = self.pathtoprint(metadatas)
 
                 text.append(
                     "{0}{1} {2}".format(tab, decokind, pathtoprint)
                 )
 
-            self.outputs['ascii'] = '\n'.join(text)
+            self.outputs[self._ASCII_TAG] = '\n'.join(text)
 
 # The job has been done.
-        return self.outputs['ascii']
+        return self.outputs[self._ASCII_TAG]
 
 
     @property
@@ -1511,23 +1577,23 @@ prototype::
              additional rules
         """
 # The job has to be done.
-        if self.havetobuild('tree'):
+        if self.havetobuild(self._TREE_TAG):
 # One dir or file alone (extra prossibilty)
             if len(self.listview) == 1:
-                self.outputs['tree'] = "{0} {1}".format(
-                    self.UTF8_DECOS['hrule'],
+                self.outputs[self._TREE_TAG] = "{0} {1}".format(
+                    self.UTF8_DECOS[self._HRULE_TAG],
                     self.pathtoprint(self.listview[0])
                 )
 
             else:
 # Ugly patch !!!
-                self.outputs['tree'] = "\n".join([
+                self.outputs[self._TREE_TAG] = "\n".join([
                     x[4:]
                     for x in self._rtree(self.treeview)
                 ])
 
 # The job has been done.
-        return self.outputs['tree']
+        return self.outputs[self._TREE_TAG]
 
 
     def _rtree(self, treeview):
@@ -1539,7 +1605,7 @@ prototype::
         """
         lines       = []
         imax        = len(treeview) - 1
-        thisdepth   = treeview[0]['depth']
+        thisdepth   = treeview[0][self._DEPTH_TAG]
 
         if thisdepth <= 3:
             subtabdepth = 0
@@ -1549,7 +1615,7 @@ prototype::
 
         for i, metadatas in enumerate(treeview):
 # Rule regarding the kind of object.
-            isdir = 'dir' in metadatas['tag']
+            isdir = DIR_QUERY in metadatas[self._TAG_TAG]
 
 # Rule before any kind of rule.
             if thisdepth == 0:
@@ -1559,35 +1625,35 @@ prototype::
 
             elif i == imax:
                 addvrule = False
-                before   = " " + self.UTF8_DECOS['lnode']
+                before   = " " + self.UTF8_DECOS[self._LNODE_TAG]
 
             else:
                 addvrule = True
-                before   = " " + self.UTF8_DECOS['vnode']
+                before   = " " + self.UTF8_DECOS[self._VNODE_TAG]
 
 # Just add the object.
             lines.append(
                 "{0}{1} {2}{3}".format(
                     before,
-                    self.UTF8_DECOS['hrule'],
-                    self.UTF8_DECOS['deco'],
+                    self.UTF8_DECOS[self._HRULE_TAG],
+                    self.UTF8_DECOS[self._DECO_TAG],
                     self.pathtoprint(metadatas)
                 )
             )
 
 # A new not empty directory
-            if isdir and metadatas['content']:
+            if isdir and metadatas[self._CONTENT_TAG]:
                 subbefore = " "*subtabdepth
 
                 if addvrule:
-                    subbefore += " " + self.UTF8_DECOS['vrule'] + "  "
+                    subbefore += " " + self.UTF8_DECOS[self._VRULE_TAG] + "  "
 
                 else:
                     subbefore += "    "
 
                 lines += [
                     subbefore + x
-                    for x in self._rtree(metadatas['content'])
+                    for x in self._rtree(metadatas[self._CONTENT_TAG])
                 ]
 
         return lines
@@ -1605,24 +1671,24 @@ prototype::
              parent directories and subsection are path of files
         """
 # The job has to be done.
-        if self.havetobuild('toc'):
+        if self.havetobuild(self._TOC_TAG):
             text       = []
             lastparent = ""
-            tab        = self.ASCII_DECOS["tab"]
-            decodir    = self.ASCII_DECOS["dir"]
-            decofile   = self.ASCII_DECOS["file"]
+            tab        = self.ASCII_DECOS[self._TAB_TAG]
+            decodir    = self.ASCII_DECOS[DIR_QUERY]
+            decofile   = self.ASCII_DECOS[FILE_QUERY]
             mainname   = self.ppath.name
 
             for metadatas in self.listview:
 # One file
-                if metadatas["tag"] == _FILE:
+                if metadatas[self._TAG_TAG] == FILE_QUERY:
                     thisparent = str(
-                        metadatas["ppath"].parent.relative_to(self.ppath)
+                        metadatas[self._PPATH_TAG].parent.relative_to(self.ppath)
                     )
 
                     if lastparent != thisparent:
                         dirpath \
-                        = mainname / metadatas["ppath"].parent.relative_to(self.ppath)
+                        = mainname / metadatas[self._PPATH_TAG].parent.relative_to(self.ppath)
 
                         text.append("")
                         text.append("{0} {1}".format(decodir, dirpath))
@@ -1638,8 +1704,8 @@ prototype::
                     )
 
 # One empty directory
-                elif metadatas["tag"] == "empty_dir":
-                    dirpath = mainname / metadatas["ppath"].relative_to(
+                elif metadatas[self._TAG_TAG] == self._EMPTY_DIR_TAG:
+                    dirpath = mainname / metadatas[self._PPATH_TAG].relative_to(
                         self.ppath
                     )
 
@@ -1647,11 +1713,11 @@ prototype::
                     text.append("{0} {1}".format(decodir, dirpath))
 
 # "Lines to text" transformation can be done
-            self.outputs['toc'] = '\n'.join(text[1:])
+            self.outputs[self._TOC_TAG] = '\n'.join(text[1:])
 
 
 # The job has been done.
-        return self.outputs['toc']
+        return self.outputs[self._TOC_TAG]
 
 
     @property
@@ -1664,11 +1730,11 @@ prototype::
              a ¨latex code for the ¨latex package latex::``dirtree``
         """
 # The job has to be done.
-        if self.havetobuild('latex'):
+        if self.havetobuild(self._LATEX_TAG):
             text = []
 
             for metadatas in self.listview:
-                depth = metadatas["depth"] + 1
+                depth = metadatas[self._DEPTH_TAG] + 1
                 pathtoprint = latex_escape(self.pathtoprint(metadatas))
 
                 text.append(
@@ -1676,10 +1742,13 @@ prototype::
                         "  "* depth,
                         depth,
                         pathtoprint
-                    ).replace('<', '{').replace('>', '}')
+                    )
                 )
 
-            self.outputs['latex'] = "\dirtree{%\n" + '\n'.join(text) + "\n}"
+            text = "\dirtree<%\n{0}\n>".format('\n'.join(text))
+
+            self.outputs[self._LATEX_TAG] \
+            = text.replace('<', '{').replace('>', '}')
 
 # The job has been done.
-        return self.outputs['latex']
+        return self.outputs[self._LATEX_TAG]

@@ -1,0 +1,7 @@
+google::
+    url     = http://www.google.com
+    success = True
+
+not_real_url::
+    url     = http://www.goOOOOOOOOOOOoogle.com
+    success = False

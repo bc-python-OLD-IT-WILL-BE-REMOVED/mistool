@@ -4,7 +4,6 @@
 # -- SEVERAL IMPORTS -- #
 # --------------------- #
 
-import datetime
 from pathlib import Path
 from pytest import fixture
 
@@ -15,7 +14,7 @@ from orpyste.data import ReadBlock as READ
 # -- MODULE TESTED -- #
 # ------------------- #
 
-from mistool import date_use
+from mistool import latex_use
 
 
 # ----------------------- #
@@ -24,7 +23,7 @@ from mistool import date_use
 
 THIS_DIR = Path(__file__).parent
 
-TRANSLATE_FUNCTION = date_use.translate
+ESCAPE_FUNCTION = latex_use.escape
 
 
 # ----------------------- #
@@ -32,7 +31,7 @@ TRANSLATE_FUNCTION = date_use.translate
 # ----------------------- #
 
 THE_DATAS_FOR_TESTING = READ(
-    content = THIS_DIR / 'date_translate.txt',
+    content = THIS_DIR / 'escape_latex.txt',
     mode    = {"keyval:: =": ":default:"}
 )
 
@@ -46,29 +45,34 @@ def or_datas(request):
     request.addfinalizer(remove)
 
 
-# --------------------- #
-# -- TRANSLATE DATES -- #
-# --------------------- #
+# ------------------- #
+# -- GOOD ESCAPING -- #
+# ------------------- #
 
-def test_date_use_translate(or_datas):
+def test_latex_use_good_escaping(or_datas):
     tests = THE_DATAS_FOR_TESTING.dico(
         nosep    = True,
         nonbline = True
     )
 
     for name, datas in tests.items():
-        date    = datas["date"]
-        y, m, d = [int(x) for x in date.split('-')]
-        date    = datetime.date(y, m, d)
+        source        = datas['source']
+        escaped_texts = {}
 
-        lang        = datas["lang"]
-        strformat   = datas["format"]
-        translation = datas["translation"]
+        if 'text' in datas:
+            escaped_texts['text'] = datas['text']
+        else:
+            escaped_texts['text'] = datas['both']
 
-        translation_found = TRANSLATE_FUNCTION(
-            date      = date,
-            strformat = strformat,
-            lang      = lang
-        )
+        if 'math' in datas:
+            escaped_texts['math'] = datas['math']
+        else:
+            escaped_texts['math'] = datas['both']
 
-        assert translation == translation_found
+        for mode in ['text', 'math']:
+            answer = ESCAPE_FUNCTION(
+                text = source,
+                mode = mode
+            )
+
+            assert answer == escaped_texts[mode]

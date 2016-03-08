@@ -4,7 +4,6 @@
 # -- SEVERAL IMPORTS -- #
 # --------------------- #
 
-import datetime
 from pathlib import Path
 from pytest import fixture
 
@@ -15,7 +14,7 @@ from orpyste.data import ReadBlock as READ
 # -- MODULE TESTED -- #
 # ------------------- #
 
-from mistool import date_use
+from mistool import url_use
 
 
 # ----------------------- #
@@ -24,7 +23,7 @@ from mistool import date_use
 
 THIS_DIR = Path(__file__).parent
 
-TRANSLATE_FUNCTION = date_use.translate
+ISLINKED_FUNCTION = url_use.islinked
 
 
 # ----------------------- #
@@ -32,7 +31,7 @@ TRANSLATE_FUNCTION = date_use.translate
 # ----------------------- #
 
 THE_DATAS_FOR_TESTING = READ(
-    content = THIS_DIR / 'date_translate.txt',
+    content = THIS_DIR / 'connection.txt',
     mode    = {"keyval:: =": ":default:"}
 )
 
@@ -46,29 +45,20 @@ def or_datas(request):
     request.addfinalizer(remove)
 
 
-# --------------------- #
-# -- TRANSLATE DATES -- #
-# --------------------- #
+# ---------------- #
+# -- CONNECTION -- #
+# ---------------- #
 
-def test_date_use_translate(or_datas):
+def test_url_use_connection(or_datas):
     tests = THE_DATAS_FOR_TESTING.dico(
         nosep    = True,
         nonbline = True
     )
 
     for name, datas in tests.items():
-        date    = datas["date"]
-        y, m, d = [int(x) for x in date.split('-')]
-        date    = datetime.date(y, m, d)
+        url     = datas['url']
+        success = eval(datas['success'])
 
-        lang        = datas["lang"]
-        strformat   = datas["format"]
-        translation = datas["translation"]
+        success_found = ISLINKED_FUNCTION(url)
 
-        translation_found = TRANSLATE_FUNCTION(
-            date      = date,
-            strformat = strformat,
-            lang      = lang
-        )
-
-        assert translation == translation_found
+        assert success == success_found

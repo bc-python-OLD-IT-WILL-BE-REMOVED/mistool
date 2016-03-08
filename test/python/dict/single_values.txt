@@ -1,0 +1,9 @@
+dict_of_integers::
+    onedict = {
+        "a": 3,
+        "b": 1,
+        "c": 3,
+        "d": 2,
+    }
+
+    singlevalues = [1, 2, 3]

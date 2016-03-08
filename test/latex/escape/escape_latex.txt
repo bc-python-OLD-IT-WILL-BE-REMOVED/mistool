@@ -1,0 +1,28 @@
+sharp::
+    source = sharp : # . Is it ok ? #
+    both   = sharp : \# . Is it ok ? \#
+
+underscore::
+    source = underscore : _ . Is it ok ? _
+    both   = underscore : \_ . Is it ok ? \_
+
+dollar::
+    source = dollar : $ . Is it ok ? $
+    both   = dollar : \$ . Is it ok ? \$
+
+and::
+    source = and : & . Is it ok ? &
+    both   = and : \& . Is it ok ? \&
+
+percent::
+    source = percent : % . Is it ok ? %
+    both   = percent : \% . Is it ok ? \%
+
+braces::
+    source = braces : {} {text} . Is it ok ? {text} {}
+    both   = braces : \{\} \{text\} . Is it ok ? \{text\} \{\}
+
+backslash::
+    source = backslash : \ . Is it ok ? \
+    text   = backslash : \textbackslash{} . Is it ok ? \textbackslash{}
+    math   = backslash : \backslash{} . Is it ok ? \backslash{}

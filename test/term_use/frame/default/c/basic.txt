@@ -1,0 +1,17 @@
+gene::
+    align = center
+
+text::
+    one
+    text
+    to put
+    in one frame
+
+// We must use ``:/`` and  ``/:`` to have a C like content.
+output::
+    /:****************
+     *     one      *
+     *     text     *
+     *    to put    *
+     * in one frame *
+     ****************:/

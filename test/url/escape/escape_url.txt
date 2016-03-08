@@ -1,0 +1,11 @@
+espana::
+    url    = http://www.vivaespaña.com/camión/
+    escape = http://www.vivaespa%C3%B1a.com/cami%C3%B3n/
+
+france::
+    url    = http://www.cetété.tourism#bidon_1
+    escape = http://www.cet%C3%A9t%C3%A9.tourism#bidon_1
+
+characters_to_keep::
+    url    = https://www.google.fr/search?q=test&ie=utf-8&oe=utf-8&aq=t&rls=org.mozilla:fr:official&client=firefox-a&channel=fflb
+    escape = https://www.google.fr/search?q=test&ie=utf-8&oe=utf-8&aq=t&rls=org.mozilla:fr:official&client=firefox-a&channel=fflb

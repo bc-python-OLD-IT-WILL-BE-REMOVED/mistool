@@ -23,6 +23,57 @@ import shutil
 from subprocess import check_call, check_output
 
 
+# -------------------- #
+# -- SAFE CONSTANTS -- #
+# -------------------- #
+
+OS_MAC   = "mac"
+OS_LINUX = "linux"
+OS_WIN   = "windows"
+
+# Sources for the regex:
+#
+#     * http://stackoverflow.com/a/430781/4589608
+#     * http://stackoverflow.com/a/30439865/4589608
+#     * http://stackoverflow.com/a/817117/4589608
+#     * http://stackoverflow.com/a/20294987/4589608
+
+FILE_QUERY, DIR_QUERY, EMPTY_DIR_QUERY, NOT_QUERY, OTHER_FILES_QUERY \
+= "file", "dir", "empty_dir", "not", "dir_other_files"
+
+FILE_DIR_QUERY      = set([FILE_QUERY, DIR_QUERY])
+LONG_FILE_DIR_QUERY = {x[0]: x for x in FILE_DIR_QUERY}
+
+
+ALL_DISPLAY, RELSEARCH_DISPLAY, XTRA_DISPLAY \
+= "all", "relative", "xtra"
+
+
+REGPATH_QUERIES = set([
+    DIR_QUERY, EMPTY_DIR_QUERY, FILE_QUERY, NOT_QUERY,
+    ALL_DISPLAY, RELSEARCH_DISPLAY, XTRA_DISPLAY
+])
+
+LONG_REGPATH_QUERIES = {x[0]: x for x in REGPATH_QUERIES}
+
+
+RE_SPECIAL_CHARS = re.compile(
+    r"(?<!\\)((?:\\\\)*)((\*+)|(@)|(×)|(\.))"
+)
+
+REGPATH_TO_REGEX = {
+    '**': ".+",
+    '.' : r"\.",
+    '@' : ".",
+    '×' : "*",
+}
+
+REGPATH_SPE_CHARS = list(REGPATH_TO_REGEX) + ["*"]
+
+REGPATH_TO_REGEX['\\'] = "[^\\]+"
+REGPATH_TO_REGEX['/']  = "[^/]+"
+
+
 # ------------------- #
 # -- GENERAL INFOS -- #
 # ------------------- #
@@ -52,7 +103,7 @@ prototype::
         raise SystemError("the operating sytem can't be found.")
 
     if osname == 'Darwin':
-        return "mac"
+        return OS_MAC
 
     else:
         return osname.lower()
@@ -151,47 +202,6 @@ prototype::
            this class adds some functionalities to the standard class
            ``pathlib.Path``
     """
-# -- CONSTANTS FOR REGPATHS -- #
-
-# Sources for the regex:
-#
-#     * http://stackoverflow.com/a/430781/4589608
-#     * http://stackoverflow.com/a/30439865/4589608
-#     * http://stackoverflow.com/a/817117/4589608
-#     * http://stackoverflow.com/a/20294987/4589608
-
-    _FILE, _DIR, _EMPTY, _OTHER_FILES \
-    = "file", "dir", "empty_dir", "dir_other_files"
-
-    _ALL, _NOT, _RELSEARCH, _XTRA \
-    = "all", "not", "relative", "xtra"
-
-    _PATH_QUERIES = set([_DIR, _EMPTY, _FILE, _ALL, _NOT, _RELSEARCH, _XTRA])
-
-    _LONG_PATH_QUERIES = {x[0]: x for x in _PATH_QUERIES}
-    _FILE_DIR_QUERIES  = set([_DIR, _FILE])
-
-    _RE_SPECIAL_CHARS = pattern = re.compile(
-        r"(?<!\\)((?:\\\\)*)((\*+)|(@)|(×)|(\.))"
-    )
-
-    _REPLACEMENTS = {
-        '**': ".+",
-        '.' : r"\.",
-        '@' : ".",
-        '×' : "*",
-    }
-
-    _SPE_CHARS = list(_REPLACEMENTS) + ["*"]
-
-    _REPLACEMENTS['\\'] = "[^\\]+"
-    _REPLACEMENTS['/']  = "[^/]+"
-
-# -- CONSTANTS FOR CREATION -- #
-
-    _ALL_CREATE_KINDS  = set([_FILE, _DIR])
-    _LONG_CREATE_KINDS = {x[0]: x for x in _ALL_CREATE_KINDS}
-
 
 # -- ABOUT -- #
 
@@ -577,18 +587,18 @@ prototype::
     return = str ;
              a regex uncompiled version of ``pattern``.
     """
-        onestar2regex = self._REPLACEMENTS[self._flavour.sep]
+        onestar2regex = REGPATH_TO_REGEX[self._flavour.sep]
 
         newpattern = ""
         lastpos    = 0
 
-        for m in self._RE_SPECIAL_CHARS.finditer(pattern):
+        for m in RE_SPECIAL_CHARS.finditer(pattern):
             spechar = m.group()
 
-            if spechar not in self._SPE_CHARS:
+            if spechar not in REGPATH_SPE_CHARS:
                 raise ValueError("too much consecutive stars ''*''")
 
-            spechar     = self._REPLACEMENTS.get(spechar, onestar2regex)
+            spechar     = REGPATH_TO_REGEX.get(spechar, onestar2regex)
             newpattern += pattern[lastpos:m.start()] + spechar
             lastpos     = m.end()
 
@@ -735,29 +745,29 @@ info::
             pattern = pattern[0]
 
             queries = set(
-                self._LONG_PATH_QUERIES.get(x.strip(), x.strip())
+                LONG_REGPATH_QUERIES.get(x.strip(), x.strip())
                 for x in queries.split(" ")
             )
 
-            if not queries <= self._PATH_QUERIES:
+            if not queries <= REGPATH_QUERIES:
                 raise ValueError("illegal filter(s) in the regpath.")
 
 # One single piece
         else:
-            queries, pattern = self._FILE_DIR_QUERIES, queries
+            queries, pattern = FILE_DIR_QUERY, queries
 
 # The query "empty" is used.
-        if self._EMPTY in queries:
-            if self._FILE in queries:
+        if EMPTY_DIR_QUERY in queries:
+            if FILE_QUERY in queries:
                 raise ValueError(
                     'filters "empty" and "file" can\'t be used together.'
                 )
 
-            queries.add(self._DIR)
+            queries.add(DIR_QUERY)
 
 # The queries "file" and "dir" are not used.
-        elif self._FILE not in queries and self._DIR not in queries:
-            queries |= self._FILE_DIR_QUERIES
+        elif FILE_QUERY not in queries and DIR_QUERY not in queries:
+            queries |= FILE_DIR_QUERY
 
 # The regex uncompiled version : we just do replacing by taking care of
 # the escaping character. We play with regexes to do that.
@@ -789,21 +799,21 @@ prototype::
         osname = system()
 
 # Windows
-        if osname == "windows":
+        if osname == OS_WIN:
             if self.is_file():
                 os.startfile(strpath)
             else:
                 check_call(args = ['explorer', strpath])
 
 # Mac
-        elif osname == "mac":
+        elif osname == OS_MAC:
             check_call(args = ['open', strpath])
 
 # Linux
 #
 # Source :
 #     * http://forum.ubuntu-fr.org/viewtopic.php?pid=3952590#p3952590
-        elif osname == "linux":
+        elif osname == OS_LINUX:
             check_call(args = ['xdg-open', strpath])
 
 # Unknown method...
@@ -927,8 +937,8 @@ info::
         + dir_other_files >>> /Users/projetmbc/basic_dir/sub_dir
         + dir_other_files >>> /Users/projetmbc/basic_dir/sub_dir/sub_sub_dir
 
-    The special names are stored in the global variables ``self._FILE``,
-    ``self._DIR``, ``self._EMPTY`` and ``self._OTHER_FILES`` which are strings.
+    The special names are stored in the global variables ``FILE_QUERY``,
+    ``DIR_QUERY``, ``EMPTY_DIR_QUERY`` and ``OTHER_FILES_QUERY`` which are strings.
     This is useful to avoid typing errors if you want to use the query ``xtra``
     together with ``givetags = True`` as the class ``DirView`` does.
         """
@@ -937,23 +947,27 @@ info::
             raise OSError("the path doesn't point to a directory.")
 
 # All walks are relative !
-        regpath = "relative::{0}".format(regpath)
+        if "::" in regpath:
+            regpath = "relative {0}".format(regpath)
+
+        else:
+            regpath = "relative::{0}".format(regpath)
 
 # metadatas and the normal regex
         queries, pattern = self.regpath2meta(regpath)
 
         maindir   = str(self)
-        keepdir   = self._DIR in queries
-        keepfile  = self._FILE in queries
-        keepempty = self._EMPTY in queries
-        keepall   = self._ALL in queries
-        relsearch = self._RELSEARCH in queries
-        addextra  = self._XTRA in queries
+        keepdir   = DIR_QUERY in queries
+        keepfile  = FILE_QUERY in queries
+        keepempty = EMPTY_DIR_QUERY in queries
+        keepall   = ALL_DISPLAY in queries
+        relsearch = RELSEARCH_DISPLAY in queries
+        addextra  = XTRA_DISPLAY in queries
 
         regex_obj = re.compile(pattern)
 
 # Matching or unmatching, that is the question !
-        if self._NOT in queries:
+        if NOT_QUERY in queries:
             match = lambda x: not regex_obj.match(x)
 
         else:
@@ -996,7 +1010,7 @@ info::
                         if match(rel_file):
                             yield self.__tagsreturnedbywalk(
                                 ppath    = ppath_full_file,
-                                tag      = self._FILE,
+                                tag      = FILE_QUERY,
                                 givetags = givetags
                             )
 
@@ -1006,7 +1020,7 @@ info::
                     elif match(full_file):
                         yield self.__tagsreturnedbywalk(
                             ppath    = PPath(full_file),
-                            tag      = self._FILE,
+                            tag      = FILE_QUERY,
                             givetags = givetags
                         )
 
@@ -1016,10 +1030,10 @@ info::
 # A new directory ?
             if addthisdir:
                 if isdirempty:
-                    tag = self._EMPTY
+                    tag = EMPTY_DIR_QUERY
 
                 else:
-                    tag = self._DIR
+                    tag = DIR_QUERY
 
                 yield self.__tagsreturnedbywalk(
                     ppath    = root_ppath,
@@ -1029,13 +1043,13 @@ info::
 
             elif addextra:
                 if isdirempty:
-                    tag = self._EMPTY
+                    tag = EMPTY_DIR_QUERY
 
                 elif nomatch_files_found:
-                    tag = self._OTHER_FILES
+                    tag = OTHER_FILES_QUERY
 
                 else:
-                    tag = self._DIR
+                    tag = DIR_QUERY
 
                 yield self.__tagsreturnedbywalk(
                     ppath    = root_ppath,
@@ -1049,7 +1063,7 @@ info::
     def create(self, kind):
         """
 prototype::
-    arg = str: kind in [self._FILE, self._DIR]
+    arg = str: kind in [FILE_QUERY, DIR_QUERY]
 
     action = this method creates the file or the directory having the current
              path except if this path points to an existing directory or file
@@ -1079,13 +1093,13 @@ info::
     All the parent directories that don't yet exist are automatically created.
         """
 # Good kind.
-        kind = self._LONG_CREATE_KINDS.get(kind, kind)
+        kind = LONG_FILE_DIR_QUERY.get(kind, kind)
 
-        if kind not in self._ALL_CREATE_KINDS:
+        if kind not in FILE_DIR_QUERY:
             raise ValueError("illegal kind.")
 
 # A new directory.
-        if kind == self._DIR:
+        if kind == DIR_QUERY:
             if self.is_file():
                 raise ValueError("path points to an existing file.")
 
@@ -1097,7 +1111,7 @@ info::
             raise ValueError("path points to an existing directory.")
 
         elif not self.is_file():
-            self.parent.create(self._DIR)
+            self.parent.create(DIR_QUERY)
 
             with self.open(mode = "w") as file:
                 ...
@@ -1165,17 +1179,17 @@ prototype::
 # We have to play with the queries and the pattern in ``regpath``.
         queries, pattern = self.regpath2meta(regpath, regexit = False)
 
-        if self._ALL in queries:
-            prefix = "all"
+        if ALL_DISPLAY in queries:
+            prefix = ALL_DISPLAY
 
-        elif self._EMPTY in queries:
-            prefix = "empty"
+        elif EMPTY_DIR_QUERY in queries:
+            prefix = EMPTY_DIR_QUERY
 
         else:
             prefix = ""
 
 # We must first remove the files. This is in case of folders to destroy.
-        if self._FILE in queries:
+        if FILE_QUERY in queries:
             filepattern = "{0} file::{1}".format(prefix, pattern)
 
             for path in self.walk(filepattern):
@@ -1183,7 +1197,7 @@ prototype::
 
 # Now, we can destroy folders but we can use an iterator (because of sub
 # directories).
-        if self._DIR in queries:
+        if DIR_QUERY in queries:
             dirpattern = "{0} dir::{1}".format(prefix, pattern)
 
 # << Warning ! >> We have to be carefull with directories and sub folders.
@@ -1221,7 +1235,7 @@ warning::
         try:
 # Copy of a file.
             if self.is_file():
-                dest.parent.create(self._DIR)
+                dest.parent.create(DIR_QUERY)
 
                 shutil.copy(str(self), str(dest))
 
@@ -1235,7 +1249,7 @@ warning::
                         "is not supported (be aware of recursive copying)"
                     )
 
-                dest.parent.create(self._DIR)
+                dest.parent.create(DIR_QUERY)
 
                 for onepath in self.walk():
                     relpath  = onepath - self
@@ -1248,7 +1262,7 @@ warning::
                         )
 
                     elif onepath.is_empty():
-                        destpath.create(self._DIR)
+                        destpath.create(DIR_QUERY)
 
 # Path points nowhere !
             else:

@@ -1,0 +1,18 @@
+gene::
+    align = center 
+
+text::
+    one
+    text
+    to put
+    in one frame
+
+// << WARNING ! >> We must escape ``::``at the end.
+
+output::
+    ::::::::::\::
+        one
+        text
+       to put
+    in one frame
+    ::::::::::\::

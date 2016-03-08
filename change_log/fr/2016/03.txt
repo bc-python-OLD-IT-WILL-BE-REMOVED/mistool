@@ -1,4 +1,22 @@
 ==========
+2016-03-08
+==========
+
+**Suite de la mise à jour des tests :** voici les modules dont les tests ont été actualisés.
+
+    1) ``latex_use``.
+    2) ``python_use``.
+    3) ``term_use``.
+    4) ``url_use``.
+
+
+**Un nouveau bug corrigé dans la fonction ``term_use.buildframe`` :** l'utilisation d'espaces comme décorateurs n'était pas prise en compte. Ceci est maintenant possible.
+
+
+**Petite amélioration côté technique de programmation :** utilisation de constantes à la place de chaînes de caractères codées "à la main". C'est plus pro !
+
+
+==========
 2016-03-07
 ==========
 

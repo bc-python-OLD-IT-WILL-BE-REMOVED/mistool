@@ -1,0 +1,16 @@
+gene::
+    align = right
+
+text::
+    one
+    text
+    to put
+    in one frame
+
+output::
+    # ------------------ #
+    # --          one -- #
+    # --         text -- #
+    # --       to put -- #
+    # -- in one frame -- #
+    # ------------------ #

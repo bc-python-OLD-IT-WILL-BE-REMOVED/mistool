@@ -21,8 +21,9 @@ CHAR_TO_KEEP = "/:#&?="
 def escape(url):
     """
 prototype::
-    arg    = str: url ;
-             the link that must be escaped
+    arg = str: url ;
+          the link that must be escaped
+
     return = str ;
              the escaped ¨http version of the url
 
@@ -53,8 +54,9 @@ info::
 def islinked(url):
     """
 prototype::
-    arg    = str: url ;
-             the link that must be tested
+    arg = str: url ;
+          the link that must be tested
+
     return = bool ;
              ``True`` if the script has been able to open the link, and ``False``
              otherwise
