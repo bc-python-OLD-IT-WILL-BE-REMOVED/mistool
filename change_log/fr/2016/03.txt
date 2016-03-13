@@ -1,4 +1,32 @@
 ==========
+2016-03-13
+==========
+
+**Du changement dans la méthode ``os_use.PPath.walk`` :** voici ce qui a été fait.
+
+    1) L'argument ``givetags`` et la méthode cachée associée ``__tagsreturnedbywalk`` n'existent plus. Les étiquettes sont directement stockées dans un attribut "caché" ``_tag`` des classes ``PPath`` renvoyées.
+
+    2) Les fichiers ne vérifiant pas un motif "regpath" sont bien plus logiquement renvoyés comme des chemins de type "fichier" avec un nom particulier donné par ``OTHER_FILES_NAME``, et les dossiers ne contennant que ce type de fichiers ont une étiquette particulière maintenant.
+
+    3) Correction de deux bugs révélés par certains tests de la classe ``term_use.DirView``.
+
+        a) La gestion des dossiers et des fichiers cachés était mauvaise. Ceci devrait être bon maintenant.
+
+        b) La définition du tri de type ``"filefirst"`` était fausse.
+
+
+**Diverses corrections et améliorations dans la classe ``term_use.DirView`` :** la mise en place de tests unitaires a abouti aux modifications suivantes.
+
+    1) La nouvelle version de ``toc`` affiche maintenant toujours tous les fichiers dans un dossier, puis ensuite sont traités de façon analogue les sous-dossiers... ¨etc. C'est bien plus logique !
+
+    2) Deux gros bugs corrigés.
+
+        a) Les dossiers contenant uniquement des fichiers ne vérifiant pas le motif "regpath" apparassaient à tors avec le réglage de ¨mef ``"found"``. Ceci a été réparé.
+
+        b) Un bug sévère avec la méthode ``tree`` qui pouvait renvoyer "tout à plat" avec le réglage de ¨mef ``"found"``.
+
+
+==========
 2016-03-08
 ==========
 
@@ -6,7 +34,7 @@
 
     1) ``latex_use``.
     2) ``python_use``.
-    3) ``term_use``.
+    3) ``term_use`` : tests uniquement des cadres textuels pour le moment.
     4) ``url_use``.
 
 

@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-02-15
+    date = 2016-03-13
 
 
 The main feature of this module is the class ``PPath`` which is an enhanced
@@ -38,10 +38,17 @@ OS_WIN   = "windows"
 #     * http://stackoverflow.com/a/817117/4589608
 #     * http://stackoverflow.com/a/20294987/4589608
 
-FILE_QUERY, DIR_QUERY, EMPTY_DIR_QUERY, NOT_QUERY, OTHER_FILES_QUERY \
-= "file", "dir", "empty_dir", "not", "dir_other_files"
+ALL_DIR_TAGS = DIR_TAG, DIR_EMPTY_TAG, DIR_ONLY_OTHERS_TAG \
+= "dir", "dir_empty", "dir_only_others"
 
-FILE_DIR_QUERY      = set([FILE_QUERY, DIR_QUERY])
+ALL_FILE_TAGS = FILE_TAG, FILE_OTHERS_TAG = "file", "file_others"
+
+FILE_OTHERS_NAME = "..."
+
+
+EMPTY_QUERY, NOT_QUERY = "empty", "not"
+
+FILE_DIR_QUERY      = set([FILE_TAG, DIR_TAG])
 LONG_FILE_DIR_QUERY = {x[0]: x for x in FILE_DIR_QUERY}
 
 
@@ -50,7 +57,7 @@ ALL_DISPLAY, RELSEARCH_DISPLAY, XTRA_DISPLAY \
 
 
 REGPATH_QUERIES = set([
-    DIR_QUERY, EMPTY_DIR_QUERY, FILE_QUERY, NOT_QUERY,
+    DIR_TAG, FILE_TAG, EMPTY_QUERY, NOT_QUERY,
     ALL_DISPLAY, RELSEARCH_DISPLAY, XTRA_DISPLAY
 ])
 
@@ -116,14 +123,13 @@ prototype::
 class cd:
     """
 prototype::
-    type = self ;
+    type = cls ;
            this class i a context manager that allows to easily change the
            current directory as this can be done using term::``cd`` in a ¨unix
            system, or term::``chdir`` in a ¨win sytem
 
     arg-attr = PPath: ppath ;
                this gives the path where to go
-
 
 Let's suppose that we have the following directory having the absolute path
 path::``/Users/projetmbc/basic_dir`` in a ¨unix system.
@@ -174,6 +180,7 @@ info::
 """
     def __init__(self, ppath):
         self._newstrpath = str(ppath.normpath)
+        self._tag        = ""
 
     def __enter__(self):
         self._savedpath = os.getcwd()
@@ -198,9 +205,14 @@ class PPath(type(pathlib.Path())):
 prototype::
     see = pathlib.Path
 
-    type = self ;
+    type = cls ;
            this class adds some functionalities to the standard class
            ``pathlib.Path``
+
+
+warning::
+    The method ``walk`` of this class uses an hidden attribut ``_tag`` which has
+    no meaning outside the scope of the method ``walk``.
     """
 
 # -- ABOUT -- #
@@ -699,8 +711,8 @@ Before two double points, you can use the following queries separated by
 spaces.
 
     1) ``not`` is very useful because it allows simply to look for something
-    that does not match the pattern (you have to know that negation with regexes
-    can be a little messy).
+    that does not match the pattern (you have to know that direct negation with
+    regexes can be messy).
 
     2) ``file`` asks to keep only files.
 
@@ -709,11 +721,11 @@ spaces.
     4) ``all`` asks to keep also the hidden files and folders. This ones have
     a name begining with a point.
 
-    5) ``all file`` asks to keep only files even the hidden ones. You can also
+    5) ``all file`` asks to only keep files even the hidden ones. You can also
     use ``all dir``.
 
     6) ``empty`` allows to only look for empty folders which are by default the
-    ones with no visible content (this can be useful for some cleaning).
+    ones with no visible content (this can be useful for some cleanings).
 
     By cons, you can target your research via ``all empty`` so that folders
     containing only invisible objects are not considered empty.
@@ -721,9 +733,9 @@ spaces.
     7) ``relative`` indicates that the pattern after ``::`` is relatively to
     the current directory and not to a absolute path.
 
-    8) ``xtra`` add respectively special names path::``::...files...::``
-    and path::``::...empty...::`` whenever some files have been found but not
-    kept or a folder is empty (this feature is used by the class ``DirView``).
+    8) ``xtra`` asks to keep folder with some files not matching a regpath,
+    and empty directories. Extra informations are given via the hidden attribut
+    ``_tag`` (this feature is used by the class ``DirView``).
 
 
 For example, to keep only the ¨python files, in a folder or not, just use
@@ -747,6 +759,7 @@ info::
             queries = set(
                 LONG_REGPATH_QUERIES.get(x.strip(), x.strip())
                 for x in queries.split(" ")
+                if x.strip()
             )
 
             if not queries <= REGPATH_QUERIES:
@@ -757,16 +770,19 @@ info::
             queries, pattern = FILE_DIR_QUERY, queries
 
 # The query "empty" is used.
-        if EMPTY_DIR_QUERY in queries:
-            if FILE_QUERY in queries:
+        if EMPTY_QUERY in queries:
+            if FILE_TAG in queries:
                 raise ValueError(
-                    'filters "empty" and "file" can\'t be used together.'
+                    'filters "{0}" and "{1}" can\'t be used together.'.format(
+                        EMPTY_QUERY,
+                        FILE_TAG
+                    )
                 )
 
-            queries.add(DIR_QUERY)
+            queries.add(DIR_TAG)
 
 # The queries "file" and "dir" are not used.
-        elif FILE_QUERY not in queries and DIR_QUERY not in queries:
+        elif FILE_TAG not in queries and DIR_TAG not in queries:
             queries |= FILE_DIR_QUERY
 
 # The regex uncompiled version : we just do replacing by taking care of
@@ -824,35 +840,18 @@ prototype::
             )
 
 
-    def __tagsreturnedbywalk(self, ppath, tag, givetags):
-        if givetags:
-            return ppath, tag
-        else:
-            return ppath
-
-
-    def walk(
-        self,
-        regpath  = "**",
-        givetags = False
-    ):
+    def walk(self, regpath  = "**"):
         """
 prototype::
     see = self.regpath2meta
 
     arg = str: regpath = "**" ;
           this is a string that follows some rules named regpath rules
-    arg = bool: givetags = False ;
-          by default, the walk yields only ``PPath``, but if you use ``givetags
-          = True``, then the walk yields a couple made of a ``PPath`` and an
-          additional tag to know which kind of ``PPath`` has been yield
 
-    yield = if givetags == False then PPath else (PPath, str);
+    yield = PPath;
             the ``PPath`` are whole path of files and directories matching the
             "regpath" pattern (in each folder, the files are always yield before
-            the sub folders), and the strings are tags that can be "file",
-            "dir", "empty_dir" or "dir_other_files" (this is an additional
-            information that is used by the class ``term_use.DirView``)
+            the sub folders)
 
 
 Let's suppose that we have the following directory having the absolute path
@@ -890,57 +889,49 @@ pyterm::
     >>> for p in folder.walk("dir::**"):
     ...     print("+", p)
     ...
-    + /Users/projetmbc/basic_dir/empty_dir
-    + /Users/projetmbc/basic_dir/sub_dir
-    + /Users/projetmbc/basic_dir/sub_dir/sub_sub_dir
+
+
+
+
+
     >>> for p in folder.walk("file::**.py"):
     ...     print("+", p)
     ...
-    + /Users/projetmbc/basic_dir/python_1.py
-    + /Users/projetmbc/basic_dir/python_2.py
-    + /Users/projetmbc/basic_dir/python_3.py
-    + /Users/projetmbc/basic_dir/python_4.py
-    + /Users/projetmbc/basic_dir/sub_dir/code_A.py
-    + /Users/projetmbc/basic_dir/sub_dir/code_B.py
+
+
+
+
     >>> for p in folder.walk("file::*.py"):
     ...     print("+", p)
     ...
-    + /Users/projetmbc/basic_dir/python_1.py
-    + /Users/projetmbc/basic_dir/python_2.py
-    + /Users/projetmbc/basic_dir/python_3.py
-    + /Users/projetmbc/basic_dir/python_4.py
+
+
+
+
 
 
 info::
     If you want to see the existing files that do not match the regpath and also
-    the empty folders, you will have to use the query ``xtra`` together with
-    ``givetags = True`` (this feature is used by the class ``DirView`` of the
-    module ``term_use``). Here is an example of use.
+    the empty folders, you will have to use the query ``xtra`` together with the
+    attribut ``_tag`` (the class ``DirView`` of the module ``term_use`` uses
+    this). Here is an example of use.
 
     pyterm::
         >>> from mistool.os_use import PPath
         >>> folder = PPath("/Users/projetmbc/dir")
-        >>> for p, tag in folder.walk(
-        ...     regpath = "xtra file::**.py",
-        ...     givetags = True
-        ... ):
-        ...     print("+", tag, ">>>", p)
+        >>> for p in folder.walk("xtra file::**.py"):
+        ...     print("+", p._tag, ">>>", p)
         ...
-        + file >>> /Users/projetmbc/basic_dir/python_1.py
-        + file >>> /Users/projetmbc/basic_dir/python_2.py
-        + file >>> /Users/projetmbc/basic_dir/python_3.py
-        + file >>> /Users/projetmbc/basic_dir/python_4.py
-        + dir_other_files >>> /Users/projetmbc/basic_dir
-        + empty_dir >>> /Users/projetmbc/basic_dir/empty_dir
-        + file >>> /Users/projetmbc/basic_dir/sub_dir/code_A.py
-        + file >>> /Users/projetmbc/basic_dir/sub_dir/code_B.py
-        + dir_other_files >>> /Users/projetmbc/basic_dir/sub_dir
-        + dir_other_files >>> /Users/projetmbc/basic_dir/sub_dir/sub_sub_dir
 
-    The special names are stored in the global variables ``FILE_QUERY``,
-    ``DIR_QUERY``, ``EMPTY_DIR_QUERY`` and ``OTHER_FILES_QUERY`` which are strings.
-    This is useful to avoid typing errors if you want to use the query ``xtra``
-    together with ``givetags = True`` as the class ``DirView`` does.
+
+
+
+
+
+    The special names are stored in the global variables
+    ``FILE_TAG``, ``FILE_OTHERS_TAG``,
+    ``DIR_TAG``, ``DIR_EMPTY_TAG`` and ``DIR_ONLY_OTHERS_TAG``
+    which are strings. To use so as to avoid typing errors.
         """
 # Do we have an existing directory ?
         if not self.is_dir():
@@ -953,13 +944,13 @@ info::
         else:
             regpath = "relative::{0}".format(regpath)
 
-# metadatas and the normal regex
+# Metadatas and the normal regex
         queries, pattern = self.regpath2meta(regpath)
 
         maindir   = str(self)
-        keepdir   = DIR_QUERY in queries
-        keepfile  = FILE_QUERY in queries
-        keepempty = EMPTY_DIR_QUERY in queries
+        keepdir   = DIR_TAG in queries
+        keepfile  = FILE_TAG in queries
+        keepempty = EMPTY_QUERY in queries
         keepall   = ALL_DISPLAY in queries
         relsearch = RELSEARCH_DISPLAY in queries
         addextra  = XTRA_DISPLAY in queries
@@ -975,87 +966,87 @@ info::
 
 # Let's walk
         for root, dirs, files in os.walk(maindir):
+# Cleaning of dot folders and files
+            if not keepall:
+                dirs  = [p for p in dirs  if not p.startswith('.')]
+                files = [p for p in files if not p.startswith('.')]
+
 # Empty folders and unkept files
-            isdirempty         = not(bool(dirs) or bool(files))
-            nomatch_files_found = False
+            isdirempty = not(bool(dirs) or bool(files))
+
+            matching_files_found    = False
+            no_matching_files_found = False
 
 # Do the current directory must be added ?
-            addthisdir = False
             root_ppath = PPath(root)
 
             if keepempty:
-                if isdirempty:
-                    addthisdir = True
+                addthisdir = True
 
-            elif keepdir and root != maindir and match(root):
-                if keepall \
-                or not any(
-                    x.startswith('.')
-                    for x in root_ppath.relative_to(self).parts
-                ):
-                    addthisdir = True
+            else:
+                addthisdir = (
+                    keepdir
+                    and not isdirempty
+                    and root != maindir
+                    and match(root)
+                )
 
 # A new file ?
             if keepfile:
                 for file in files:
-                    if not keepall and file.startswith('.'):
-                        continue
-
                     full_file = os.path.join(root, file)
 
                     if relsearch:
                         ppath_full_file = PPath(full_file)
-                        rel_file = str(ppath_full_file.relative_to(self))
+                        rel_file        = str(ppath_full_file.relative_to(self))
 
                         if match(rel_file):
-                            yield self.__tagsreturnedbywalk(
-                                ppath    = ppath_full_file,
-                                tag      = FILE_QUERY,
-                                givetags = givetags
-                            )
+                            matching_files_found = True
+
+                            ppath_full_file._tag = FILE_TAG
+
+                            yield ppath_full_file
 
                         else:
-                            nomatch_files_found = True
+                            no_matching_files_found = True
 
                     elif match(full_file):
-                        yield self.__tagsreturnedbywalk(
-                            ppath    = PPath(full_file),
-                            tag      = FILE_QUERY,
-                            givetags = givetags
-                        )
+                        matching_files_found = True
+
+                        ppath_full_file     = PPath(full_file)
+                        ppath_full_file._tag = FILE_TAG
+
+                        yield ppath_full_file
 
                     else:
-                        nomatch_files_found = True
+                        no_matching_files_found = True
 
-# A new directory ?
+# A new directory eventually empty or with no matching files.
             if addthisdir:
-                if isdirempty:
-                    tag = EMPTY_DIR_QUERY
+                root_ppath._tag = DIR_EMPTY_TAG if isdirempty else DIR_TAG
 
-                else:
-                    tag = DIR_QUERY
-
-                yield self.__tagsreturnedbywalk(
-                    ppath    = root_ppath,
-                    tag      = tag,
-                    givetags = givetags
-                )
+                yield root_ppath
 
             elif addextra:
                 if isdirempty:
-                    tag = EMPTY_DIR_QUERY
+                    tag = DIR_EMPTY_TAG
 
-                elif nomatch_files_found:
-                    tag = OTHER_FILES_QUERY
+                elif no_matching_files_found \
+                and not matching_files_found:
+                    tag = DIR_ONLY_OTHERS_TAG
 
                 else:
-                    tag = DIR_QUERY
+                    tag = DIR_TAG
 
-                yield self.__tagsreturnedbywalk(
-                    ppath    = root_ppath,
-                    tag      = tag,
-                    givetags = givetags
-                )
+                root_ppath._tag = tag
+
+                if no_matching_files_found:
+                    file_others_ppath      = root_ppath / FILE_OTHERS_NAME
+                    file_others_ppath._tag = FILE_OTHERS_TAG
+
+                    yield file_others_ppath
+
+                yield root_ppath
 
 
 # -- CREATE -- #
@@ -1063,7 +1054,7 @@ info::
     def create(self, kind):
         """
 prototype::
-    arg = str: kind in [FILE_QUERY, DIR_QUERY]
+    arg = str: kind in [FILE_TAG, DIR_TAG]
 
     action = this method creates the file or the directory having the current
              path except if this path points to an existing directory or file
@@ -1099,7 +1090,7 @@ info::
             raise ValueError("illegal kind.")
 
 # A new directory.
-        if kind == DIR_QUERY:
+        if kind == DIR_TAG:
             if self.is_file():
                 raise ValueError("path points to an existing file.")
 
@@ -1111,7 +1102,7 @@ info::
             raise ValueError("path points to an existing directory.")
 
         elif not self.is_file():
-            self.parent.create(DIR_QUERY)
+            self.parent.create(DIR_TAG)
 
             with self.open(mode = "w") as file:
                 ...
@@ -1182,14 +1173,14 @@ prototype::
         if ALL_DISPLAY in queries:
             prefix = ALL_DISPLAY
 
-        elif EMPTY_DIR_QUERY in queries:
-            prefix = EMPTY_DIR_QUERY
+        elif DIR_EMPTY_TAG in queries:
+            prefix = DIR_EMPTY_TAG
 
         else:
             prefix = ""
 
 # We must first remove the files. This is in case of folders to destroy.
-        if FILE_QUERY in queries:
+        if FILE_TAG in queries:
             filepattern = "{0} file::{1}".format(prefix, pattern)
 
             for path in self.walk(filepattern):
@@ -1197,7 +1188,7 @@ prototype::
 
 # Now, we can destroy folders but we can use an iterator (because of sub
 # directories).
-        if DIR_QUERY in queries:
+        if DIR_TAG in queries:
             dirpattern = "{0} dir::{1}".format(prefix, pattern)
 
 # << Warning ! >> We have to be carefull with directories and sub folders.
@@ -1235,7 +1226,7 @@ warning::
         try:
 # Copy of a file.
             if self.is_file():
-                dest.parent.create(DIR_QUERY)
+                dest.parent.create(DIR_TAG)
 
                 shutil.copy(str(self), str(dest))
 
@@ -1249,7 +1240,7 @@ warning::
                         "is not supported (be aware of recursive copying)"
                     )
 
-                dest.parent.create(DIR_QUERY)
+                dest.parent.create(DIR_TAG)
 
                 for onepath in self.walk():
                     relpath  = onepath - self
@@ -1262,7 +1253,7 @@ warning::
                         )
 
                     elif onepath.is_empty():
-                        destpath.create(DIR_QUERY)
+                        destpath.create(DIR_TAG)
 
 # Path points nowhere !
             else:

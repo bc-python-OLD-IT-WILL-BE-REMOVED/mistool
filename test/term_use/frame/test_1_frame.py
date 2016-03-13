@@ -5,7 +5,6 @@
 # --------------------- #
 
 from collections import OrderedDict
-from pathlib import Path
 from pytest import fixture
 
 from mistool.os_use import PPath

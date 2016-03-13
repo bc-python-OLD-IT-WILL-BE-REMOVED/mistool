@@ -1,0 +1,45 @@
+gene::
+    dirname = basic
+
+ascii::
+    + basic
+        + empty_dir
+        * latex_1.tex
+        * latex_2.tex
+        * python_1.py
+        * python_2.py
+        * python_3.py
+        * python_4.py
+        + sub_dir
+            * code_A.py
+            * code_B.py
+            * slide_A.pdf
+            * slide_B.pdf
+            + sub_sub_dir
+                * doc.pdf
+        * text_1.txt
+        * text_2.txt
+        * text_3.txt
+
+toc::
+    + basic
+        * latex_1.tex
+        * latex_2.tex
+        * python_1.py
+        * python_2.py
+        * python_3.py
+        * python_4.py
+        * text_1.txt
+        * text_2.txt
+        * text_3.txt
+
+    + basic/empty_dir
+
+    + basic/sub_dir
+        * code_A.py
+        * code_B.py
+        * slide_A.pdf
+        * slide_B.pdf
+
+    + basic/sub_dir/sub_sub_dir
+        * doc.pdf
