@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-03-13
+    date = 2016-03-14
 
 
 The main feature of this module is the class ``PPath`` which is an enhanced
@@ -32,33 +32,31 @@ OS_LINUX = "linux"
 OS_WIN   = "windows"
 
 # Sources for the regex:
-#
 #     * http://stackoverflow.com/a/430781/4589608
 #     * http://stackoverflow.com/a/30439865/4589608
 #     * http://stackoverflow.com/a/817117/4589608
 #     * http://stackoverflow.com/a/20294987/4589608
 
-ALL_DIR_TAGS = DIR_TAG, DIR_EMPTY_TAG, DIR_ONLY_OTHERS_TAG \
-= "dir", "dir_empty", "dir_only_others"
+ALL_DIR_TAGS = DIR_TAG, DIR_OTHERS_TAG \
+             = "dir",   "dir_others"
 
-ALL_FILE_TAGS = FILE_TAG, FILE_OTHERS_TAG = "file", "file_others"
+ALL_FILE_TAGS = FILE_TAG, FILE_OTHERS_TAG \
+              = "file",   "file_others"
 
-FILE_OTHERS_NAME = "..."
-
-
-EMPTY_QUERY, NOT_QUERY = "empty", "not"
-
-FILE_DIR_QUERY      = set([FILE_TAG, DIR_TAG])
-LONG_FILE_DIR_QUERY = {x[0]: x for x in FILE_DIR_QUERY}
+FILE_DIR_OTHERS_NAME = "..."
 
 
-ALL_DISPLAY, RELSEARCH_DISPLAY, XTRA_DISPLAY \
-= "all", "relative", "xtra"
+NOT_QUERY      = "not"
+FILE_DIR_QUERY = set([FILE_TAG, DIR_TAG])
+
+
+ALL_DISPLAY, XTRA_DISPLAY = "all", "xtra"
 
 
 REGPATH_QUERIES = set([
-    DIR_TAG, FILE_TAG, EMPTY_QUERY, NOT_QUERY,
-    ALL_DISPLAY, RELSEARCH_DISPLAY, XTRA_DISPLAY
+    DIR_TAG, FILE_TAG,
+    NOT_QUERY,
+    ALL_DISPLAY, XTRA_DISPLAY
 ])
 
 LONG_REGPATH_QUERIES = {x[0]: x for x in REGPATH_QUERIES}
@@ -735,7 +733,7 @@ spaces.
 
     8) ``xtra`` asks to keep folder with some files not matching a regpath,
     and empty directories. Extra informations are given via the hidden attribut
-    ``_tag`` (this feature is used by the class ``DirView``).
+    ``_tag`` (this feature is used by the class ``term_use.DirView``).
 
 
 For example, to keep only the ¨python files, in a folder or not, just use
@@ -769,20 +767,8 @@ info::
         else:
             queries, pattern = FILE_DIR_QUERY, queries
 
-# The query "empty" is used.
-        if EMPTY_QUERY in queries:
-            if FILE_TAG in queries:
-                raise ValueError(
-                    'filters "{0}" and "{1}" can\'t be used together.'.format(
-                        EMPTY_QUERY,
-                        FILE_TAG
-                    )
-                )
-
-            queries.add(DIR_TAG)
-
 # The queries "file" and "dir" are not used.
-        elif FILE_TAG not in queries and DIR_TAG not in queries:
+        if FILE_TAG not in queries and DIR_TAG not in queries:
             queries |= FILE_DIR_QUERY
 
 # The regex uncompiled version : we just do replacing by taking care of
@@ -849,9 +835,9 @@ prototype::
           this is a string that follows some rules named regpath rules
 
     yield = PPath;
-            the ``PPath`` are whole path of files and directories matching the
-            "regpath" pattern (in each folder, the files are always yield before
-            the sub folders)
+            the ``PPath`` are absolute paths of files and directories matching
+            the "regpath" pattern (in each folder, the files are always yield
+            before the sub folders)
 
 
 Let's suppose that we have the following directory having the absolute path
@@ -889,30 +875,30 @@ pyterm::
     >>> for p in folder.walk("dir::**"):
     ...     print("+", p)
     ...
-
-
-
-
-
+    + /Users/projetmbc/basic_dir/empty_dir
+    + /Users/projetmbc/basic_dir/sub_dir
+    + /Users/projetmbc/basic_dir/sub_dir/sub_sub_dir
     >>> for p in folder.walk("file::**.py"):
     ...     print("+", p)
     ...
-
-
-
-
+    + /Users/projetmbc/basic_dir/python_1.py
+    + /Users/projetmbc/basic_dir/python_2.py
+    + /Users/projetmbc/basic_dir/python_3.py
+    + /Users/projetmbc/basic_dir/python_4.py
+    + /Users/projetmbc/basic_dir/sub_dir/code_A.py
+    + /Users/projetmbc/basic_dir/sub_dir/code_B.py
     >>> for p in folder.walk("file::*.py"):
     ...     print("+", p)
     ...
-
-
-
-
+    + /Users/projetmbc/basic_dir/python_1.py
+    + /Users/projetmbc/basic_dir/python_2.py
+    + /Users/projetmbc/basic_dir/python_3.py
+    + /Users/projetmbc/basic_dir/python_4.py
 
 
 info::
-    If you want to see the existing files that do not match the regpath and also
-    the empty folders, you will have to use the query ``xtra`` together with the
+    If you want to see the existing files and/or folders that do not match the
+    regpath, you will have to use the query ``xtra`` together with the "hidden"
     attribut ``_tag`` (the class ``DirView`` of the module ``term_use`` uses
     this). Here is an example of use.
 
@@ -922,42 +908,41 @@ info::
         >>> for p in folder.walk("xtra file::**.py"):
         ...     print("+", p._tag, ">>>", p)
         ...
+        + file >>> /Users/projetmbc/basic_dir/python_1.py
+        + file >>> /Users/projetmbc/basic_dir/python_2.py
+        + file >>> /Users/projetmbc/basic_dir/python_3.py
+        + file >>> /Users/projetmbc/basic_dir/python_4.py
+        + file_others >>> /Users/projetmbc/basic_dir/...
+        + file >>> /Users/projetmbc/basic_dir/sub_dir/code_A.py
+        + file >>> /Users/projetmbc/basic_dir/sub_dir/code_B.py
+        + file_others >>> /Users/projetmbc/basic_dir/sub_dir/...
+        + file_others >>> /Users/projetmbc/basic_dir/sub_dir/sub_sub_dir/...
 
+    The special names are stored in the following global string variables to be
+    used so as to avoid typing errors.
 
-
-
-
-
-    The special names are stored in the global variables
-    ``FILE_TAG``, ``FILE_OTHERS_TAG``,
-    ``DIR_TAG``, ``DIR_EMPTY_TAG`` and ``DIR_ONLY_OTHERS_TAG``
-    which are strings. To use so as to avoid typing errors.
+        * ``FILE_TAG``
+        * ``FILE_OTHERS_TAG``
+        * ``DIR_TAG``
+        * ``DIR_OTHERS_TAG``
         """
 # Do we have an existing directory ?
         if not self.is_dir():
             raise OSError("the path doesn't point to a directory.")
 
-# All walks are relative !
-        if "::" in regpath:
-            regpath = "relative {0}".format(regpath)
-
-        else:
-            regpath = "relative::{0}".format(regpath)
-
 # Metadatas and the normal regex
         queries, pattern = self.regpath2meta(regpath)
 
-        maindir   = str(self)
-        keepdir   = DIR_TAG in queries
-        keepfile  = FILE_TAG in queries
-        keepempty = EMPTY_QUERY in queries
-        keepall   = ALL_DISPLAY in queries
-        relsearch = RELSEARCH_DISPLAY in queries
-        addextra  = XTRA_DISPLAY in queries
+        maindir = str(self)
+
+        notkeepdir  = DIR_TAG not in queries
+        notkeepfile = FILE_TAG not in queries
+        notkeepall  = ALL_DISPLAY not in queries
+        addextra    = XTRA_DISPLAY in queries
 
         regex_obj = re.compile(pattern)
 
-# Matching or unmatching, that is the question !
+# Matching or non-matching, that is the question !
         if NOT_QUERY in queries:
             match = lambda x: not regex_obj.match(x)
 
@@ -966,87 +951,49 @@ info::
 
 # Let's walk
         for root, dirs, files in os.walk(maindir):
-# Cleaning of dot folders and files
-            if not keepall:
-                dirs  = [p for p in dirs  if not p.startswith('.')]
-                files = [p for p in files if not p.startswith('.')]
+# The matching paths
+            for tag, strpaths in [
+                (FILE_TAG, files),
+                (DIR_TAG,  dirs)
+            ]:
+                if tag == FILE_TAG and notkeepfile:
+                    continue
 
-# Empty folders and unkept files
-            isdirempty = not(bool(dirs) or bool(files))
+                if tag == DIR_TAG and notkeepdir:
+                    continue
 
-            matching_files_found    = False
-            no_matching_files_found = False
+                nomatchingfiles_found = False
 
-# Do the current directory must be added ?
-            root_ppath = PPath(root)
+                for strpath in strpaths:
+                    if strpath.startswith('.') and notkeepall:
+                        continue
 
-            if keepempty:
-                addthisdir = True
+                    absppath = os.path.join(root, strpath)
+                    absppath = PPath(absppath)
 
-            else:
-                addthisdir = (
-                    keepdir
-                    and not isdirempty
-                    and root != maindir
-                    and match(root)
-                )
+                    absppath._tag = tag
 
-# A new file ?
-            if keepfile:
-                for file in files:
-                    full_file = os.path.join(root, file)
+                    strrelpath = str(absppath.relative_to(self))
 
-                    if relsearch:
-                        ppath_full_file = PPath(full_file)
-                        rel_file        = str(ppath_full_file.relative_to(self))
+                    if match(strrelpath):
+                        yield absppath
 
-                        if match(rel_file):
-                            matching_files_found = True
-
-                            ppath_full_file._tag = FILE_TAG
-
-                            yield ppath_full_file
-
-                        else:
-                            no_matching_files_found = True
-
-                    elif match(full_file):
-                        matching_files_found = True
-
-                        ppath_full_file     = PPath(full_file)
-                        ppath_full_file._tag = FILE_TAG
-
-                        yield ppath_full_file
+                    elif tag == FILE_TAG:
+                        nomatchingfiles_found = True
 
                     else:
-                        no_matching_files_found = True
+                        absppath._tag = DIR_OTHERS_TAG
 
-# A new directory eventually empty or with no matching files.
-            if addthisdir:
-                root_ppath._tag = DIR_EMPTY_TAG if isdirempty else DIR_TAG
+                        yield absppath
 
-                yield root_ppath
+# No matching files founds
+                if addextra and nomatchingfiles_found:
+                    absppath = os.path.join(root, FILE_DIR_OTHERS_NAME)
+                    absppath = PPath(absppath)
 
-            elif addextra:
-                if isdirempty:
-                    tag = DIR_EMPTY_TAG
+                    absppath._tag = FILE_OTHERS_TAG
 
-                elif no_matching_files_found \
-                and not matching_files_found:
-                    tag = DIR_ONLY_OTHERS_TAG
-
-                else:
-                    tag = DIR_TAG
-
-                root_ppath._tag = tag
-
-                if no_matching_files_found:
-                    file_others_ppath      = root_ppath / FILE_OTHERS_NAME
-                    file_others_ppath._tag = FILE_OTHERS_TAG
-
-                    yield file_others_ppath
-
-                yield root_ppath
+                    yield absppath
 
 
 # -- CREATE -- #
@@ -1084,7 +1031,7 @@ info::
     All the parent directories that don't yet exist are automatically created.
         """
 # Good kind.
-        kind = LONG_FILE_DIR_QUERY.get(kind, kind)
+        kind = LONG_REGPATH_QUERIES.get(kind, kind)
 
         if kind not in FILE_DIR_QUERY:
             raise ValueError("illegal kind.")

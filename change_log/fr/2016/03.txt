@@ -1,4 +1,18 @@
 ==========
+2016-03-14
+==========
+
+**Refactorisation de la méthode ``walk`` de la classe ``os_use.PPath`` :** tout le code a été revu car il était inutilement compliqué (un mauvais héritage de ce qu'il fallait faire avant la naissance de ``pathlib.Path`` et de la lenteur des anciennes versions de la fonction ``os.walk``). Ceci implique les ¨chgts suivants.
+
+    1) Comme les recherches se font maintenant toujours de façon relative, la requête ``"relative"`` a été supprimée.
+
+    2) Les dossiers vides ou ne contenant que des fichiers ne vérifiant pas un motif n'existent plus. Du coup, la requête ``"empty"`` a été retirée.
+
+
+**¨Maj de la méthode cachée ``_build_listview`` de la classe ``term_use.DirView`` :** les ¨chgts faits dans la méthode ``walk`` de la classe ``os_use.PPath`` ont été répercutés dans la classe ``term_use.DirView`` ce qui a permis de simplifier le code.
+
+
+==========
 2016-03-13
 ==========
 
@@ -6,7 +20,7 @@
 
     1) L'argument ``givetags`` et la méthode cachée associée ``__tagsreturnedbywalk`` n'existent plus. Les étiquettes sont directement stockées dans un attribut "caché" ``_tag`` des classes ``PPath`` renvoyées.
 
-    2) Les fichiers ne vérifiant pas un motif "regpath" sont bien plus logiquement renvoyés comme des chemins de type "fichier" avec un nom particulier donné par ``OTHER_FILES_NAME``, et les dossiers ne contennant que ce type de fichiers ont une étiquette particulière maintenant.
+    2) Les fichiers ne vérifiant pas un motif "regpath" sont bien plus logiquement renvoyés comme des chemins de type "fichier" avec un nom particulier donné par ``OTHER_FILES_NAME``. De plus, les dossiers ne contenant que ce type de fichiers ont une étiquette particulière maintenant donné par ``DIR_ONLY_OTHERS_TAG``.
 
     3) Correction de deux bugs révélés par certains tests de la classe ``term_use.DirView``.
 

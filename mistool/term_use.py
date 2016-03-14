@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-03-13
+    date = 2016-03-14
 
 
 This module contains mainly classes and functions producing strings useful to be
@@ -16,8 +16,9 @@ from mistool.os_use import (
     PPath,
 # Safe constants
     ALL_DIR_TAGS, ALL_FILE_TAGS,
-    DIR_EMPTY_TAG, DIR_ONLY_OTHERS_TAG, DIR_TAG,
-    FILE_DIR_QUERY, FILE_OTHERS_NAME, FILE_OTHERS_TAG, FILE_TAG,
+    DIR_TAG, DIR_OTHERS_TAG,
+    FILE_TAG, FILE_OTHERS_TAG,
+    FILE_DIR_QUERY, FILE_DIR_OTHERS_NAME,
     XTRA_DISPLAY,
 )
 
@@ -945,7 +946,7 @@ info::
     python::
         LAMBDA_SORT = {
             "alpha": [
-                lambda x: str(x["ppath"]),
+                lambda x: str(x["ppath"].name),
                 'z'*500
             ],
             "name": [
@@ -1033,7 +1034,7 @@ info::
 
     LAMBDA_SORT = {
         "alpha": [
-            lambda x: str(x["ppath"]),
+            lambda x: str(x["ppath"].name),
             'z'*500
         ],
         "name": [
@@ -1188,8 +1189,8 @@ Dictionaries used in ``self.listview``
 The dictionaries have the following keys and values. You must know this
 structure if you want to define your own kind of sorting for the output.
 
-    1) The key ``'tag'`` can have the values FILE_TAG, DIR_TAG, DIR_EMPTY_TAG,
-    and FILE_OTHERS_TAG.
+    1) The key ``'tag'`` can have the values FILE_TAG,  FILE_OTHERS_TAG,
+    DIR_TAG and DIR_OTHERS_TAG.
 
     2) The key ``'depth'`` is simply a relative depth regarding to the folder
     analyzed.
@@ -1269,67 +1270,52 @@ prototype::
 
 # A file or not the main folder.
             elif addall or metadatas[self.TAG_TAG] not in [
-                DIR_EMPTY_TAG,
-                DIR_ONLY_OTHERS_TAG,
+                DIR_OTHERS_TAG,
                 FILE_OTHERS_TAG
             ]:
                 _listview.append(metadatas)
 
-        _listview.sort(key = lambda x: str(x[self.PPATH_TAG]))
-
-
-# We have to find folders with only unmacthing files or with matching and
-# unmacthing files, and also all the parent directories.
-#
 # Main or not main, that is the question.
         if self.MAIN_PATH in self._display:
-            if _listview \
-            and _listview[0][self.PPATH_TAG] != self.ppath:
-                self.listview = [{
-                    self.TAG_TAG  : DIR_TAG,
-                    self.DEPTH_TAG: 0,
-                    self.PPATH_TAG: self.ppath
-                }]
+            self.listview = [{
+                self.TAG_TAG  : DIR_TAG,
+                self.DEPTH_TAG: 0,
+                self.PPATH_TAG: self.ppath
+            }]
 
-            else:
-                self.listview = []
-
-            lastreldirs   = [PPath('.')]
+            dirs_found = [PPath(".")]
 
         else:
             self.listview = []
-            lastreldirs   = []
+            dirs_found    = []
 
+# Note: for a given depth, files come before subfolders.
         for metadatas in _listview:
-            relpath = metadatas[self.PPATH_TAG].relative_to(self.ppath)
-            parents = relpath.parents
+# Let's add the parent folders.
+            relppath = metadatas[self.PPATH_TAG].relative_to(self.ppath)
 
-# We have to add all the parent directories !
-            if DIR_TAG in metadatas[self.TAG_TAG]:
-                lastreldirs.append(
-                    metadatas[self.PPATH_TAG].relative_to(self.ppath)
-                )
+            for oneparent in relppath.parents:
+                if oneparent not in dirs_found:
+                    oneparent_ppath = self.ppath / oneparent
 
-            else:
-                for parent in reversed(parents):
-                    if parent not in lastreldirs:
-                        ppath = self.ppath / parent
+                    depth \
+                    = oneparent_ppath.depth_in(self.ppath)+ self._extradepth
 
-                        if self.MAIN_PATH in self._display \
-                        or ppath != self.ppath:
-                            self.listview.insert(
-                                -1,
-                                {
-                                    self.TAG_TAG  : DIR_TAG,
-                                    self.DEPTH_TAG: ppath.depth_in(self.ppath) \
-                                                   + self._extradepth,
-                                    self.PPATH_TAG: ppath
-                                }
-                            )
+                    self.listview.append({
+                        self.TAG_TAG  : DIR_TAG,
+                        self.DEPTH_TAG: depth,
+                        self.PPATH_TAG: oneparent_ppath
+                    })
 
-                        lastreldirs.append(parent)
+                    dirs_found.append(oneparent)
 
+# We have to be carefull with folders already found in ``_listview`` !
+            if metadatas[self.TAG_TAG] in [DIR_TAG, DIR_OTHERS_TAG]:
+                dirs_found.append(relppath)
+
+# Adding files and forlders found or kept previously.
             self.listview.append(metadatas)
+
 
     def _build_treeview(self):
         """
@@ -1357,7 +1343,7 @@ prototype::
             metadatas = listview[i]
 
 # Simply a file.
-            if metadatas[self.TAG_TAG] == FILE_TAG:
+            if metadatas[self.TAG_TAG] in [FILE_TAG, FILE_OTHERS_TAG]:
                 treeview.append(metadatas)
                 i += 1
 
@@ -1404,7 +1390,7 @@ prototype::
     return = str ;
              the value to use for the sorting
         """
-        if metadatas[self.PPATH_TAG].name == FILE_OTHERS_NAME:
+        if metadatas[self.PPATH_TAG].name == FILE_DIR_OTHERS_NAME:
             return self.ELLIPSIS_sort_value
 
         else:
@@ -1526,7 +1512,7 @@ prototype::
         ppath = metadatas[self.PPATH_TAG]
         name  = ppath.name
 
-        if name == FILE_OTHERS_NAME \
+        if name == FILE_DIR_OTHERS_NAME \
         or self.SHORT_PATH in self._display:
             strpath = name
 
@@ -1587,7 +1573,6 @@ prototype::
         """
 # The job has to be done.
         if self.havetobuild(self.TREE_TAG):
-            print(self.treeview)
 # One dir or file alone (extra prossibilty)
             if len(self.listview) == 1:
                 self.outputs[self.TREE_TAG] = "{0} {1}".format(
