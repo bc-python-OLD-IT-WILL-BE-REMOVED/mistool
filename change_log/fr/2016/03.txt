@@ -1,4 +1,22 @@
 ==========
+2016-03-16
+==========
+
+**¨Chgts dans la classe ``term_use.DirView`` :** voici ce qui a été fait.
+
+    1) La valeur du "regpath" reste celle de l'utilisateur qui choisira de faire apparaître exactement ce qu'il veut. Ceci rend inutile l'option d'affichage ``"found"``.
+
+    2) La mise en place de tests unitaires a révélé des problèmes dans la nouvelle façon de faire dus à une non prise en compte du nouveau fonctionnement de la méthode ``walk`` de la classe ``os_use.PPath``. Ceci a été réparé en supprimant la méthode ``_build_listview`` et la méthode ``_build_treeview`` complètement refaite. Concrètement, on commence par la vue arborescente qui est plus simple à créer.
+
+
+==========
+2016-03-15
+==========
+
+**Oubli dans la classe ``latex_use.Build`` :** la compilation n'était pas lancée dans le même dossier que le fichier ¨latex. Ceci a été réparé sans effort grâce à l'utilisation du contexte ``os_use.cd``.
+
+
+==========
 2016-03-14
 ==========
 
@@ -6,7 +24,10 @@
 
     1) Comme les recherches se font maintenant toujours de façon relative, la requête ``"relative"`` a été supprimée.
 
-    2) Les dossiers vides ou ne contenant que des fichiers ne vérifiant pas un motif n'existent plus. Du coup, la requête ``"empty"`` a été retirée.
+    2) Les noms spéciaux indiquant un dossier vide ou ne contenant que des fichiers ne vérifiant pas un motif n'existent plus : tous les dosseirs ont
+    le même statut (pour ceux sans fichier vérifiant un motif, on indique cela
+    dans son étiquette, et de même pour les dossiers vides). Ceci implique que
+    côté utilisateur la requête ``"empty"`` n'existe plus.
 
 
 **¨Maj de la méthode cachée ``_build_listview`` de la classe ``term_use.DirView`` :** les ¨chgts faits dans la méthode ``walk`` de la classe ``os_use.PPath`` ont été répercutés dans la classe ``term_use.DirView`` ce qui a permis de simplifier le code.

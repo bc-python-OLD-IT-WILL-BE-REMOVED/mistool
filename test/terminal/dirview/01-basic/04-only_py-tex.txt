@@ -1,0 +1,16 @@
+gene::
+    dirname = basic_dir
+    regpath = file::**.(py|tex)
+    display = main short
+
+ascii::
+    + basic_dir
+        * latex_1.tex
+        * latex_2.tex
+        * python_1.py
+        * python_2.py
+        * python_3.py
+        * python_4.py
+        + sub_dir
+            * code_A.py
+            * code_B.py

@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-03-14
+    date = 2016-03-16
 
 
 This module contains mainly classes and functions producing strings useful to be
@@ -623,7 +623,8 @@ property::
           one method of the class ``DirView``
 
 
-This decorator is used each time that ????? .
+This decorator is used to indicate easily that the internal views used by
+``DirView`` must be rebuilt.
     """
     def newmeth(self, *args, **kwargs):
         self._mustberebuilt = True
@@ -715,9 +716,9 @@ pyterm::
 
 
 You can ask to have the files before the folders and also to have the relative
-paths instead of the names. This needs to use the arguments ``display`` and
-``sorting``. Here is an example of use where we must add the option ``"main"``
-for ``display`` so as to see the main folder.
+paths instead of the "names". This needs to use the arguments ``display`` and
+``sorting``. Here is an example where we must add the option ``"main"`` to
+``display`` so as to see the main folder.
 
 pyterm::
     >>> from mistool.term_use import DirView, PPath
@@ -750,15 +751,33 @@ info::
 
 Let's see a last example using the argument ``regpath``. The following code
 asks to keep only the files with the extension path::``py``. You can see that
-the empty folders are given, and that the other files than the ones wanted are
-indicated by ellipsis, this ones being always sorted at the end of the files.
+the empty folders are not given.
 
 pyterm::
     >>> from mistool.term_use import DirView, PPath
     >>> dir     = PPath("/Users/projetmbc/dir")
     >>> dirview = DirView(
     ...     ppath   = dir,
-    ...     regpath = "file::**.py"
+    ...     regpath = "file::**.py",
+    ... )
+    >>> print(dirview.ascii)
+    + dir
+        * code_1.py
+        * code_2.py
+        + doc
+            * code_A.py
+            * code_B.py
+
+
+You can see other files than the ones wanted. Theuy will be indicated by
+ellipsis. This feature is obtained using the ``"xtra"`` regpath query.
+
+pyterm::
+    >>> from mistool.term_use import DirView, PPath
+    >>> dir     = PPath("/Users/projetmbc/dir")
+    >>> dirview = DirView(
+    ...     ppath   = dir,
+    ...     regpath = "xtra file::**.py"
     ... )
     >>> print(dirview.ascii)
     + dir
@@ -770,29 +789,7 @@ pyterm::
             + licence
                 * ...
             * ...
-        + emptydir
         * ...
-
-
-If you use the option ``display = "main short found"`` instead of the default
-one ``display = "main short"``, then the output will only show the files found
-as above, and the empty folders will not be given.
-
-pyterm::
-    >>> from mistool.term_use import DirView, PPath
-    >>> dir     = PPath("/Users/projetmbc/dir")
-    >>> dirview = DirView(
-    ...     ppath   = dir,
-    ...     regpath = "file::**.py",
-    ...     display = "main short found"
-    ... )
-    >>> print(dirview.ascii)
-    + dir
-        * code_1.py
-        * code_2.py
-        + doc
-            * code_A.py
-            * code_B.py
 
 
 info::
@@ -907,11 +904,6 @@ spaces where each name can be replaced by its initial.
     files found with their extensions.
 
     d) ``main`` asks to display the main directory which is analyzed.
-
-    e) ``found`` asks to only display directories containing files with a path
-    that matchs the pattern ``regpath``. If ``found`` is not given, then
-    ellipsis will be used to indicate unmatching files and the empty directories
-    will be always shown.
 
 
 =======================
@@ -1060,23 +1052,19 @@ info::
     LAMBDA_SORT_LONGNAMES = {x[0]: x for x in LAMBDA_SORT}
 
 # Additional paths
-    ONLY_FOUND_PATHS, MAIN_PATH = "found", "main"
+    MAIN_PATH = "main"
 
 # Formattings of the paths
-    LONG_PATH, REL_PATH, SHORT_PATH = "long", "relative", "short"
+    PATH_FORMATS = LONG_PATH, REL_PATH, SHORT_PATH = "long", "relative", "short"
 
-    PATH_FORMATS = set([LONG_PATH, REL_PATH, SHORT_PATH])
+    PATH_FORMATS = set(PATH_FORMATS)
 
 # All formats
-    DISPLAY = set([
-        LONG_PATH, MAIN_PATH, ONLY_FOUND_PATHS, REL_PATH, SHORT_PATH
-    ])
+    DISPLAY = set(PATH_FORMATS)
+    DISPLAY.add(MAIN_PATH)
 
     DISPLAY_LONGNAMES = {x[0]: x for x in DISPLAY}
 
-
-# Special query
-    INTERNAL_QUERIES = set([XTRA_DISPLAY, FILE_TAG, DIR_TAG])
 
     def __init__(
         self,
@@ -1174,8 +1162,8 @@ prototype::
     see = self.sort , self.ascii , self.latex , self.toc , self.tree
 
     action = this method builds one flat list ``self.listview`` of dictionaries,
-             that store all the informations about the directory even the empty
-             folders and the unmatching files.
+             that store all the informations about the directories and the
+             folders matching the regpath.
              This method also builds ``self.treeview`` another list of
              dictionaries which is like the natural tree structure of the folder
              analyzed (both of this objects are sorted regarding to the value of
@@ -1186,8 +1174,14 @@ prototype::
 Dictionaries used in ``self.listview``
 ======================================
 
-The dictionaries have the following keys and values. You must know this
-structure if you want to define your own kind of sorting for the output.
+warning::
+    You must know the structure of the attribut ``listview`` if you want to
+    define your own kind of sorting for the outputs.
+
+
+``self.listview`` is a list of dictionaries that respects the structure of the
+folder analyzed, the files being placed before the folders. The dictionaries
+have the keys and values explained below.
 
     1) The key ``'tag'`` can have the values FILE_TAG,  FILE_OTHERS_TAG,
     DIR_TAG and DIR_OTHERS_TAG.
@@ -1217,104 +1211,10 @@ info::
     The property like method ``self.tree`` works recursively with the argument
     ``self.treeview``.
         """
-# Regpath infos
-        queries, pattern = self.ppath.regpath2meta(
-            self.regpath,
-            regexit = False
-        )
-
-        allqueries = queries | self.INTERNAL_QUERIES
-        allregpath = "{0}::{1}".format(" ".join(allqueries), pattern)
-
-        self._extradepth = int(self.MAIN_PATH in self._display)
-
-        self._all_listview = [
-            {
-# We use the key "tag" to ease the definitions of sortings.
-                self.TAG_TAG  : ppath._tag,
-                self.DEPTH_TAG: ppath.depth_in(self.ppath) + self._extradepth,
-                self.PPATH_TAG: ppath
-            }
-            for ppath in self.ppath.walk(allregpath)
-        ]
-
-        self._filedir_queries = queries & FILE_DIR_QUERY
-
-# We can now do the job.
-        self._build_listview()
         self._build_treeview()
-
+        self._build_listview()
         self.sort()
-
         self._mustberebuilt = False
-
-
-    def _build_listview(self):
-        """
-prototype::
-    see = self.buildviews
-
-    action = the attribut ``self.listview`` is build using the attribut
-             ``self._all_listview``
-        """
-# Sub fles and folders found
-        addall = bool(self.ONLY_FOUND_PATHS not in self._display)
-
-        _listview = []
-
-        for metadatas in self._all_listview:
-# Keep or not keep the main folder ? That is the question.
-            if metadatas[self.PPATH_TAG] == self.ppath:
-                if self.MAIN_PATH in self._display:
-                    _listview.append(metadatas)
-
-# A file or not the main folder.
-            elif addall or metadatas[self.TAG_TAG] not in [
-                DIR_OTHERS_TAG,
-                FILE_OTHERS_TAG
-            ]:
-                _listview.append(metadatas)
-
-# Main or not main, that is the question.
-        if self.MAIN_PATH in self._display:
-            self.listview = [{
-                self.TAG_TAG  : DIR_TAG,
-                self.DEPTH_TAG: 0,
-                self.PPATH_TAG: self.ppath
-            }]
-
-            dirs_found = [PPath(".")]
-
-        else:
-            self.listview = []
-            dirs_found    = []
-
-# Note: for a given depth, files come before subfolders.
-        for metadatas in _listview:
-# Let's add the parent folders.
-            relppath = metadatas[self.PPATH_TAG].relative_to(self.ppath)
-
-            for oneparent in relppath.parents:
-                if oneparent not in dirs_found:
-                    oneparent_ppath = self.ppath / oneparent
-
-                    depth \
-                    = oneparent_ppath.depth_in(self.ppath)+ self._extradepth
-
-                    self.listview.append({
-                        self.TAG_TAG  : DIR_TAG,
-                        self.DEPTH_TAG: depth,
-                        self.PPATH_TAG: oneparent_ppath
-                    })
-
-                    dirs_found.append(oneparent)
-
-# We have to be carefull with folders already found in ``_listview`` !
-            if metadatas[self.TAG_TAG] in [DIR_TAG, DIR_OTHERS_TAG]:
-                dirs_found.append(relppath)
-
-# Adding files and forlders found or kept previously.
-            self.listview.append(metadatas)
 
 
     def _build_treeview(self):
@@ -1322,28 +1222,74 @@ prototype::
 prototype::
     see = self.buildviews , self._rbuild_treeview
 
-    action = this method returns the attribut ``self.treeview`` but all the
-             job is done recursively by the method ``self._rbuild_treeview``
+    action = this method returns the attribut ``self.treeview`` (most of the
+             job is done recursively by the method ``self._rbuild_treeview``)
         """
-        self.treeview = self._rbuild_treeview(self.listview)
+        walkview   = []
+        extradepth = 0
+        dirs_found = []
+
+# Main folder or not ?
+        if self.MAIN_PATH in self._display:
+            walkview.append({
+                self.TAG_TAG  : DIR_TAG,
+                self.DEPTH_TAG: 0,
+                self.PPATH_TAG: self.ppath
+            })
+
+            extradepth += 1
+
+            dirs_found.append(PPath("."))
+
+# We have to take care of the parent folders of the matching files and folders.
+        for ppath in self.ppath.walk(self.regpath):
+            relppath = ppath.relative_to(self.ppath)
+
+            for rel_onepar in relppath.parents:
+                if rel_onepar in dirs_found:
+                    break
+
+                else:
+                    onepar = self.ppath / rel_onepar
+
+                    walkview.append({
+                        self.TAG_TAG  : DIR_TAG,
+                        self.DEPTH_TAG: ppath.depth_in(onepar) + extradepth,
+                        self.PPATH_TAG: onepar
+                    })
+
+                    dirs_found.append(rel_onepar)
+
+            if ppath._tag in ALL_DIR_TAGS:
+                dirs_found.append(ppath.relative_to(self.ppath))
+
+            walkview.append({
+                self.TAG_TAG  : ppath._tag,
+                self.DEPTH_TAG: ppath.depth_in(self.ppath) + extradepth,
+                self.PPATH_TAG: ppath
+            })
+
+        walkview.sort(key = lambda x: str([x[self.PPATH_TAG]]))
+
+# Let's work recursively.
+        self.treeview = self._rbuild_treeview(walkview)
 
 
-    def _rbuild_treeview(self, listview):
+    def _rbuild_treeview(self, walkview, depth = 0):
         """
 prototype::
-    action = the attribut ``self.treeview`` is build recursively using first
-             the attribut ``self.listview``
+    action = the attribut ``self.treeview`` is build recursively
         """
-        i    = 0
-        imax = len(listview)
-
         treeview = []
 
+        i    = 0
+        imax = len(walkview)
+
         while(i < imax):
-            metadatas = listview[i]
+            metadatas = walkview[i]
 
 # Simply a file.
-            if metadatas[self.TAG_TAG] in [FILE_TAG, FILE_OTHERS_TAG]:
+            if metadatas[self.TAG_TAG] in ALL_FILE_TAGS:
                 treeview.append(metadatas)
                 i += 1
 
@@ -1355,7 +1301,7 @@ prototype::
                 i += 1
 
                 while(i < imax):
-                    submetadatas = listview[i]
+                    submetadatas = walkview[i]
                     subdepth     = submetadatas[self.DEPTH_TAG]
 
                     if subdepth > depth:
@@ -1374,6 +1320,50 @@ prototype::
                 treeview.append(metadatas)
 
         return treeview
+
+
+    def _build_listview(self):
+        """
+prototype::
+    see = self.buildviews , self._build_treeview
+
+    action = this method returns the attribut ``self.listview`` (all the
+             job is done recursively by the method ``self._rbuild_listview``)
+        """
+        self.listview = self._rbuild_listview(self.treeview)
+
+
+    def _rbuild_listview(self, treeview):
+        """
+prototype::
+    arg = list(dict): treeview
+
+    return = list(dict) ;
+             the listview associated to ``self.treeview`` (the job is done
+             recursively)
+        """
+        listview = []
+
+        for metadatas in treeview:
+            if self.CONTENT_TAG in metadatas:
+                content = metadatas[self.CONTENT_TAG]
+
+# << Warning ! >> We can't use ``del metadatas['content']`` because this will
+# always change self.treeview (we could have used a deepcopy but this  would
+# be not efficient).
+                newmetadatas = {}
+
+                for k, v in metadatas.items():
+                    if k != self.CONTENT_TAG:
+                        newmetadatas[k] = v
+
+                listview.append(newmetadatas)
+                listview += self._rbuild_listview(content)
+
+            else:
+                listview.append(metadatas)
+
+        return listview
 
 
 # ------------- #
@@ -1422,7 +1412,7 @@ info::
         self.treeview = self._rsort(self.treeview)
 
 # We have to go back to ``self.listview`` !
-        self.listview = self._rtree_to_list_view(self.treeview)
+        self.listview = self._rbuild_listview(self.treeview)
 
 
     def _rsort(self, treeview):
@@ -1446,41 +1436,6 @@ prototype::
                 treeview[i] = metadatas
 
         return treeview
-
-
-    def _rtree_to_list_view(self, treeview):
-        """
-prototype::
-    see = self.sort
-
-    arg = list(dict): treeview
-
-    return = list(dict) ;
-             the listview associated to ``self.treeview`` (the job is done
-             recursively)
-        """
-        listview = []
-
-        for metadatas in treeview:
-            if self.CONTENT_TAG in metadatas:
-                content = metadatas[self.CONTENT_TAG]
-
-# << Warning ! >> We can't use ``del metadatas['content']`` because this will
-# always change self.treeview (we could have used a deepcopy but this  would
-# be not efficient).
-                newmetadatas = {}
-
-                for k, v in metadatas.items():
-                    if k != self.CONTENT_TAG:
-                        newmetadatas[k] = v
-
-                listview.append(newmetadatas)
-                listview += self._rtree_to_list_view(content)
-
-            else:
-                listview.append(metadatas)
-
-        return listview
 
 
 # ------------- #

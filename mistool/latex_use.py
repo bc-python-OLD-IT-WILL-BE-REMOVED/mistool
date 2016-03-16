@@ -14,6 +14,7 @@ from subprocess import CalledProcessError
 from mistool.config import latex
 from mistool.os_use import (
 # Classes and functions
+    cd,
     pathenv, PPath,
     runthis,
     system,
@@ -286,10 +287,11 @@ prototype::
 
                 print(start_compile.format(i))
 
-            runthis(
-                cmd        = '{0} "{1}"'.format(self.cmd, self.ppath),
-                showoutput = self.showoutput
-            )
+            with cd(self.ppath.parent):
+                runthis(
+                    cmd        = '{0} "{1}"'.format(self.cmd, self.ppath),
+                    showoutput = self.showoutput
+                )
 
             if self.showoutput:
                 print(end_compile.format(i))

@@ -24,18 +24,19 @@ from mistool import term_use
 
 THIS_DIR = PPath(__file__).parent
 
-WITHFRAME_FUNCTION = term_use.withframe
+BUILDFRAME_FUNCTION = term_use.buildframe
+WITHFRAME_FUNCTION  = term_use.withframe
 
 
 # ----------------------- #
-# -- THE_DATAS_FOR_TESTING FOR TESTING -- #
+# -- DATAS FOR TESTING -- #
 # ----------------------- #
 
 THE_DATAS_FOR_TESTING = OrderedDict()
 
-cfgdir = THIS_DIR / "default"
+cfgdir = THIS_DIR / "perso"
 
-for ppath in cfgdir.walk(regpath = "**.txt"):
+for ppath in cfgdir.walk(regpath = "file::**.txt"):
     style = '{0}_{1}'.format(
         ppath.parent.name,
         ppath.stem
@@ -45,7 +46,7 @@ for ppath in cfgdir.walk(regpath = "**.txt"):
         content = ppath,
         mode    = {
             "keyval:: =": "gene",
-            "verbatim"  : ["frame", "text", "output"]
+            "verbatim"  : ["model", "text", "output"]
         }
     )
 
@@ -75,13 +76,9 @@ def test_term_use_frame(or_datas):
         gene  = infos['gene']
         align = gene['align']
 
-        if 'frame' in infos:
-            frame = "\n".join(infos['frame'])
-
-        else:
-            frame = "term_use.ALL_FRAMES['{0}']".format(style)
-
-        frame = eval(frame)
+        model = "\n".join(infos['model'])
+        model = model.replace("/:", "/").replace(":/", "/")
+        frame = BUILDFRAME_FUNCTION(model)
 
         text   = "\n".join(infos['text'])
         output = "\n".join(infos['output'])\

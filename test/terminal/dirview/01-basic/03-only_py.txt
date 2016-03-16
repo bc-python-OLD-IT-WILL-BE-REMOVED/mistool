@@ -1,9 +1,10 @@
 gene::
-    dirname = basic
-    regpath = **.py
+    dirname = basic_dir
+    regpath = file::**.py
+    display = main short
 
 ascii::
-    + basic
+    + basic_dir
         * python_1.py
         * python_2.py
         * python_3.py
@@ -11,23 +12,15 @@ ascii::
         + sub_dir
             * code_A.py
             * code_B.py
-            + sub_sub_dir
-                * ...
-            * ...
-        * ...
+
 
 toc::
-    + basic
+    + basic_dir
         * python_1.py
         * python_2.py
         * python_3.py
         * python_4.py
-        * ...
 
-    + basic/sub_dir
+    + basic_dir/sub_dir
         * code_A.py
         * code_B.py
-        * ...
-
-    + basic/sub_sub_dir
-        * ...

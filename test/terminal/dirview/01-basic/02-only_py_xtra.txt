@@ -1,0 +1,20 @@
+gene::
+    dirname = basic_dir
+    regpath = xtra file::**.py
+
+
+toc::
+    + basic_dir
+        * python_1.py
+        * python_2.py
+        * python_3.py
+        * python_4.py
+        * ...
+
+    + basic_dir/sub_dir
+        * code_A.py
+        * code_B.py
+        * ...
+
+    + basic_dir/sub_dir/sub_sub_dir
+        * ...

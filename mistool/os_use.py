@@ -224,7 +224,10 @@ prototype::
              returned, otherwise that is ``True`` which is returned
          """
         if not self.is_dir():
-            raise OSError("the path does not point to an existing directory")
+            raise OSError(
+                "the following path does not point to an existing directory :"
+                "\n    + {0}".format(self)
+            )
 
         for onepath in self.walk():
             return False
@@ -251,8 +254,8 @@ prototype::
 
         else:
             raise OSError(
-                "the path doesn't point to something "
-                "inside an existing directory"
+                "the following path doesn't point to something inside an "
+                "existing directory :\n    + {0}".format(self)
             )
 
 # Source :
@@ -722,18 +725,12 @@ spaces.
     5) ``all file`` asks to only keep files even the hidden ones. You can also
     use ``all dir``.
 
-    6) ``empty`` allows to only look for empty folders which are by default the
-    ones with no visible content (this can be useful for some cleanings).
-
-    By cons, you can target your research via ``all empty`` so that folders
-    containing only invisible objects are not considered empty.
-
-    7) ``relative`` indicates that the pattern after ``::`` is relatively to
+    6) ``relative`` indicates that the pattern after ``::`` is relatively to
     the current directory and not to a absolute path.
 
-    8) ``xtra`` asks to keep folder with some files not matching a regpath,
-    and empty directories. Extra informations are given via the hidden attribut
-    ``_tag`` (this feature is used by the class ``term_use.DirView``).
+    7) ``xtra`` asks to keep folder with some files not matching a regpath.
+    Extra informations are given by the hidden attribut ``_tag`` (this feature
+    is used by the class ``term_use.DirView``).
 
 
 For example, to keep only the ¨python files, in a folder or not, just use
@@ -792,7 +789,10 @@ prototype::
     """
 # Nothing to open...
         if not self.is_file() and not self.is_dir():
-            raise OSError("the path points nowhere.")
+            raise OSError(
+                "the following path points nowhere:"
+                "\n    + {0}".format(self)
+            )
 
 # We need the **string** long normalized version of the path.
         strpath = str(self.normpath)
@@ -821,12 +821,15 @@ prototype::
 # Unknown method...
         else:
             raise OSError(
-                "the opening of the file in the OS "
-                "<< {0} >> is not supported.".format(osname)
+                "the opening of the following file in the OS "
+                "<< {0} >> is not supported \n    + {0}".format(
+                    osname,
+                    self
+                )
             )
 
 
-    def walk(self, regpath  = "**"):
+    def walk(self, regpath = "**"):
         """
 prototype::
     see = self.regpath2meta
@@ -837,7 +840,7 @@ prototype::
     yield = PPath;
             the ``PPath`` are absolute paths of files and directories matching
             the "regpath" pattern (in each folder, the files are always yield
-            before the sub folders)
+            before the sub folders and the search is always relative)
 
 
 Let's suppose that we have the following directory having the absolute path
@@ -864,10 +867,38 @@ dir::
                 * doc.pdf
 
 
-Here are easy to understand examples where the regpath ``"*"`` is for a
-non-recursive search contrary to the regpath ``"**"``. Just go to the
-documentation of the method ``regpath2meta`` so as to know why (you have
-to remember that the search is relative).
+By default, you will have from lower depth to higher files following by folders.
+Let's see this in action.
+
+pyterm::
+    >>> from mistool.os_use import PPath
+    >>> folder = PPath("/Users/projetmbc/basic_dir")
+    >>> for p in folder.walk():
+    ...     print("+", p)
+    ...
+    + /Users/projetmbc/basic_dir/latex_1.tex
+    + /Users/projetmbc/basic_dir/latex_2.tex
+    + /Users/projetmbc/basic_dir/python_1.py
+    + /Users/projetmbc/basic_dir/python_2.py
+    + /Users/projetmbc/basic_dir/python_3.py
+    + /Users/projetmbc/basic_dir/python_4.py
+    + /Users/projetmbc/basic_dir/text_1.txt
+    + /Users/projetmbc/basic_dir/text_2.txt
+    + /Users/projetmbc/basic_dir/text_3.txt
+    + /Users/projetmbc/basic_dir/empty_dir
+    + /Users/projetmbc/basic_dir/sub_dir
+    + /Users/projetmbc/basic_dir/sub_dir/code_A.py
+    + /Users/projetmbc/basic_dir/sub_dir/code_B.py
+    + /Users/projetmbc/basic_dir/sub_dir/slide_A.pdf
+    + /Users/projetmbc/basic_dir/sub_dir/slide_B.pdf
+    + /Users/projetmbc/basic_dir/sub_dir/sub_sub_dir
+    + /Users/projetmbc/basic_dir/sub_dir/sub_sub_dir/doc.pdf
+
+
+Here are others easy examples where the regpath ``"*"`` is for a non-recursive
+search contrary to the regpath ``"**"`` which is the default value (see the
+preceding example). Just take a look at the documentation of the method
+``regpath2meta`` for more ¨infos about regpaths.
 
 pyterm::
     >>> from mistool.os_use import PPath
@@ -928,7 +959,10 @@ info::
         """
 # Do we have an existing directory ?
         if not self.is_dir():
-            raise OSError("the path doesn't point to a directory.")
+            raise OSError(
+                "the following path doesn't point to a directory :"
+                "\n    + {0}".format(self)
+            )
 
 # Metadatas and the normal regex
         queries, pattern = self.regpath2meta(regpath)
@@ -1101,7 +1135,10 @@ warning::
             os.remove(str(self))
 
         else:
-            raise OSError("path points nowhere.")
+            raise OSError(
+                "the following path points nowhere :"
+                "\n    + {0}".format(self)
+            )
 
 
     def clean(self, regpath):
@@ -1119,9 +1156,6 @@ prototype::
 
         if ALL_DISPLAY in queries:
             prefix = ALL_DISPLAY
-
-        elif DIR_EMPTY_TAG in queries:
-            prefix = DIR_EMPTY_TAG
 
         else:
             prefix = ""
@@ -1204,7 +1238,10 @@ warning::
 
 # Path points nowhere !
             else:
-                raise OSError("destination path points nowhere.")
+                raise OSError(
+                    "the following path points nowhere:"
+                    "\n    + {0}".format(self)
+                )
 
 # Erase anything in case of any OS problem...
         except OSError as e:
@@ -1265,7 +1302,10 @@ warning::
                 raise OSError("moving the diretory has failed.")
 
         else:
-            raise OSError("current path points nowhere.")
+            raise OSError(
+                "the following path points nowhere."
+                "\n    + {0}".format(self)
+            )
 
 
 # --------------- #

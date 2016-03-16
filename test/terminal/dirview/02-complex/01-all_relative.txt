@@ -1,0 +1,35 @@
+gene::
+    dirname = complex_dir
+    sorting = filefirst
+    display = main relative
+
+ascii::
+    + complex_dir
+        * latex_file_1.tex
+        * latex_file_2.tex
+        * python_file_1.py
+        * python_file_2.py
+        * python_file_3.py
+        * python_file_4.py
+        * text_file_1.txt
+        * text_file_2.txt
+        * text_file_3.txt
+        + subDir_1
+            * subDir_1/latex_file_1.tex
+            * subDir_1/latex_file_2.tex
+            * subDir_1/text_file_1.txt
+            * subDir_1/text_file_2.txt
+        + subDir_2
+            + subDir_2/subSubDir_a
+                * subDir_2/subSubDir_a/latex_file.tex
+                * subDir_2/subSubDir_a/text_file_1.txt
+                * subDir_2/subSubDir_a/text_file_2.txt
+                * subDir_2/subSubDir_a/text_file_3.txt
+            + subDir_2/subSubDir_b
+                * subDir_2/subSubDir_b/python_file_1.py
+                * subDir_2/subSubDir_b/python_file_2.py
+                * subDir_2/subSubDir_b/text_file_1.txt
+                * subDir_2/subSubDir_b/text_file_2.txt
+            + subDir_2/subSubDir_c
+                * subDir_2/subSubDir_c/python_file.py
+                * subDir_2/subSubDir_c/text_file.txt

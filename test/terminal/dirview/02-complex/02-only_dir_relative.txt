@@ -1,0 +1,12 @@
+gene::
+    dirname = complex_dir
+    regpath = dir::**
+    sorting = filefirst
+
+ascii::
+    + complex_dir
+        + subDir_1
+        + subDir_2
+            + subSubDir_a
+            + subSubDir_b
+            + subSubDir_c
