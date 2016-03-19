@@ -31,7 +31,7 @@ ISLINKED_FUNCTION = url_use.islinked
 # ----------------------- #
 
 THE_DATAS_FOR_TESTING = READ(
-    content = THIS_DIR / 'connection.txt',
+    content = THIS_DIR / 'linked.txt',
     mode    = {"keyval:: =": ":default:"}
 )
 
@@ -49,7 +49,7 @@ def or_datas(request):
 # -- CONNECTION -- #
 # ---------------- #
 
-def test_url_use_connection(or_datas):
+def test_url_use_linked(or_datas):
     tests = THE_DATAS_FOR_TESTING.dico(
         nosep    = True,
         nonbline = True

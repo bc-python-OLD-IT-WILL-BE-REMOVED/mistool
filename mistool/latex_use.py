@@ -19,9 +19,7 @@ from mistool.os_use import (
     runthis,
     system,
 # Safe constants
-    OS_MAC,
-    OS_LINUX,
-    OS_WIN
+    OS_MAC, OS_LINUX, OS_WIN
 )
 
 

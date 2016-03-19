@@ -31,7 +31,7 @@ ESCAPE_FUNCTION = url_use.escape
 # ----------------------- #
 
 THE_DATAS_FOR_TESTING = READ(
-    content = THIS_DIR / 'escape_url.txt',
+    content = THIS_DIR / 'escape.txt',
     mode    = {"keyval:: =": ":default:"}
 )
 

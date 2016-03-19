@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-03-16
+    date = 2016-03-19
 
 
 This module contains mainly classes and functions producing strings useful to be
@@ -803,22 +803,24 @@ The "ruled" tree output
 
 By default, ``dirview.tree`` give a tree view using rules similar to the ones
 you can see in ¨gui applications displaying tree structure of a folder. Here we
-use only ¨utf8 characters.
+use only ¨utf8 characters (the font gives a good result).
 
 term::
-    ╸dir
-     ┣━ ╸code_1.py
-     ┣━ ╸code_2.py
-     ┣━ ╸file_1.txt
-     ┣━ ╸file_2.txt
-     ┣━ ╸doc
-     ┃   ┣━ ╸code_A.py
-     ┃   ┣━ ╸code_B.py
-     ┃   ┣━ ╸slide_A.pdf
-     ┃   ┣━ ╸slide_B.pdf
-     ┃   ┗━ ╸licence
-     ┃       ┗━ ╸doc.pdf
-     ┗━ ╸emptydir
+    ╸dir 📁
+     ┣━ code_1.py
+     ┣━ code_2.py
+     ┣━ file_1.txt
+     ┣━ file_2.txt
+     ┣━ doc 📁
+     ┃  ┣━ code_A.py
+     ┃  ┣━ code_B.py
+     ┃  ┣━ slide_A.pdf
+     ┃  ┣━ slide_B.pdf
+     ┃  ┗━ licence 📁
+     ┃     ┗━ doc.pdf
+     ┗━ emptydir 📁
+
+info::
 
 
 =====================
@@ -988,15 +990,14 @@ info::
     TOC_TAG   = "toc"
     TREE_TAG  = "tree"
 
+    DOT_TAG   = "dot"
     HRULE_TAG = "hrule"
     VRULE_TAG = "vrule"
-
     FNODE_TAG = "fnode"
     LNODE_TAG = "lnode"
     VNODE_TAG = "vnode"
 
-    DECO_TAG = 'deco'
-    TAB_TAG  = 'tab'
+    TAB_TAG = 'tab'
 
 # Trees
     ASCII_DECOS = {
@@ -1011,17 +1012,21 @@ info::
 
 # Source for the rules:
 #     * http://en.wikipedia.org/wiki/Box-drawing_character#Unicode
+#     * http://en.wikipedia.org/wiki/Box-drawing_character#Unicode
 
     UTF8_DECOS = {
+# Initial
+        DOT_TAG: "\u2578",          #--->  ╸
 # Horizontal and vertical rules
-        HRULE_TAG: "\u2501",   #--->  ━
-        VRULE_TAG: "\u2503",   #--->  ┃
+        HRULE_TAG: "\u2501",        #--->  ━
+        VRULE_TAG: "\u2503",        #--->  ┃
 # First, vertical and horizontal nodes
-        FNODE_TAG: "\u250F",   #--->  ┏
-        VNODE_TAG: "\u2523",   #--->  ┣
-        LNODE_TAG: "\u2517",   #--->  ┗
+        FNODE_TAG: "\u250F",        #--->  ┏
+        VNODE_TAG: "\u2523",        #--->  ┣
+        LNODE_TAG: "\u2517",        #--->  ┗
 # Decorations
-        DECO_TAG: "\u2578",    #--->  ╸
+        DIR_TAG : "\U0001F4C1",     #--->  📁
+        FILE_TAG: "",
     }
 
     LAMBDA_SORT = {
@@ -1528,19 +1533,14 @@ prototype::
         """
 # The job has to be done.
         if self.havetobuild(self.TREE_TAG):
-# One dir or file alone (extra prossibilty)
-            if len(self.listview) == 1:
-                self.outputs[self.TREE_TAG] = "{0} {1}".format(
-                    self.UTF8_DECOS[self.HRULE_TAG],
-                    self.pathtoprint(self.listview[0])
-                )
-
-            else:
 # Ugly patch !!!
-                self.outputs[self.TREE_TAG] = "\n".join([
-                    x[4:]
-                    for x in self._rtree(self.treeview)
-                ])
+            for i, x in enumerate(self._rtree(self.treeview)):
+                if i == 0:
+                    self.outputs[self.TREE_TAG] \
+                    = self.UTF8_DECOS[self.DOT_TAG] + x[3:]
+
+                else:
+                    self.outputs[self.TREE_TAG] += "\n " + x[3:]
 
 # The job has been done.
         return self.outputs[self.TREE_TAG]
@@ -1571,23 +1571,30 @@ prototype::
             if thisdepth == 0:
                 addvrule = False
 # Ugly patch !!!
-                before   = "  "
+                before   = " "
 
             elif i == imax:
                 addvrule = False
-                before   = " " + self.UTF8_DECOS[self.LNODE_TAG]
+                before   = self.UTF8_DECOS[self.LNODE_TAG]
 
             else:
                 addvrule = True
-                before   = " " + self.UTF8_DECOS[self.VNODE_TAG]
+                before   = self.UTF8_DECOS[self.VNODE_TAG]
+
+# Deco after.
+            if metadatas["tag"] in ALL_DIR_TAGS:
+                after = self.UTF8_DECOS[DIR_TAG]
+
+            else:
+                after = self.UTF8_DECOS[FILE_TAG]
 
 # Just add the object.
             lines.append(
-                "{0}{1} {2}{3}".format(
+                "{0}{1} {2} {3}".format(
                     before,
                     self.UTF8_DECOS[self.HRULE_TAG],
-                    self.UTF8_DECOS[self.DECO_TAG],
-                    self.pathtoprint(metadatas)
+                    self.pathtoprint(metadatas),
+                    after
                 )
             )
 
@@ -1596,10 +1603,10 @@ prototype::
                 subbefore = " "*subtabdepth
 
                 if addvrule:
-                    subbefore += " " + self.UTF8_DECOS[self.VRULE_TAG] + "  "
+                    subbefore += self.UTF8_DECOS[self.VRULE_TAG] + "  "
 
                 else:
-                    subbefore += "    "
+                    subbefore += "   "
 
                 lines += [
                     subbefore + x

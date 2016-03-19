@@ -4,6 +4,7 @@
 # -- SEVERAL IMPORTS -- #
 # --------------------- #
 
+import datetime
 from pathlib import Path
 from pytest import fixture
 
@@ -14,7 +15,7 @@ from orpyste.data import ReadBlock as READ
 # -- MODULE TESTED -- #
 # ------------------- #
 
-from mistool import python_use
+from mistool import date_use
 
 
 # ----------------------- #
@@ -23,7 +24,7 @@ from mistool import python_use
 
 THIS_DIR = Path(__file__).parent
 
-DICT_VALUES_FUNCTION = python_use.dictvalues
+TRANSLATE_FUNCTION = date_use.translate
 
 
 # ----------------------- #
@@ -31,7 +32,7 @@ DICT_VALUES_FUNCTION = python_use.dictvalues
 # ----------------------- #
 
 THE_DATAS_FOR_TESTING = READ(
-    content = THIS_DIR / 'single_values.txt',
+    content = THIS_DIR / 'translate.txt',
     mode    = {"keyval:: =": ":default:"}
 )
 
@@ -45,21 +46,29 @@ def or_datas(request):
     request.addfinalizer(remove)
 
 
-# ------------- #
-# -- QUOTING -- #
-# ------------- #
+# --------------------- #
+# -- TRANSLATE DATES -- #
+# --------------------- #
 
-def test_python_use_quote(or_datas):
+def test_date_use_translate(or_datas):
     tests = THE_DATAS_FOR_TESTING.dico(
         nosep    = True,
         nonbline = True
     )
 
     for name, datas in tests.items():
-        onedict      = eval(datas['onedict'])
-        singlevalues = eval(datas['singlevalues'])
+        date    = datas["date"]
+        y, m, d = [int(x) for x in date.split('-')]
+        date    = datetime.date(y, m, d)
 
-        singlevalues_found = DICT_VALUES_FUNCTION(onedict)
-        singlevalues_found = sorted(singlevalues_found)
+        lang        = datas["lang"]
+        strformat   = datas["format"]
+        translation = datas["translation"]
 
-        assert singlevalues == singlevalues_found
+        translation_found = TRANSLATE_FUNCTION(
+            date      = date,
+            strformat = strformat,
+            lang      = lang
+        )
+
+        assert translation == translation_found

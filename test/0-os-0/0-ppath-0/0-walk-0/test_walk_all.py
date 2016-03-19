@@ -38,6 +38,7 @@ DIR_PPATH = DIR_PPATH / "virtual_dir" / "complex_dir"
 DIR_PPATH = PPATH_CLASS(DIR_PPATH)
 
 # To find paths, we have to use stabdard methods ! So boring...
+# We use the method ``glob`` coming directly from ``pathlib.Path``.
 ALL_PATHS = []
 MAX_DEPTH = 10
 

@@ -31,7 +31,7 @@ ESCAPE_FUNCTION = latex_use.escape
 # ----------------------- #
 
 THE_DATAS_FOR_TESTING = READ(
-    content = THIS_DIR / 'escape_latex.txt',
+    content = THIS_DIR / 'escape.txt',
     mode    = {"keyval:: =": ":default:"}
 )
 
@@ -49,7 +49,7 @@ def or_datas(request):
 # -- GOOD ESCAPING -- #
 # ------------------- #
 
-def test_latex_use_good_escaping(or_datas):
+def test_latex_use_escape(or_datas):
     tests = THE_DATAS_FOR_TESTING.dico(
         nosep    = True,
         nonbline = True

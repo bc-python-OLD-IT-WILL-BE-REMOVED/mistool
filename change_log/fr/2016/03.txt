@@ -1,4 +1,11 @@
 ==========
+2016-03-19
+==========
+
+**Amélioration du mode ``tree`` de la classe ``term_use.DirView`` :** pour bien différencier les dossiers des fichiers, le caractère unicode 📁 apparait après le chemin d'un dossier.
+
+
+==========
 2016-03-16
 ==========
 
