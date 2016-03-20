@@ -1,4 +1,11 @@
 ==========
+2016-03-20
+==========
+
+**Suite de la mise à jour des tests :** le cas du module ``term_use`` est complètement traité maintenant avec la prise en compte de toutes les options de la classe ``DirView``. Reste à ajouter de futurs cas problématiques...
+
+
+==========
 2016-03-19
 ==========
 

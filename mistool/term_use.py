@@ -803,7 +803,7 @@ The "ruled" tree output
 
 By default, ``dirview.tree`` give a tree view using rules similar to the ones
 you can see in ¨gui applications displaying tree structure of a folder. Here we
-use only ¨utf8 characters (the font gives a good result).
+use only ¨utf8 characters.
 
 term::
     ╸dir 📁
@@ -819,8 +819,6 @@ term::
      ┃  ┗━ licence 📁
      ┃     ┗━ doc.pdf
      ┗━ emptydir 📁
-
-info::
 
 
 =====================
@@ -852,8 +850,8 @@ term::
 
 
 warning::
-    Here all the paths for the folders will be always displayed as relative
-    ones to the parent directory of the folder analyzed, and not to the folder
+    All the paths for the folders will be always displayed as relative ones
+    to the parent directory of the folder analyzed, and not to the folder
     analyzed, and all content of a folder will be inside a single "section".
     Paths formatting options apply only to files.
 
@@ -916,7 +914,7 @@ The optional string argument ``sorting``, or the attribut with the same name
 ``sorting``, can be one of the following values (each name can be replaced by
 its initial).
 
-    a) ``alpha`` is the alphabetic sorting on the strings representing the paths.
+    a) ``alpha`` is the alphabetic sorting on the strings representing the paths. This the default value.
 
     b) ``filefirst`` gathers first the files and then the folders, and in each
     of this category an alphabetic sorting is applied.
