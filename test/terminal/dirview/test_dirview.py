@@ -69,10 +69,7 @@ def or_datas(request):
 
 def test_dirview(or_datas):
     for name, allinfos in THE_DATAS_FOR_TESTING.items():
-        infos = allinfos.dico(
-            nosep    = True,
-            nonbline = True
-        )
+        infos = allinfos.flatdict(nosep = True)
 
         gene    = infos['gene']
         dirname = gene['dirname']

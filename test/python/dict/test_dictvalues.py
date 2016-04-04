@@ -50,10 +50,7 @@ def or_datas(request):
 # ------------- #
 
 def test_python_use_dictvalues(or_datas):
-    tests = THE_DATAS_FOR_TESTING.dico(
-        nosep    = True,
-        nonbline = True
-    )
+    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
 
     for name, datas in tests.items():
         onedict      = eval(datas['onedict'])

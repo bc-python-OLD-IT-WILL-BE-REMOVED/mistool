@@ -1,0 +1,4 @@
+backslash::
+    ascii = \
+    text  = \textbackslash{}
+    math  = \backslash{}

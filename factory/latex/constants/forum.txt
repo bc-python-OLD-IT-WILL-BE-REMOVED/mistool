@@ -1,0 +1,87 @@
+=====
+debug
+=====
+
+    + blg, glg, ilg, log
+
+``log`` is produced by latex compilations, ``ilg`` and ``glg`` by
+makeindex compilations, where ``glg`` is related to the package glossary.
+``blg`` is produced by bibtex compilations.
+
+====
+html
+====
+
+    + 4ct, 4tc, idv, lg, tmp, xref
+
+This extensions are produced by the package ``tex4ht``.
+
+=====
+slide
+=====
+
+    + nav, snm, vrb
+
+======
+editor
+======
+
+    + synctex.gz, synctex.gz(busy)
+
+``synctex.gz`` is produced by some editors to do synchronization between
+the LaTeX source file and its PDF output.
+
+=====
+float
+=====
+
+    + fff, ttt
+
+====
+list
+====
+
+    + bcl, lof, lol, lot
+
+``bcl`` is produced by the package ``bclogo`` : this gives the list of
+the logos.
+
+``f`` is for Figure, ``l`` for Listing (cf. the package ``listings``),
+and ``t`` for Table.
+
+===
+toc
+===
+
+    + maf, mlf, mlt, mtc, plf, plt, ptc, toc
+
+The package ``minitoc`` produces all this extensions excepted ``toc``.
+
+===
+ref
+===
+
+    + aux, brf, glo, gls, idx, ind, ist, out
+
+``out`` is produced by the package ``hyperref`` with the option
+``bookmarks``, and ``brf`` with the option ``backref``.
+
+The package `` glossary`` produces ``glo`` and ``gls``, and also ``ist``
+if an additional makeindex compilation is launched.
+
+``idx`` and ``ind`` are produced by makeindex compilations.
+
+======
+biblio
+======
+
+    + bbl, run.xml
+
+``bbl`` is produces by bibtex compilations, and ``run.xml`` by biber
+compilations.
+
+=======
+theorem
+=======
+
+    + thm

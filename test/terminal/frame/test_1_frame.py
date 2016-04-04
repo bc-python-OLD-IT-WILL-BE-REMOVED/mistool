@@ -67,10 +67,7 @@ def or_datas(request):
 
 def test_term_use_frame(or_datas):
     for style, allinfos in THE_DATAS_FOR_TESTING.items():
-        infos = allinfos.dico(
-            nosep    = True,
-            nonbline = True
-        )
+        infos = allinfos.flatdict(nosep = True)
 
         gene  = infos['gene']
         align = gene['align']

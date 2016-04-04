@@ -50,10 +50,7 @@ def or_datas(request):
 # --------------------- #
 
 def test_url_use_escape(or_datas):
-    tests = THE_DATAS_FOR_TESTING.dico(
-        nosep    = True,
-        nonbline = True
-    )
+    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
 
     for name, datas in tests.items():
         url    = datas['url']

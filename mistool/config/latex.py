@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 
-# The two following variables were automatically built by one Python script.
+# Note: the following variables were automatically built.
 
 TEMP_EXTS = OrderedDict([
     ('debug', ['blg', 'ilg', 'log', 'glg']),
@@ -29,8 +29,6 @@ EXTS_TO_CLEAN = [
 # This extensions are produced by the package ``tex4ht``.
     '4ct', '4tc', 'idv', 'lg', 'tmp', 'xref',
 # slide
-#
-# 
     'nav', 'snm', 'vrb',
 # editor
 #
@@ -38,8 +36,6 @@ EXTS_TO_CLEAN = [
 # the LaTeX source file and its PDF output.
     'synctex.gz', 'synctex.gz(busy)',
 # float
-#
-# 
     'fff', 'ttt',
 # list
 #
@@ -69,8 +65,6 @@ EXTS_TO_CLEAN = [
 # compilations.
     'bbl', 'run.xml',
 # theorem
-#
-# 
     'thm'
 ]
 
@@ -79,8 +73,8 @@ EXTS_TO_CLEAN = [
 #    * http://www.grappa.univ-lille3.fr/FAQ-LaTeX/21.26.html
 
 CHARS_TO_ESCAPE = {
-    'text': "{}_$&%#",
-    'math': "{}_$&%#" 
+    'text': "{ }_ $&% #",
+    'math': "{ }_ $&% #" 
 }
 
 CHARS_TO_LATEXIFY = {

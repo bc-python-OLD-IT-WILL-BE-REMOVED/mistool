@@ -224,7 +224,7 @@ prototype::
              returned, otherwise that is ``True`` which is returned
          """
         if not self.is_dir():
-            raise OSError(
+            raise NotADirectoryError(
                 "the following path does not point to an existing directory :"
                 "\n    + {0}".format(self)
             )
@@ -253,7 +253,7 @@ prototype::
             ppath = self
 
         else:
-            raise OSError(
+            raise FileNotFoundError(
                 "the following path doesn't point to something inside an "
                 "existing directory :\n    + {0}".format(self)
             )
@@ -264,26 +264,6 @@ prototype::
             path = str(ppath),
             mode = os.W_OK | os.X_OK
         )
-
-
-    @property
-    def parent(self):
-        """
-prototype::
-    return = PPath ;
-             a new path corresponding to the first "parent folder" of the
-             current path
-
-
-Here is a complete example.
-
-pyterm::
-    >>> from mistool.os_use import PPath
-    >>> path = PPath("dir/subdir/file.txt")
-    >>> path.parent
-    PPath('dir/subdir')
-        """
-        return self.parents[0]
 
 
     @property
@@ -789,7 +769,7 @@ prototype::
     """
 # Nothing to open...
         if not self.is_file() and not self.is_dir():
-            raise OSError(
+            raise FileNotFoundError(
                 "the following path points nowhere:"
                 "\n    + {0}".format(self)
             )
@@ -959,7 +939,7 @@ info::
         """
 # Do we have an existing directory ?
         if not self.is_dir():
-            raise OSError(
+            raise NotADirectoryError(
                 "the following path doesn't point to a directory :"
                 "\n    + {0}".format(self)
             )
@@ -1073,17 +1053,20 @@ info::
 # A new directory.
         if kind == DIR_TAG:
             if self.is_file():
-                raise ValueError("path points to an existing file.")
+                raise FileExistsError("path points to an existing file.")
 
             elif not self.is_dir():
-                os.makedirs(str(self))
+                str(self).mkdir(parents = True)
 
 # A new file.
         elif self.is_dir():
-            raise ValueError("path points to an existing directory.")
+            raise IsADirectoryError("path points to an existing directory.")
 
         elif not self.is_file():
-            self.parent.create(DIR_TAG)
+            parent = self.parent
+
+            if not parent.is_dir():
+                parent.mkdir(parents = True)
 
             with self.open(mode = "w") as file:
                 ...
@@ -1103,13 +1086,13 @@ prototype::
         """
         if safemode:
             if self.is_file():
-                raise OSError(
+                raise FileExistsError(
                     "existing file can't be removed with ``safemode = True`` "
                     "(use ``safemode = False`` to force the erasing)"
                 )
 
             elif self.is_dir():
-                raise OSError(
+                raise IsADirectoryError(
                     "existing folder can't be removed with ``safemode = True`` "
                     "(use ``safemode = False`` to force the erasing)"
                 )
@@ -1132,10 +1115,10 @@ warning::
             shutil.rmtree(str(self))
 
         elif self.is_file():
-            os.remove(str(self))
+            str(self).unlink()
 
         else:
-            raise OSError(
+            raise FileNotFoundError(
                 "the following path points nowhere :"
                 "\n    + {0}".format(self)
             )
@@ -1216,6 +1199,8 @@ warning::
 # WARNING !!! We can't call the method ``create`` during the recursive walk !
             elif self.is_dir():
                 if self == self & dest:
+                    oserror = True
+
                     raise OSError(
                         "copy of a directory inside one of its sub directory "
                         "is not supported (be aware of recursive copying)"
@@ -1238,17 +1223,23 @@ warning::
 
 # Path points nowhere !
             else:
-                raise OSError(
+                oserror = False
+
+                raise FileNotFoundError(
                     "the following path points nowhere:"
                     "\n    + {0}".format(self)
                 )
 
 # Erase anything in case of any OS problem...
-        except OSError as e:
+        except (OSError, FileNotFoundError) as e:
             if dest.is_file() or dest.is_dir():
                 dest.remove()
 
-            raise OSError(e)
+            if oserror:
+                raise OSError(e)
+
+            else:
+                raise FileNotFoundError(e)
 
 
     def move_to(self, dest, safemode = True):
@@ -1302,7 +1293,7 @@ warning::
                 raise OSError("moving the diretory has failed.")
 
         else:
-            raise OSError(
+            raise FileNotFoundError(
                 "the following path points nowhere."
                 "\n    + {0}".format(self)
             )

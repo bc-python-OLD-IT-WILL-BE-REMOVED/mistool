@@ -1,4 +1,21 @@
 ==========
+2016-03-21
+==========
+
+**¨Maj de la classe ``os_use.PPath`` :** les évolutions de la classe ``pathlib.Path`` ont impliqué les ¨chgts suivants.
+
+    1) La méthode ``parent`` a été supprimée car elle est proposée par ``pathlib.Path``.
+
+    2) Meilleure utilisation en interne des méthodes propres à ``pathlib.Path``.
+
+
+**Correction d'un bug dans la classe ``os_use.PPath`` :** la méthode ``create`` renvoyait à tors une erreur pour un fichier à créer dans un dossier inexistant.
+
+
+**Amélioration du code :** meilleure utilisation des exceptions ¨python.
+
+
+==========
 2016-03-20
 ==========
 
@@ -20,7 +37,7 @@
 
     1) La valeur du "regpath" reste celle de l'utilisateur qui choisira de faire apparaître exactement ce qu'il veut. Ceci rend inutile l'option d'affichage ``"found"``.
 
-    2) La mise en place de tests unitaires a révélé des problèmes dans la nouvelle façon de faire dus à une non prise en compte du nouveau fonctionnement de la méthode ``walk`` de la classe ``os_use.PPath``. Ceci a été réparé en supprimant la méthode ``_build_listview`` et la méthode ``_build_treeview`` complètement refaite. Concrètement, on commence par la vue arborescente qui est plus simple à créer.
+    2) La mise en place de tests unitaires a révélé des problèmes dans la nouvelle façon de faire qui étaient dus à une non prise en compte du nouveau fonctionnement de la méthode ``walk`` de la classe ``os_use.PPath``. Ceci a été réparé en supprimant la méthode ``_build_listview``, et en refaisant complètement la méthode ``_build_treeview``. Concrètement on commence par la vue arborescente qui est plus simple à créer.
 
 
 ==========

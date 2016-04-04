@@ -1,0 +1,11 @@
+==========
+2016-04-04
+==========
+
+**Mise à jour de dossier path::``factory`` :** tous les scripts produisant automatiquement des codes "affreux" ne font plus appel à feu l'étrange package maison ``pdt``. Par contre certains codes s'appuient sur ¨orpyste. Le dossier path::``factory`` est disponible sur ¨github mais pas sur ¨pypi pour la même raison que les tests.
+
+
+**Amélioration des tests :** un script ``launch.py`` n'utilisant que les bibiliothèques standards permet de lancer tous les tests.
+
+
+**Ajout de fichiers path::``README.md`` aux dossiers path::``test`` et path::``factory`` :** c'est juste pour souligner que le package ¨orpyste est nécessaire en indiquant où le trouver.

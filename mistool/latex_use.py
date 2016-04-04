@@ -62,19 +62,22 @@ prototype::
              this function simply eases the raising of some specific IO errors.
     """
     if action == SUPERUSER_ERROR:
-        raise OSError("you must be a super user")
+        raise PermissionError("you must be a super user")
 
     if action == ACCCESS_ERROR:
-        action = 'needs the "Super User\'s rights"'
+        ErrorToRaise = PermissionError
+        action       = 'needs the "Super User\'s rights"'
 
     elif action == EXIST_ERROR:
-        action = "doesn't exist"
+        ErrorToRaise = FileNotFoundError
+        action       = "doesn't exist"
 
     elif action == NOT_TEX_ERROR:
-        action = "is not a TeX one"
+        ErrorToRaise = OSError
+        action       = "is not a TeX one"
 
-    raise OSError(
-        "the following {0} {1}.\n\t<< {2} >>".format(kind, action, path)
+    raise ErrorToRaise(
+        "the following {0} {1}.\n\t    + {2}".format(kind, action, ppath)
     )
 
 
@@ -380,7 +383,7 @@ info::
 
 # Nothing existing
     else:
-        raise OSError("path points to nowhere.")
+        raise FileNotFoundError("path points to nowhere.")
 
 # Clean now !
     for p in texpaths:
@@ -770,7 +773,7 @@ pyterm::
 
 # About the package
     if not ppath.is_dir():
-        raise OSError("``ppath`` doesn't point to a directory.")
+        raise NotADirectoryError("``ppath`` doesn't point to a directory.")
 
     if name == "":
         name = ppath.stem

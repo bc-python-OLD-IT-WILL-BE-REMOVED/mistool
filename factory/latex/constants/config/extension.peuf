@@ -1,0 +1,135 @@
+/* The extensions of temporary files produced by LaTeX during compilations.
+
+Sources :
+    * https://groups.google.com/forum/?hl=fr&fromgroups=#!topic/fr.comp.text.tex/WWg4Glogg9E
+    * http://forum.mathematex.net/latex-f6/nettoyage-t11685.html#p113268
+    * https://groups.google.com/forum/?hl=fr&fromgroups=#!topic/fr.comp.text.tex/vigtxgsLiy8
+
+
+TODO
+    + Dangerous ?  --->  Cleaning of  #*.tex  and  _*_.tex
+
+    + J'en profite pour ajouter à destination de projetmbc que chaque fichier inclus par... \include va produire son propre fichier .aux (c'est comme cela que les références restent correctes, par exemple.
+
+    + Il y a aussi les fichiers produits par le paquetage attachfile, ou attachfile2, je crois que c'est .atfi.
+
+    + Et latexmk utilise aussi deux fichiers, je crois que c'est .fls, et .fb_latexmk, ou un truc de ce genre.
+
+    + Sauf erreur de ma part, je n'ai pas vu passer le paquetage footbib qui
+est à l'origine via bibtex des fichiers temporaires dont l'extension
+commence par f
+
+    + Autre ?  cb, dep, dep_tmp, los, tns
+*/
+
+
+// DEBUGGING
+
+debug::
+    extension::
+        blg, ilg, log, glg
+
+    comment::
+        ``log`` is produced by latex compilations, ``ilg`` and ``glg`` by
+        makeindex compilations, where ``glg`` is related to the package glossary.
+        ``blg`` is produced by bibtex compilations.
+
+
+// HTML output via tex4ht
+html::
+    extension::
+        4ct, 4tc, idv, lg, tmp, xref
+
+    comment::
+        This extensions are produced by the package ``tex4ht``.
+
+
+// Slide output
+slide::
+    extension::
+        nav, snm, vrb
+
+
+// Usefull for editors
+editor::
+    extension::
+        synctex.gz, synctex.gz(busy)
+
+    comment::
+        ``synctex.gz`` is produced by some editors to do synchronization between
+        the LaTeX source file and its PDF output.
+
+
+// Float
+float::
+    extension::
+        fff, ttt
+
+
+// List of ...
+list::
+    extension::
+        lof, lol, lot, bcl
+
+    comment::
+        ``bcl`` is produced by the package ``bclogo`` : this gives the list of
+        the logos.
+
+        ``f`` is for Figure, ``l`` for Listing (cf. the package ``listings``),
+        and ``t`` for Table.
+
+
+// Table of content
+toc::
+    extension::
+        toc,
+        maf, mlf, mlt, mtc, plf, plt, ptc
+
+    comment::
+        The package ``minitoc`` produces all this extensions excepted ``toc``.
+
+
+// Reference, index and glossary.
+ref::
+    extension::
+        aux,
+        brf, out,
+        glo, ist, gls,
+        idx, ind
+
+    comment::
+        ``out`` is produced by the package ``hyperref`` with the option
+        ``bookmarks``, and ``brf`` with the option ``backref``.
+
+        The package `` glossary`` produces ``glo`` and ``gls``, and also ``ist``
+        if an additional makeindex compilation is launched.
+
+        ``idx`` and ``ind`` are produced by makeindex compilations.
+
+
+// Bibliography via bibtex
+biblio::
+    extension::
+        bbl,
+        run.xml
+
+    comment::
+        ``bbl`` is produces by bibtex compilations, and ``run.xml`` by biber
+        compilations.
+
+// Theorem
+theorem::
+    extension::
+        thm
+
+
+// Package ``(e)ledmac``
+eledmac::
+    extension::
+        ¨number
+
+
+// Package ``eledpar``
+eledpar::
+    extension::
+        R¨number

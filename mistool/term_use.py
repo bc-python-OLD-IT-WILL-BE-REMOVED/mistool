@@ -1099,7 +1099,7 @@ info::
     def ppath(self, value):
 # Do we have a folder ?
         if not value.is_dir():
-            raise OSError("``ppath`` doesn't point to a directory.")
+            raise NotADirectoryError("``ppath`` doesn't point to a directory.")
 
         self._ppath = value
 
