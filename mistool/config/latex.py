@@ -73,8 +73,8 @@ EXTS_TO_CLEAN = [
 #    * http://www.grappa.univ-lille3.fr/FAQ-LaTeX/21.26.html
 
 CHARS_TO_ESCAPE = {
-    'text': "{ }_ $&% #",
-    'math': "{ }_ $&% #" 
+    'text': "{}_$&%#",
+    'math': "{}_$&%#" 
 }
 
 CHARS_TO_LATEXIFY = {

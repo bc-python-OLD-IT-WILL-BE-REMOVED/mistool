@@ -1115,7 +1115,7 @@ warning::
             shutil.rmtree(str(self))
 
         elif self.is_file():
-            str(self).unlink()
+            self.unlink()
 
         else:
             raise FileNotFoundError(

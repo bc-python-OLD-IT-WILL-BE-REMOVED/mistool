@@ -1,12 +1,1 @@
-. test/0-os-0/0-ppath-0/0-walk-0/test_walk_all.py::test_walk_all
-. test/date/nextday/test_nextday.py::test_date_use_nextday
-. test/date/translate/test_translate.py::test_date_use_translate
-. test/latex/compile_clean/test_compile_clean.py::test_latex_use_simple_compilation
-. test/latex/escape/test_escape_latex.py::test_latex_use_escape
-. test/python/dict/test_dictvalues.py::test_python_use_dictvalues
-. test/python/quote/test_quote.py::test_python_use_quote
-. test/terminal/dirview/test_dirview.py::test_dirview
-. test/terminal/frame/test_1_frame.py::test_term_use_frame
-. test/terminal/frame/test_2_build_frame.py::test_term_use_frame
-. test/url/escape/test_escape_url.py::test_url_use_escape
-. test/url/linked/test_linked.py::test_url_use_linked
+OK

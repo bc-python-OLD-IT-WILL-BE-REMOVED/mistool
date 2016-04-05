@@ -1,4 +1,11 @@
 ==========
+2016-04-05
+==========
+
+**Ajout d'une nouvelle classe ``OrderedRecuDict`` dans ``python_use`` :** en fait, cette classe vient directement du package ¨orpyste. Elle permet de travailler facilement avec des dictionnaires utilisant au choix une clé "classique", ou une liste de clés "classiques".
+
+
+==========
 2016-04-04
 ==========
 

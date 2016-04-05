@@ -151,15 +151,19 @@ charbykind = {
     'math': ""
 }
 
-for kind, char in dicoview.items():
-    char = ''.join(char)
+for kind, chars in dicoview.items():
+    chars = ''.join(chars)
+    chars = chars.replace(" ", "")
 
     for k in kind.split('_'):
-        charbykind[k] += char
+        charbykind[k] += chars
 
 PY_TEXT += [
 """    'text': "{0}",
-    'math': "{1}" """.format(charbykind['text'], charbykind['math']),
+    'math': "{1}" """.format(
+        charbykind['text'],
+        charbykind['math']
+    ),
 """}
 
 CHARS_TO_LATEXIFY = {"""

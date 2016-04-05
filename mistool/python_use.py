@@ -2,10 +2,12 @@
 
 """
 prototype::
-    date = 2015-06-03
+    date = 2016-04-05
 
 This module contains some simple tools about the ¨python programming language.
 """
+
+from collections import Hashable, OrderedDict
 
 
 # ------------- #
@@ -90,3 +92,87 @@ pyterm::
     [2, 1, 1]
     """
     return list(set(onedict.values()))
+
+
+class OrderedRecuDict(OrderedDict):
+    """
+This subclass of ``collections.OrderedDict`` allows to use a list of hashable
+keys, or just a single hashable key. Here is an example of use where the ouput
+is hand formatted.
+
+pyterm::
+    >>> from mistool.python_use import OrderedRecuDict
+    >>> onerecudict = OrderedRecuDict()
+    >>> onerecudict[[1, 2, 4]] = "1st value"
+    >>> onerecudict[(1, 2, 4)] = "2nd value"
+    >>> print(onerecudict)
+    OrderedRecuDict([
+        (
+            1,
+            OrderedRecuDict([
+                (
+                    2,
+                    OrderedRecuDict([ (4, '1st value') ])
+                )
+            ])
+        ),
+        (
+            (1, 2, 4),
+            '2nd value'
+        )
+    ])
+    """
+    def __init__(self):
+        super(OrderedRecuDict, self).__init__()
+
+
+    def __getitem__(self, keys):
+        if isinstance(keys, Hashable):
+            return super(OrderedRecuDict, self).__getitem__(keys)
+
+        else:
+            first, *others = keys
+
+            if others:
+                return self[first][others]
+
+            else:
+                return self[first]
+
+
+    def __setitem__(self, keys, val):
+        if isinstance(keys, Hashable):
+            super(OrderedRecuDict, self).__setitem__(keys, val)
+
+        else:
+            first, *others = keys
+
+            if first in self and others:
+                self[first][others] = val
+
+            else:
+                if others:
+                    subdict         = OrderedRecuDict()
+                    subdict[others] = val
+                    val             = subdict
+
+                self[first] = val
+
+
+    def __contains__(self, keys):
+        if isinstance(keys, Hashable):
+            return super(OrderedRecuDict, self).__contains__(keys)
+
+        else:
+            first, *others = keys
+
+            if first in self:
+                if not others:
+                    return True
+
+                subdict = self[first]
+
+                if isinstance(subdict, OrderedDict):
+                    return others in subdict
+
+            return False
