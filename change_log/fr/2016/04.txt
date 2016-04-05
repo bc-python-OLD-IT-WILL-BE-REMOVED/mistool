@@ -2,7 +2,10 @@
 2016-04-05
 ==========
 
-**Ajout d'une nouvelle classe ``OrderedRecuDict`` dans ``python_use`` :** en fait, cette classe vient directement du package ¨orpyste. Elle permet de travailler facilement avec des dictionnaires utilisant au choix une clé "classique", ou une liste de clés "classiques".
+**Ajout d'une nouvelle classe ``OrderedRecuDict`` dans ``python_use`` :** cette classe, développée auparavant dans le package ¨orpyste, permet de travailler facilement avec des dictionnaires utilisant soit une clé "classique", soit une liste de clés "classiques".
+
+
+**Modification de la classe ``mistool.os_use.PPath`` :** les méthodes ``regexit`` et ``regpath2meta`` deviennent des fonctions "cachées" ``_regexify`` et ``_regpath2meta`` ¨resp (ceci pour une intégration dans le projet ¨orpyste mais aussi car il n'était pas logique d'avoir de telles méthodes dans la classe).
 
 
 ==========

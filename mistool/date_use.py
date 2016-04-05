@@ -8,7 +8,10 @@ prototype::
 This script contains two functions to ease the use of the package ``datetime``.
 """
 
-from datetime import datetime, timedelta
+from datetime import (
+    datetime,
+    timedelta
+)
 
 from mistool.config import date_name
 

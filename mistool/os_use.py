@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-03-14
+    date = 2016-04-06
 
 
 The main feature of this module is the class ``PPath`` which is an enhanced
@@ -20,7 +20,10 @@ from random import randint
 import re
 import shlex
 import shutil
-from subprocess import check_call, check_output
+from subprocess import (
+    check_call,
+    check_output
+)
 
 
 # -------------------- #
@@ -192,11 +195,219 @@ info::
 # -- OUR ENHANCED CLASS -- #
 # ------------------------ #
 
-# Sublcassing ``pathlib.Path`` is not straightforward ! The following post gives
-# the less ugly way to do that.
+# -- FOR THE REGPATHS -- #
+
+def _regexify(pattern, sep = "/"):
+    """
+prototype::
+    arg = str: pattern ;
+          ``pattern`` is a pattern using a syntax which tries to catch the best
+          of the regex and the Unix-glob syntaxes
+    arg = str: sep = "/" ;
+          this indicates an ¨os like separator
+
+    return = str ;
+             a regex uncompiled version of ``pattern``.
+
+
+======================
+A Unix-glob like regex
+======================
+
+Here are the only differences between the Unix-glob like regex syntax with the
+Unix-glob syntax and the traditional regexes.
+
+    1) ``*`` indicates one ore more characters except the separator of the OS.
+    This corresponds to the regex regex::``[^\\]+`` or regex::``[^/]+``
+    regarding to the OS is Windows or Unix.
+
+    2) ``**`` indicates one ore more characters even the separator of the OS.
+    This corresponds to the regex regex::``.+``.
+
+    3) ``.`` is not a special character, this is just a point. This corresponds
+    to regex::``\.`` in regexes.
+
+    4) The multiplication symbol ``×`` is the equivalent of regex::``*`` in
+    regexes. This allows to indicate zero or more repetitions.
+
+    5) ``@`` is the equivalent of regex::``.`` in regexes. This allows to
+    indicate any single character except a newline.
+
+    6) ``\`` is an escaping for special character. For example, you have to use
+    a double backslash ``\\`` to indicate the Windows separator ``\``.
+
+
+With this syntax you can do easily things like indicated a path that ends with
+either path::``.py`` or path::``.txt``: the regpath pattern ``*.(py|txt)``
+indicates this.
+
+The regex version of this pattern is regex::``[^\\]+\.(py|txt)`` for a ¨unix
+¨os. This is a little less user friendly as you can see.
+    """
+    onestar2regex = REGPATH_TO_REGEX[sep]
+
+    newpattern = ""
+    lastpos    = 0
+
+    for m in RE_SPECIAL_CHARS.finditer(pattern):
+        spechar = m.group()
+
+        if spechar not in REGPATH_SPE_CHARS:
+            raise ValueError("too much consecutive stars ''*''")
+
+        spechar     = REGPATH_TO_REGEX.get(spechar, onestar2regex)
+        newpattern += pattern[lastpos:m.start()] + spechar
+        lastpos     = m.end()
+
+    newpattern += pattern[lastpos:]
+
+    return newpattern
+
+
+def _regpath2meta(regpath, sep = "/", regexit = True):
+    """
+prototype::
+    see = _regexify
+
+    arg = str: regpath ;
+          ``regpath`` uses a syntax trying to catch the best of the regex and
+          the Unix-glob syntaxes with also some little extra queries
+    arg = str: sep = "/" ;
+          this indicates an ¨os like separator
+    arg = bool: regexit = True ;
+          ``regexit`` allows to have the regex version of ``regpath``
+
+    return = tuple(set(str): queries, str: pattern) ;
+             ``queries`` give extra infos about the kind of objects to "search",
+             and ``pattern`` is a "searching pattern" which is in regex
+             uncompiled version if ``regexit = True``.
+
+
+=====================
+What is a "regpath" ?
+=====================
+
+A "regpath" allows to use all the power of regexes with the easy to use special
+characters of the Unix-glob syntax, and it offers also some additional query
+features.
+
+The syntax can be either "regex_glob_part" or "query_part::regex_glob_part"
+where "query_part" and "regex_glob_part" must follow some rules explained in
+the following sections.
+
+
+Here are some exemples on a ¨unix system.
+
+pyterm::
+    >>> from mistool.os_use import PPath
+    >>> path = PPath("")
+
+    >>> print(path.regpath2meta("*.(py|txt)"))
+    ({'dir', 'file'}, '[^/]+\\.(py|txt)')
+
+    >>> print(path.regpath2meta("*.(py|txt)", regexit = False))
+    ({'dir', 'file'}, '*.(py|txt)')
+
+    >>> print(path.regpath2meta("all file::**.py"))
+    ({'all', 'file'}, '.+\\.py')
+
+
+In the outputs printed, `{'dir', 'file'}` indicates to look only for visible
+files and directories, whereas `{'all', 'file'}` asks to keep also invisible
+files, i.e. files having a name starting with a point.
+
+
+=================================
+The regex and Unix-glob like part
+=================================
+
+See the documentation of the function ``_regexify``.
+
+
+==============
+The query part
+==============
+
+Before two double points, you can use the following queries separated by
+spaces.
+
+    1) ``not`` is very useful because it allows simply to look for something
+    that does not match the pattern (you have to know that direct negation with
+    regexes can be messy).
+
+    2) ``file`` asks to keep only files.
+
+    3) ``dir`` asks to keep only folders.
+
+    4) ``all`` asks to keep also the hidden files and folders. This ones have
+    a name begining with a point.
+
+    5) ``all file`` asks to only keep files even the hidden ones. You can also
+    use ``all dir``.
+
+    6) ``relative`` indicates that the pattern after ``::`` is relatively to
+    the current directory and not to a absolute path.
+
+    7) ``xtra`` asks to keep folder with some files not matching a regpath.
+    Extra informations are given by the hidden attribut ``_tag`` (this feature
+    is used by the class ``term_use.DirView``).
+
+
+For example, to keep only the ¨python files, in a folder or not, just use
+``"file::**.py"``. This is not the same that ``"**.py"`` which will also catch
+folders with a name finishing by path::``.py`` (that is legal).
+
+
+info::
+    For each query, you can only use its initial letter. For example, ``f`` is
+    a shortcut for ``file``, and ``a f`` is the same that ``all file``.
+    """
+    queries, *pattern = regpath.split("::")
+
+    if len(pattern) > 1:
+        raise ValueError("too much \"::\" in the regpath.")
+
+# Two pieces
+    if pattern:
+        pattern = pattern[0]
+
+        queries = set(
+            LONG_REGPATH_QUERIES.get(x.strip(), x.strip())
+            for x in queries.split(" ")
+            if x.strip()
+        )
+
+        if not queries <= REGPATH_QUERIES:
+            raise ValueError("illegal filter(s) in the regpath.")
+
+# One single piece
+    else:
+        queries, pattern = FILE_DIR_QUERY, queries
+
+# The queries "file" and "dir" are not used.
+    if FILE_TAG not in queries and DIR_TAG not in queries:
+        queries |= FILE_DIR_QUERY
+
+# The regex uncompiled version : we just do replacing by taking care of
+# the escaping character. We play with regexes to do that.
 #
-# Source :
+# << Warning : >> ***, ****, ... are not allowed !
+
+    if regexit:
+        pattern = "^{0}$".format(
+            _regexify(
+                pattern = pattern,
+                sep     =sep
+            )
+        )
+
+    return queries, pattern
+
+
+# Sublcassing ``pathlib.Path`` is not straightforward ! The following post gives
+# the less ugly way to do that :
 #     * http://stackoverflow.com/a/34116756/4589608
+
 
 class PPath(type(pathlib.Path())):
     """
@@ -222,7 +433,7 @@ prototype::
              if ``PPath`` is not an existing directory an error is raised, but
              if the ``PPath`` points to an empty directory, ``False`` is
              returned, otherwise that is ``True`` which is returned
-         """
+        """
         if not self.is_dir():
             raise NotADirectoryError(
                 "the following path does not point to an existing directory :"
@@ -567,198 +778,6 @@ pyterm::
         return len(self.relative_to(path).parts) - 1
 
 
-# -- FOR THE REGPATHS -- #
-
-    def regexit(self, pattern):
-        """
-prototype::
-    arg = str: pattern ;
-          ``pattern`` is a pattern using the regpath syntax which tries to
-          catch the best of the regex and the Unix-glob syntaxes (no special
-          queries here)
-
-    return = str ;
-             a regex uncompiled version of ``pattern``.
-    """
-        onestar2regex = REGPATH_TO_REGEX[self._flavour.sep]
-
-        newpattern = ""
-        lastpos    = 0
-
-        for m in RE_SPECIAL_CHARS.finditer(pattern):
-            spechar = m.group()
-
-            if spechar not in REGPATH_SPE_CHARS:
-                raise ValueError("too much consecutive stars ''*''")
-
-            spechar     = REGPATH_TO_REGEX.get(spechar, onestar2regex)
-            newpattern += pattern[lastpos:m.start()] + spechar
-            lastpos     = m.end()
-
-        newpattern += pattern[lastpos:]
-
-        return newpattern
-
-
-    def regpath2meta(self, regpath, regexit = True):
-        """
-prototype::
-    arg = str: regpath ;
-          ``regpath`` uses a syntax trying to catch the best of the regex and
-          the Unix-glob syntaxes with some little extra features
-    arg = bool: regexit = True ;
-          ``regexit`` allows to have the regex version of ``regpath``
-
-    return = tuple(set(str): queries, str: pattern) ;
-             ``queries`` give extra infos about the kind of objects to "search",
-             and ``pattern`` is a "searching pattern" which is in regex
-             uncompiled version if ``regexit = True``.
-
-
-=====================
-What is a "regpath" ?
-=====================
-
-A "regpath" allows to use all the power of regexes with the easy to use special
-characters of the Unix-glob syntax, and it offers also some additional query
-features.
-
-The syntax can be either "regex_glob_part" or "query_part::regex_glob_part"
-where "query_part" and "regex_glob_part" must follow some rules explained in
-the following sections.
-
-
-Here are some exemples on a ¨unix system.
-
-pyterm::
-    >>> from mistool.os_use import PPath
-    >>> path = PPath("")
-
-    >>> print(path.regpath2meta("*.(py|txt)"))
-    ({'dir', 'file'}, '[^/]+\\.(py|txt)')
-
-    >>> print(path.regpath2meta("*.(py|txt)", regexit = False))
-    ({'dir', 'file'}, '*.(py|txt)')
-
-    >>> print(path.regpath2meta("all file::**.py"))
-    ({'all', 'file'}, '.+\\.py')
-
-
-In the outputs printed, `{'dir', 'file'}` indicates to look only for visible
-files and directories, whereas `{'all', 'file'}` asks to keep also invisible
-files, i.e. files having a name starting with a point.
-
-
-=================================
-The regex and Unix-glob like part
-=================================
-
-Here are the only differences between the syntax for ``regpath``, the Unix-glob
-syntax and the traditional regexes.
-
-    1) ``*`` indicates one ore more characters except the separator of the OS.
-    This corresponds to the regex regex::``[^\\]+`` or regex::``[^/]+``
-    regarding to the OS is Windows or Unix.
-
-    2) ``**`` indicates one ore more characters even the separator of the OS.
-    This corresponds to the regex regex::``.+``.
-
-    3) ``.`` is not a special character, this is just a point. This corresponds
-    to regex::``\.`` in regexes.
-
-    4) The multiplication symbol ``×`` is the equivalent of regex::``*`` in
-    regexes. This allows to indicate zero or more repetitions.
-
-    5) ``@`` is the equivalent of regex::``.`` in regexes. This allows to
-    indicate any single character except a newline.
-
-    6) ``\`` is an escaping for special character. For example, you have to use
-    a double backslash ``\\`` to indicate the Windows separator ``\``.
-
-
-With this syntax you can do easily things like indicated a file or a directory
-not in a folder and also tahs ends with either path::``.py`` or path::``.txt``.
-To do that, just use the pattern ``*.(py|txt)``.
-
-The regex version of this pattern is regex::``[^\\]+\.(py|txt)`` for a ¨unix
-¨os. This is a little less user friendly as you can see.
-
-
-==============
-The query part
-==============
-
-Before two double points, you can use the following queries separated by
-spaces.
-
-    1) ``not`` is very useful because it allows simply to look for something
-    that does not match the pattern (you have to know that direct negation with
-    regexes can be messy).
-
-    2) ``file`` asks to keep only files.
-
-    3) ``dir`` asks to keep only folders.
-
-    4) ``all`` asks to keep also the hidden files and folders. This ones have
-    a name begining with a point.
-
-    5) ``all file`` asks to only keep files even the hidden ones. You can also
-    use ``all dir``.
-
-    6) ``relative`` indicates that the pattern after ``::`` is relatively to
-    the current directory and not to a absolute path.
-
-    7) ``xtra`` asks to keep folder with some files not matching a regpath.
-    Extra informations are given by the hidden attribut ``_tag`` (this feature
-    is used by the class ``term_use.DirView``).
-
-
-For example, to keep only the ¨python files, in a folder or not, just use
-``"file::**.py"``. This is not the same that ``"**.py"`` which will also catch
-folders with a name finishing by path::``.py`` (that is legal).
-
-
-info::
-    For each query, you can only use its initial letter. For example, ``f`` is
-    a shortcut for ``file``, and ``a f`` is the same that ``all file``.
-    """
-        queries, *pattern = regpath.split("::")
-
-        if len(pattern) > 1:
-            raise ValueError("too much \"::\" in the regpath.")
-
-# Two pieces
-        if pattern:
-            pattern = pattern[0]
-
-            queries = set(
-                LONG_REGPATH_QUERIES.get(x.strip(), x.strip())
-                for x in queries.split(" ")
-                if x.strip()
-            )
-
-            if not queries <= REGPATH_QUERIES:
-                raise ValueError("illegal filter(s) in the regpath.")
-
-# One single piece
-        else:
-            queries, pattern = FILE_DIR_QUERY, queries
-
-# The queries "file" and "dir" are not used.
-        if FILE_TAG not in queries and DIR_TAG not in queries:
-            queries |= FILE_DIR_QUERY
-
-# The regex uncompiled version : we just do replacing by taking care of
-# the escaping character. We play with regexes to do that.
-#
-# << Warning : >> ***, ****, ... are not allowed !
-
-        if regexit:
-            pattern = "^{0}$".format(self.regexit(pattern))
-
-        return queries, pattern
-
-
 # -- WALK AND SEE -- #
 
     def see(self):
@@ -812,7 +831,7 @@ prototype::
     def walk(self, regpath = "**"):
         """
 prototype::
-    see = self.regpath2meta
+    see = _regpath2meta
 
     arg = str: regpath = "**" ;
           this is a string that follows some rules named regpath rules
@@ -945,7 +964,10 @@ info::
             )
 
 # Metadatas and the normal regex
-        queries, pattern = self.regpath2meta(regpath)
+        queries, pattern = _regpath2meta(
+            regpath = regpath,
+            sep     = self._flavour.sep
+        )
 
         maindir = str(self)
 
@@ -1127,7 +1149,7 @@ warning::
     def clean(self, regpath):
         """
 prototype::
-    see = self.regpath2meta
+    see = _regpath2meta
 
     arg = str: regpath ;
           this is a string that follows some rules named regpath rules
@@ -1135,7 +1157,10 @@ prototype::
     action = every files and directories matching ``regpath`` are removed
         """
 # We have to play with the queries and the pattern in ``regpath``.
-        queries, pattern = self.regpath2meta(regpath, regexit = False)
+        queries, pattern = _regpath2meta(
+            regpath = regpath,
+            sep     = self._flavour.sep,
+            regexit = False)
 
         if ALL_DISPLAY in queries:
             prefix = ALL_DISPLAY

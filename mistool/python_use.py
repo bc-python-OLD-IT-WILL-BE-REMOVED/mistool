@@ -123,12 +123,12 @@ pyterm::
     ])
     """
     def __init__(self):
-        super(OrderedRecuDict, self).__init__()
+        super().__init__()
 
 
     def __getitem__(self, keys):
         if isinstance(keys, Hashable):
-            return super(OrderedRecuDict, self).__getitem__(keys)
+            return super().__getitem__(keys)
 
         else:
             first, *others = keys
@@ -142,7 +142,7 @@ pyterm::
 
     def __setitem__(self, keys, val):
         if isinstance(keys, Hashable):
-            super(OrderedRecuDict, self).__setitem__(keys, val)
+            super().__setitem__(keys, val)
 
         else:
             first, *others = keys
@@ -161,7 +161,7 @@ pyterm::
 
     def __contains__(self, keys):
         if isinstance(keys, Hashable):
-            return super(OrderedRecuDict, self).__contains__(keys)
+            return super().__contains__(keys)
 
         else:
             first, *others = keys
