@@ -177,7 +177,8 @@ pyterm::
 
 
 info::
-    All the code comes from cf::``this post ; http://stackoverflow.com/a/13197763/4589608``.
+    All the code comes from
+    cf::``this post ; http://stackoverflow.com/a/13197763/4589608``.
 """
     def __init__(self, ppath):
         self._newstrpath = str(ppath.normpath)
@@ -197,12 +198,12 @@ info::
 
 # -- FOR THE REGPATHS -- #
 
-def _regexify(pattern, sep = "/"):
+def regexify(pattern, sep = "/"):
     """
 prototype::
     arg = str: pattern ;
-          ``pattern`` is a pattern using a syntax which tries to catch the best
-          of the regex and the Unix-glob syntaxes
+          ``pattern`` is a regpath pattern using a syntax which tries to catch
+          the best of the regex and the Unix-glob syntaxes
     arg = str: sep = "/" ;
           this indicates an ¨os like separator
 
@@ -210,9 +211,38 @@ prototype::
              a regex uncompiled version of ``pattern``.
 
 
-======================
-A Unix-glob like regex
-======================
+====================
+Some examples of use
+====================
+
+The next section gives all the difference between the regpath patterns and the
+regexes of ¨python.
+
+
+Let suppose fisrt that we want to find paths without any ``/`` the default
+value of the argument ``sep`` that finish with either path::``.py`` or
+path::``.txt``. The code below shows how ``regexify`` gives easily an
+uncompiled regex pattern to do such searches.
+
+pyterm::
+    >>> from mistool.os_use import regexify
+    >>> print(regexify("*.(py|txt)"))
+    [^/]+\.(py|txt)
+
+
+Let suppose now that we want to find paths that finish with either
+path::``.py`` or path::``.txt``, and that can also be virtually or really
+found recursivly when walking in a directory. Here is how to use ``regexify``.
+
+pyterm::
+    >>> from mistool.os_use import regexify
+    >>> print(regexify("**.(py|txt)"))
+    .+\.(py|txt)
+
+
+=============================
+A Unix-glob like regex syntax
+=============================
 
 Here are the only differences between the Unix-glob like regex syntax with the
 Unix-glob syntax and the traditional regexes.
@@ -235,14 +265,6 @@ Unix-glob syntax and the traditional regexes.
 
     6) ``\`` is an escaping for special character. For example, you have to use
     a double backslash ``\\`` to indicate the Windows separator ``\``.
-
-
-With this syntax you can do easily things like indicated a path that ends with
-either path::``.py`` or path::``.txt``: the regpath pattern ``*.(py|txt)``
-indicates this.
-
-The regex version of this pattern is regex::``[^\\]+\.(py|txt)`` for a ¨unix
-¨os. This is a little less user friendly as you can see.
     """
     onestar2regex = REGPATH_TO_REGEX[sep]
 
@@ -264,10 +286,10 @@ The regex version of this pattern is regex::``[^\\]+\.(py|txt)`` for a ¨unix
     return newpattern
 
 
-def _regpath2meta(regpath, sep = "/", regexit = True):
+def regpath2meta(regpath, sep = "/", regexit = True):
     """
 prototype::
-    see = _regexify
+    see = regexify
 
     arg = str: regpath ;
           ``regpath`` uses a syntax trying to catch the best of the regex and
@@ -301,13 +323,10 @@ Here are some exemples on a ¨unix system.
 pyterm::
     >>> from mistool.os_use import PPath
     >>> path = PPath("")
-
     >>> print(path.regpath2meta("*.(py|txt)"))
     ({'dir', 'file'}, '[^/]+\\.(py|txt)')
-
-    >>> print(path.regpath2meta("*.(py|txt)", regexit = False))
+    >>> print(path.regpath2meta(regpath = "*.(py|txt)", regexit = False))
     ({'dir', 'file'}, '*.(py|txt)')
-
     >>> print(path.regpath2meta("all file::**.py"))
     ({'all', 'file'}, '.+\\.py')
 
@@ -321,7 +340,7 @@ files, i.e. files having a name starting with a point.
 The regex and Unix-glob like part
 =================================
 
-See the documentation of the function ``_regexify``.
+See the documentation of the function ``regexify``.
 
 
 ==============
@@ -359,8 +378,8 @@ folders with a name finishing by path::``.py`` (that is legal).
 
 
 info::
-    For each query, you can only use its initial letter. For example, ``f`` is
-    a shortcut for ``file``, and ``a f`` is the same that ``all file``.
+    For each query, you can use just its initial letter. For example, ``f`` is
+    a shortcut for ``file``, and ``a f`` is the same as ``all file``.
     """
     queries, *pattern = regpath.split("::")
 
@@ -395,7 +414,7 @@ info::
 
     if regexit:
         pattern = "^{0}$".format(
-            _regexify(
+            regexify(
                 pattern = pattern,
                 sep     =sep
             )
@@ -407,7 +426,6 @@ info::
 # Sublcassing ``pathlib.Path`` is not straightforward ! The following post gives
 # the less ugly way to do that :
 #     * http://stackoverflow.com/a/34116756/4589608
-
 
 class PPath(type(pathlib.Path())):
     """
@@ -831,7 +849,7 @@ prototype::
     def walk(self, regpath = "**"):
         """
 prototype::
-    see = _regpath2meta
+    see = regpath2meta
 
     arg = str: regpath = "**" ;
           this is a string that follows some rules named regpath rules
@@ -964,7 +982,7 @@ info::
             )
 
 # Metadatas and the normal regex
-        queries, pattern = _regpath2meta(
+        queries, pattern = regpath2meta(
             regpath = regpath,
             sep     = self._flavour.sep
         )
@@ -1149,7 +1167,7 @@ warning::
     def clean(self, regpath):
         """
 prototype::
-    see = _regpath2meta
+    see = regpath2meta
 
     arg = str: regpath ;
           this is a string that follows some rules named regpath rules
@@ -1157,7 +1175,7 @@ prototype::
     action = every files and directories matching ``regpath`` are removed
         """
 # We have to play with the queries and the pattern in ``regpath``.
-        queries, pattern = _regpath2meta(
+        queries, pattern = regpath2meta(
             regpath = regpath,
             sep     = self._flavour.sep,
             regexit = False)

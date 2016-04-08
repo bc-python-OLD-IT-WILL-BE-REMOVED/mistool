@@ -22,9 +22,9 @@ THIS_DIR = PPath(__file__).parent
 LOG_FILE = THIS_DIR / "log.txt"
 
 
-# -------------------------------------- #
-# -- LAUNCHING ALL THE BUILDING TOOLS -- #
-# -------------------------------------- #
+# --------------- #
+# -- FUNCTIONS -- #
+# --------------- #
 
 def printtile(text):
     print(
@@ -33,6 +33,11 @@ def printtile(text):
         "",
         sep = "\n"
     )
+
+
+# ----------------------------- #
+# -- LAUNCHING ALL THE TESTS -- #
+# ----------------------------- #
 
 with cd(THIS_DIR):
     printtile("Launching all the tests...")
@@ -47,6 +52,21 @@ with cd(THIS_DIR):
 
     except Exception as e:
         tests_passed = False
+
+
+# ---------------------------------------- #
+# -- LAUNCHING ALL THE "HUMAN CHECKING" -- #
+# ---------------------------------------- #
+
+printtile("Launching the scripts producing infos to be checked by a human...")
+
+for onepath in THIS_DIR.walk("file::human_checking/**.py"):
+    print('   + "{0}" executed.'.format(onepath.name))
+
+    runthis(
+        cmd        = 'python "{0}"'.format(onepath),
+        showoutput = True
+    )
 
 
 # ---------------------- #

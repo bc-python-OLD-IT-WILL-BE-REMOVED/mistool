@@ -11,26 +11,29 @@ from pathlib import Path
 # -- MODULE TESTED -- #
 # ------------------- #
 
-from mistool import latex_use
+from mistool import os_use
 
 
 # ----------------------- #
 # -- GENERAL CONSTANTS -- #
 # ----------------------- #
 
-LOG_FILE = Path(__file__).parent / "about.txt"
+LOG_FILE = Path(__file__).parent / "system_about.txt"
 
 
-# ---------------------------------------- #
-# -- INFOS ABOUT THE LATEX DISTRIBUTION -- #
-# ---------------------------------------- #
+# ---------------------------- #
+# -- INFOS ABOUT THE SYSTEM -- #
+# ---------------------------- #
 
 infos_found = []
 
-for kind, info in latex_use.about().items():
-    infos_found.append(
-        "{0}\n\t--> {1}\n".format(kind, info)
-    )
+infos_found.append(
+    "system\n\t--> {0}\n".format(os_use.system())
+)
+
+infos_found.append(
+    "pathenv\n\t--> {0}\n".format(os_use.pathenv())
+)
 
 infos_found = '\n'.join(infos_found)
 

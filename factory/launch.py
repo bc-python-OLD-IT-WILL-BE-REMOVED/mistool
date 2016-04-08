@@ -20,10 +20,9 @@ THIS_DIR  = THIS_FILE.parent
 # -------------------------------------- #
 
 for onepath in THIS_DIR.walk("file::**build_*.py"):
-    if onepath != THIS_FILE:
-        print('+ Launching "{0}"'.format(onepath.name))
+    print('+ Launching "{0}"'.format(onepath.name))
 
-        runthis(
-            cmd        = 'python "{0}"'.format(onepath),
-            showoutput = True
-        )
+    runthis(
+        cmd        = 'python "{0}"'.format(onepath),
+        showoutput = True
+    )

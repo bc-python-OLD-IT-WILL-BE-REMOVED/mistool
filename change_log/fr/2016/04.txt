@@ -1,11 +1,18 @@
 ==========
+2016-04-??????
+==========
+
+**Fin de la mise à jour des tests :** les tests des modules ``os_use`` et ``string_use`` ont totalement été mis à jour.
+
+
+==========
 2016-04-05
 ==========
 
 **Ajout d'une nouvelle classe ``OrderedRecuDict`` dans ``python_use`` :** cette classe, développée auparavant dans le package ¨orpyste, permet de travailler facilement avec des dictionnaires utilisant soit une clé "classique", soit une liste de clés "classiques".
 
 
-**Modification de la classe ``mistool.os_use.PPath`` :** les méthodes ``regexit`` et ``regpath2meta`` deviennent des fonctions "cachées" ``_regexify`` et ``_regpath2meta`` ¨resp (ceci pour une intégration dans le projet ¨orpyste mais aussi car il n'était pas logique d'avoir de telles méthodes dans la classe).
+**Modification de la classe ``mistool.os_use.PPath`` :** les méthodes ``regexit`` et ``regpath2meta`` deviennent des fonctions ``regexify`` et ``regpath2meta`` ¨resp (ceci pour une intégration automatisée dans un autre projet ¨orpyste mais aussi car il n'était pas logique d'avoir de telles méthodes dans la classe ``PPath``).
 
 
 ==========
