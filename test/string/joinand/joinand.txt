@@ -1,0 +1,20 @@
+one_piece_and::
+    list    = 1
+    andtext = and
+    text    = 1
+
+four_pieces_and::
+    list    = 1, 2, 3, 4
+    andtext = and
+    text    = 1, 2, 3 and 4
+
+two_pieces_and::
+    list    = 1, 2
+    andtext = and
+    text    = 1 and 2
+
+quatre_pieces_ou::
+    list    = 1, 2, 3, 4
+    andtext = où
+    text    = 1, 2, 3 où 4
+

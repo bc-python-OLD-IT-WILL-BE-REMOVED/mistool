@@ -1,0 +1,27 @@
+three_levels::
+    text::
+        p_1 ; p_2 , p_3 | r_1 ; r_2 | s
+
+    seps::
+        ["|", ";", ","]
+
+    listiter::
+        "sep", "|"
+        "sep", ";"
+        "sep", ","
+        "val", "p_1"
+        "sep", ";"
+        "sep", ","
+        "val", "p_2",
+        "val", "p_3"
+        "sep", "|"
+        "sep", ";"
+        "sep", ","
+        "val", "r_1"
+        "sep", ";"
+        "sep", ","
+        "val", "r_2"
+        "sep", "|"
+        "sep", ";"
+        "sep", ","
+        "val", "s"

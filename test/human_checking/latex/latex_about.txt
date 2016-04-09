@@ -1,11 +1,11 @@
-latexfound
-	--> True
-
 latexname
 	--> texlive
 
-osname
-	--> mac
-
 localdir
 	--> /usr/local/texlive/texmf-local
+
+latexfound
+	--> True
+
+osname
+	--> mac

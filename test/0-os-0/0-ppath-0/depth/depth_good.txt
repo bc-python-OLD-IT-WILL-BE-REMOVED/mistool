@@ -1,0 +1,20 @@
+depth_1::
+    main  = /Users/Documents/projects/python/misTool/
+    sub   = /Users/Documents/projects/python/misTool/mistool/osUse.py
+    depth = 1
+
+depth_2::
+    main  = /Users/Documents/projects/python
+    sub   = /Users/Documents/projects/python/misTool/mistool/osUse.py
+    depth = 2
+
+back_up_depth_1::
+    main  = /Users/Documents/projects/python/misTool/mistool/../
+    sub   = /Users/Documents/projects/python/misTool/mistool/osUse
+    depth = 1
+
+
+back_up_depth_2::
+    main  = /Users/Documents/projects/python/misTool/mistool/../../
+    sub   = /Users/Documents/projects/python/misTool/mistool/osUse
+    depth = 2

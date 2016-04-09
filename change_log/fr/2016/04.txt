@@ -1,8 +1,15 @@
 ==========
-2016-04-??????
+2016-04-10
 ==========
 
 **Fin de la mise à jour des tests :** les tests des modules ``os_use`` et ``string_use`` ont totalement été mis à jour.
+
+
+**Correction de divers bugs ou mauvais choix révélés par la ¨maj des tests :** voici ce qui a été réparé.
+
+    1) Les méthodes ``depth`` et ``depth_in`` de la classe ``os_use.PPath`` ne normalisaient pas le chemin utilisant path::``../``.
+
+    2) Comme la classe ``string_use.MultiReplace`` ne repérait pas les remplacements "circulaires" à chaque instanciation, une méthode ``build`` a été ajoutée. Ce sera à l'utilisateur de l'appeler s'il change des arguments-attributs.
 
 
 ==========

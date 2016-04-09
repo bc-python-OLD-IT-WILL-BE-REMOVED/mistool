@@ -1,0 +1,14 @@
+test_1::
+    pattern::
+        var
+
+    oldnew::
+        w1  = word #1
+        w2  = word #2
+        w12 = w1 and w2
+
+    before::
+        w1 and w2 = w12
+
+    after::
+        word #1 and word #2 = word #1 and word #2

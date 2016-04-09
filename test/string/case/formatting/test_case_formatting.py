@@ -4,7 +4,7 @@
 # -- SEVERAL IMPORTS -- #
 # --------------------- #
 
-from pathlib import Path as StdPath
+from pathlib import Path
 from pytest import fixture
 
 from orpyste.data import ReadBlock as READ
@@ -14,16 +14,16 @@ from orpyste.data import ReadBlock as READ
 # -- MODULE TESTED -- #
 # ------------------- #
 
-from mistool import os_use
+from mistool import string_use
 
 
 # ----------------------- #
 # -- GENERAL CONSTANTS -- #
 # ----------------------- #
 
-THIS_DIR = StdPath(__file__).parent
+THIS_DIR = Path(__file__).parent
 
-PPATH_CLASS = os_use.PPath
+CASE_FORMATTING_FUNCTION = string_use.case
 
 
 # ----------------------- #
@@ -31,7 +31,7 @@ PPATH_CLASS = os_use.PPath
 # ----------------------- #
 
 THE_DATAS_FOR_TESTING = READ(
-    content = THIS_DIR / 'extension_which.txt',
+    content = THIS_DIR / 'case_formatting.txt',
     mode    = {"keyval:: =": ":default:"}
 )
 
@@ -45,19 +45,21 @@ def or_datas(request):
     request.addfinalizer(remove)
 
 
-# --------------------------- #
-# -- EXTENSION FROM A PATH -- #
-# --------------------------- #
+# ------------------- #
+# -- CASE VARIANTS -- #
+# ------------------- #
 
-def test_os_use_file_extension_which_one(or_datas):
+def test_string_use_case_formatting(or_datas):
     tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
 
-    for kind, datas in tests.items():
-        path  = datas['path'].replace('/', os_use.SEP)
-        ext   = datas['ext']
+    for name, datas in tests.items():
+        text   = datas['text']
+        kind   = datas['kind']
+        output = datas['output']
 
-        path = PPATH_CLASS(path)
+        output_found = CASE_FORMATTING_FUNCTION(
+            text = text,
+            kind = kind
+        )
 
-        ext_found = path.ext
-
-        assert ext == ext_found
+        assert output == output_found

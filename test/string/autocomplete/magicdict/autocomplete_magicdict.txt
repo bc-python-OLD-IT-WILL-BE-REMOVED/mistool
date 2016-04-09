@@ -1,0 +1,48 @@
+words::
+// A
+    article artiste art
+// W
+    when who whendy
+// B
+    bar barbie barbier bar barré
+
+magicdict::
+    words::
+// A
+        art
+        article
+        artiste
+// B
+        bar
+        barbie
+        barbier
+        barré
+// W
+        when
+        whendy
+        who
+
+    prefixes::
+// A
+        a      = [0, 3]
+        ar     = [0, 3]
+        art    = [1, 3]
+        arti   = [1, 3]
+        artic  = [1, 2]
+        articl = [1, 2]
+        artis  = [2, 3]
+        artist = [2, 3]
+// B
+        b      = [3, 7]
+        ba     = [3, 7]
+        bar    = [4, 7]
+        barb   = [4, 6]
+        barbi  = [4, 6]
+        barbie = [5, 6]
+        barr   = [6, 7]
+// W
+        w     = [7, 10]
+        wh    = [7, 10]
+        whe   = [7, 9]
+        when  = [8, 9]
+        whend = [8, 9]

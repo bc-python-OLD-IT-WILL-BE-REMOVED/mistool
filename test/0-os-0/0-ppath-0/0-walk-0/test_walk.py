@@ -4,7 +4,6 @@
 # -- SEVERAL IMPORTS -- #
 # --------------------- #
 
-from collections import OrderedDict
 from pathlib import Path as StdPath
 from pytest import fixture
 
@@ -40,6 +39,8 @@ DIR_PPATH = PPATH_CLASS(DIR_PPATH)
 # To find paths, we have to use standard methods ! So boring...
 # We use the method ``glob`` coming directly from ``pathlib.Path``.
 ALL_PATHS = []
+ALL_FILES = []
+ALL_DIRS  = []
 MAX_DEPTH = 10
 
 for i in range(MAX_DEPTH):
@@ -58,11 +59,13 @@ for i in range(MAX_DEPTH):
             dirs.append(strpath)
 
     ALL_PATHS += files + dirs
+    ALL_FILES += files
+    ALL_DIRS  += dirs
 
 
-# ------------------- #
-# -- CASE VARIANTS -- #
-# ------------------- #
+# ------------------------- #
+# -- WALKING IN A FOLDER -- #
+# ------------------------- #
 
 def test_walk_all():
     paths_found = [
@@ -71,3 +74,32 @@ def test_walk_all():
     ]
 
     assert ALL_PATHS == paths_found
+
+
+def test_walk_all_dirs():
+    paths_found = [
+        str(p.relative_to(DIR_PPATH))
+        for p in DIR_PPATH.walk("dir::**")
+    ]
+
+    assert ALL_DIRS == paths_found
+
+
+def test_walk_all_files():
+    paths_found = [
+        str(p.relative_to(DIR_PPATH))
+        for p in DIR_PPATH.walk("file::**")
+    ]
+
+    assert ALL_FILES == paths_found
+
+
+def test_walk_all_python_files():
+    paths_found = [
+        str(p.relative_to(DIR_PPATH))
+        for p in DIR_PPATH.walk("file::**.py")
+    ]
+
+    all_py_files = [p for p in ALL_FILES if p.endswith(".py")]
+
+    assert all_py_files == paths_found

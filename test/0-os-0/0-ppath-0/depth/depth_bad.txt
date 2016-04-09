@@ -1,0 +1,4 @@
+not_sub::
+    main  = /Users/Documents/projects/python/misTool/
+    sub   = /Users/Documents/projects/mistool/osUse.py
+

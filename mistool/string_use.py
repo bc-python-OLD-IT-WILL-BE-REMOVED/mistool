@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-03-06
+    date = 2016-04-09
 
 
 This module contains some tools to manipulate strings.
@@ -238,8 +238,8 @@ Recursive replacements
 ======================
 
 Used with ``recursive = True``, an instance of the class ``MultiReplace`` allows
-to use replacement texts that also contains also texts to be replaced like in the
-following example.
+to use replacement texts that also contains also texts to be replaced like in
+the following example.
 
 pyterm::
     >>> from mistool.string_use import MultiReplace
@@ -285,10 +285,12 @@ info::
     We don't obtain the same result if we use ``recursive = False`` as you can
     see in the following lines where no replacements have been done in the new
     text ``"W1 and W2"`` associated to the old one ``"W3"``. Be also careful
-    about the fact that we only update the attribut ``recursive``.
+    about the fact that we only update the attribut ``recursive``, and then
+    that we have to use the method build so as to update our multireplacemnt functionnality.
 
     ...pyterm::
         >>> mreplace.recursive = False
+        >>> mreplace.build()
         >>> print(mreplace("W1 and W2 = W3"))
         Word #1 and Word #2 = W1 and W2
 
@@ -316,6 +318,7 @@ info::
         }
         >>> mreplace.recursive = True
         >>> mreplace.pattern   = PATTERNS_WORDS['var']
+        >>> mreplace.build()
         >>> print(mreplace.asit)
         {
             'W1': 'Word #1',
@@ -384,46 +387,28 @@ pyterm::
         self.recursive = recursive
         self.pattern   = pattern
 
-# Update the value of ``self.asit``
-        self._updateit = True
+# Build the value of ``self.asit``
+        self.build()
 
-
-# --------------------- #
-# -- SPECIAL SETTERS -- #
-# --------------------- #
-
-    @property
-    def oldnew(self):
-        return self._oldnew
-
-    @oldnew.setter
-    def oldnew(self, value):
-        self._updateit = True
-        self._oldnew   = value
-
-
-    @property
-    def pattern(self):
-        return self._pattern
-
-    @pattern.setter
-    def pattern(self, value):
-        self._updateit = True
-        self._pattern  = value
-
-
-    @property
-    def recursive(self):
-        return self._recursive
-
-    @recursive.setter
-    def recursive(self, value):
-        self._updateit  = True
-        self._recursive = value
 
 # ---------------------------- #
-# -- BUILDINS ``self.asit`` -- #
+# -- BUILD OF ``self.asit`` -- #
 # ---------------------------- #
+
+    def build(self):
+        """
+prototype::
+    action = this method builds the internal dictionary ``self.asit`` used to
+             do the replacements.
+        """
+        if self.recursive and not self.pattern:
+            raise ValueError(
+                'the recursive mode must be used with a regex pattern.'
+            )
+
+        self._lookforcycle()
+        self._build_asit()
+
 
     def _lookforcycle(self):
         """
@@ -558,17 +543,6 @@ prototype::
     return = str ;
              the text where all the replacements have been done.
         """
-        if self._updateit:
-            if self.recursive and not self.pattern:
-                raise ValueError(
-                    'the recursive mode must be used with a regex pattern.'
-                )
-
-            self._lookforcycle()
-            self._build_asit()
-
-            self._updateit = False
-
         if self.recursive:
             text = self.pattern.sub(self._apply_asit, text)
 
@@ -722,7 +696,7 @@ pyterm::
     ...     strip = True
     ... )
     >>> listview = msplit("p_1 , p_2 ; p_3 | r_1 ; r_2 | s")
-    >>> for infos in msplit.iterate():
+    >>> for infos in msplit.iter():
     ...     print("{0} ---> {1}".format(infos.type, infos.val))
     ...
     sep ---> |
@@ -760,7 +734,7 @@ If you read the output, you can interpret it like this :
 
 
 warning::
-    We have used ``msplit.iterate()`` so as to walk in the last list view built
+    We have used ``msplit.iter()`` so as to walk in the last list view built
     by ``msplit``.
     If you need to use another view stored in a variable ``anotherview`` for
     example, you can use ``for infos in msplit.iterate(anotherview):...``.
@@ -978,7 +952,8 @@ prototype::
              has been found**, the function will return ``None``
 
 
-Here is an example of use.
+Here is an example of use where the value ``None`` is a soft way to say that
+nothing has been found.
 
 pyterm::
     >>> from mistool.string_use import between
@@ -997,7 +972,7 @@ pyterm::
     if not isinstance(seps, list) or len(seps) != 2 \
     or not isinstance(seps[0], str) or not isinstance(seps[1], str) \
     or seps[0] == "" or seps[1] == "":
-        raise TypeError(
+        raise ValueError(
             'the variable << seps >> must be a list of two non-empty strings.'
         )
 

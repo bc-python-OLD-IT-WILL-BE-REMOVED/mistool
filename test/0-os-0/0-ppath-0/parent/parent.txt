@@ -1,0 +1,7 @@
+file::
+    path   = /Users/Documents/projects/python/misTool/config/fr.txt
+    parent = /Users/Documents/projects/python/misTool/config
+
+directory::
+    path   = /Users/Documents/projects/python/misTool
+    parent = /Users/Documents/projects/python

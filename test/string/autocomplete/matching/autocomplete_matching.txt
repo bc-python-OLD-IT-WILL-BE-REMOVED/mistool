@@ -1,0 +1,49 @@
+words_to_find::
+// A
+    article artiste art
+// W
+    when who whendy
+// B
+    bar barbie barbier bar barré
+
+empty_prefix::
+// Nothing !
+
+// A
+    art
+    article
+    artiste
+// B
+    bar
+    barbie
+    barbier
+    barré
+// W
+    when
+    whendy
+    who
+
+
+art::
+// A
+    article
+    artiste
+
+
+wh::
+// W
+    when
+    whendy
+    who
+
+
+whe::
+// W
+    when
+    whendy
+
+
+
+when::
+// W
+    whendy

@@ -10,7 +10,6 @@ This module contains some simple tools about the ¨python programming language.
 from collections import Hashable, OrderedDict
 
 
-
 # ------------- #
 # -- QUOTING -- #
 # ------------- #

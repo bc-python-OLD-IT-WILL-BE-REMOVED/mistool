@@ -1,0 +1,3 @@
+espagnol::
+    dirty  = ¡Viva España!
+    pretty = Viva Espana!

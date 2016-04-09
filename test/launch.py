@@ -76,11 +76,15 @@ for onepath in THIS_DIR.walk("file::human_checking/**.py"):
 printtile("Updating the log file...")
 
 if tests_passed:
-    ...
+    message = ["OK"]
+
+else:
+    message = ["PAS OK"]
 
 
+message = "\n".join(message)
 with LOG_FILE.open(
     mode     = 'w',
     encoding = 'utf-8'
 ) as f:
-    f.write("OK")
+    f.write(message)

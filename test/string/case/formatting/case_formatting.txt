@@ -1,0 +1,24 @@
+lower::
+    text   = Bonjour IncoNNu
+    kind   = lower
+    output = bonjour inconnu
+
+upper::
+    text   = Bonjour IncoNNu
+    kind   = upper
+    output = BONJOUR INCONNU
+
+sentence::
+    text   = Bonjour IncoNNu
+    kind   = sentence
+    output = Bonjour inconnu
+
+title::
+    text   = Bonjour IncoNNu
+    kind   = title
+    output = Bonjour Inconnu
+
+firstLast::
+    text   = Bonjour IncoNNu
+    kind   = firstlast
+    output = Bonjour inconnU

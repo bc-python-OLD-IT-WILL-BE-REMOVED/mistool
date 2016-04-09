@@ -1,0 +1,9 @@
+keep_all::
+    text = Texte de démonstration, mais ceci est en trop, allez on continue...
+
+    start = ,
+    end   = allez
+
+    before  = Texte de démonstration
+    between = :space:mais ceci est en trop,:space:
+    after   = :space:on continue...

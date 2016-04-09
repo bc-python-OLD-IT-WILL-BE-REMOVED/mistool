@@ -1,0 +1,24 @@
+lower::
+    text   = oneSmallExample
+    kind   = lower
+    output = one_small_example
+
+upper::
+    text   = oneSmallExample
+    kind   = upper
+    output = ONE_SMALL_EXAMPLE
+
+sentence::
+    text   = oneSmallExample
+    kind   = sentence
+    output = One_small_example
+
+title::
+    text   = oneSmallExample
+    kind   = title
+    output = One_Small_Example
+
+firstLast::
+    text   = oneSmallExample
+    kind   = firstlast
+    output = One_small_examplE

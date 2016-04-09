@@ -31,7 +31,7 @@ PPATH_CLASS = os_use.PPath
 # ----------------------- #
 
 THE_DATAS_FOR_TESTING = READ(
-    content = THIS_DIR / 'extension_which.txt',
+    content = THIS_DIR / 'parent.txt',
     mode    = {"keyval:: =": ":default:"}
 )
 
@@ -45,19 +45,20 @@ def or_datas(request):
     request.addfinalizer(remove)
 
 
-# --------------------------- #
-# -- EXTENSION FROM A PATH -- #
-# --------------------------- #
+# ---------------------- #
+# -- PARENT DIRECTORY -- #
+# ---------------------- #
 
-def test_os_use_file_extension_which_one(or_datas):
+def test_os_use_parent_dir(or_datas):
     tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
 
     for kind, datas in tests.items():
-        path  = datas['path'].replace('/', os_use.SEP)
-        ext   = datas['ext']
-
+        path = datas['path'].replace('/', os_use.SEP)
         path = PPATH_CLASS(path)
 
-        ext_found = path.ext
+        parent = datas['parent'].replace('/', os_use.SEP)
+        parent = PPATH_CLASS(parent)
 
-        assert ext == ext_found
+        parent_found = path.parent
+
+        assert parent == parent_found

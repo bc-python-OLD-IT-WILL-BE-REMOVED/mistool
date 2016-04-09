@@ -1,0 +1,13 @@
+empty_end_start::
+    start =
+    end   =
+
+
+empty_end::
+    start = deux
+    end   =
+
+
+empty_start::
+    start =
+    end   = problème

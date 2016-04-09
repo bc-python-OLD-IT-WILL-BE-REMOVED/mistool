@@ -4,7 +4,7 @@
 # -- SEVERAL IMPORTS -- #
 # --------------------- #
 
-from pathlib import Path as StdPath
+from pathlib import Path
 from pytest import fixture
 
 from orpyste.data import ReadBlock as READ
@@ -14,24 +14,26 @@ from orpyste.data import ReadBlock as READ
 # -- MODULE TESTED -- #
 # ------------------- #
 
-from mistool import os_use
-
+from mistool import string_use
+from mistool.config.pattern import PATTERNS_WORDS
 
 # ----------------------- #
 # -- GENERAL CONSTANTS -- #
 # ----------------------- #
 
-THIS_DIR = StdPath(__file__).parent
+THIS_DIR = Path(__file__).parent
 
-PPATH_CLASS = os_use.PPath
+JOIN_AND_FUNCTION = string_use.joinand
 
 
 # ----------------------- #
 # -- DATAS FOR TESTING -- #
 # ----------------------- #
 
+
+
 THE_DATAS_FOR_TESTING = READ(
-    content = THIS_DIR / 'extension_which.txt',
+    content = THIS_DIR / 'joinand.txt',
     mode    = {"keyval:: =": ":default:"}
 )
 
@@ -45,19 +47,21 @@ def or_datas(request):
     request.addfinalizer(remove)
 
 
-# --------------------------- #
-# -- EXTENSION FROM A PATH -- #
-# --------------------------- #
+# ---------------------- #
+# -- JOIN USING "AND" -- #
+# ---------------------- #
 
-def test_os_use_file_extension_which_one(or_datas):
+def test_string_use_joinand(or_datas):
     tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
 
-    for kind, datas in tests.items():
-        path  = datas['path'].replace('/', os_use.SEP)
-        ext   = datas['ext']
+    for name, datas in tests.items():
+        thelist = [x.strip() for x in datas['list'].split(',')]
+        text    = datas['text']
+        andtext = datas['andtext']
 
-        path = PPATH_CLASS(path)
+        text_found = JOIN_AND_FUNCTION(
+            texts   = thelist,
+            andtext = andtext
+        )
 
-        ext_found = path.ext
-
-        assert ext == ext_found
+        assert text == text_found

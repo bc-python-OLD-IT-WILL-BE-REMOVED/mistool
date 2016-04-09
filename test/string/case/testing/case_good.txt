@@ -1,0 +1,14 @@
+lower::
+    bonjour inconnu
+
+upper::
+    BONJOUR INCONNU
+
+sentence::
+    Bonjour inconnu
+
+title::
+    Bonjour Inconnu
+
+firstlast::
+    Bonjour inconnU

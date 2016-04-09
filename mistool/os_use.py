@@ -763,7 +763,7 @@ pyterm::
     [...]
     ValueError: '/Users/projetmbc/source/misTool/os_use.py' does not start with '/Users/projetmbc/README'
         """
-        return self.relative_to(path)
+        return self.relative_to(path.normpath)
 
 
     def depth_in(self, path):
@@ -793,7 +793,7 @@ pyterm::
     [...]
     ValueError: '/NoUser/projects' does not start with '/Users/projetmbc'
         """
-        return len(self.relative_to(path).parts) - 1
+        return len(self.relative_to(path.normpath).parts) - 1
 
 
 # -- WALK AND SEE -- #
