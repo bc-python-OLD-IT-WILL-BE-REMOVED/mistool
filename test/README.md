@@ -6,5 +6,6 @@ You have to install the package
 You can use ``pip`` to do that.
 
 
-The scripts need a working version of
-[misTool](https://github.com/bc-python-tools/mistool).
+The scripts need also the very last working version of
+[misTool](https://github.com/bc-python-tools/mistool)
+*(strange but simpler for me!)*.

@@ -5,21 +5,21 @@
 **Fin de la mise à jour des tests :** les tests des modules ``os_use`` et ``string_use`` ont totalement été mis à jour.
 
 
-**Correction de divers bugs ou mauvais choix révélés par la ¨maj des tests :** voici ce qui a été réparé.
+**Correction d'un bug et d'une mauvaise logique révélés par la ¨maj des tests :** voici ce qui a été réparé.
 
-    1) Les méthodes ``depth`` et ``depth_in`` de la classe ``os_use.PPath`` ne normalisaient pas le chemin utilisant path::``../``.
+    1) Les méthodes ``depth`` et ``depth_in`` de la classe ``os_use.PPath`` ne normalisaient pas les chemins utilisant path::``../``.
 
-    2) Comme la classe ``string_use.MultiReplace`` ne repérait pas les remplacements "circulaires" à chaque instanciation, une méthode ``build`` a été ajoutée. Ce sera à l'utilisateur de l'appeler s'il change des arguments-attributs.
+    2) Comme la classe ``string_use.MultiReplace`` ne détectait pas les remplacements "circulaires" à chaque instanciation, une méthode ``build`` a été ajoutée. Ce sera à l'utilisateur de l'appeler s'il change des arguments-attributs.
 
 
 ==========
 2016-04-05
 ==========
 
-**Ajout d'une nouvelle classe ``OrderedRecuDict`` dans ``python_use`` :** cette classe, développée auparavant dans le package ¨orpyste, permet de travailler facilement avec des dictionnaires utilisant soit une clé "classique", soit une liste de clés "classiques".
+**Ajout d'une nouvelle classe ``OrderedRecuDict`` dans ``python_use`` :** cette classe permet de travailler facilement avec des dictionnaires utilisant soit une clé "classique", soit une liste de clés "classiques" (ceci est développée auparavant dans le package ¨orpyste, un autre projet de l'auteur de ¨mistool).
 
 
-**Modification de la classe ``mistool.os_use.PPath`` :** les méthodes ``regexit`` et ``regpath2meta`` deviennent des fonctions ``regexify`` et ``regpath2meta`` ¨resp (ceci pour une intégration automatisée dans un autre projet ¨orpyste mais aussi car il n'était pas logique d'avoir de telles méthodes dans la classe ``PPath``).
+**Modification de la classe ``mistool.os_use.PPath`` :** les méthodes ``regexit`` et ``regpath2meta`` deviennent des fonctions ``regexify`` et ``regpath2meta`` ¨resp (il n'était pas logique d'avoir de telles méthodes dans la classe ``PPath``, et de plus ceci va permettre une intégration automatisée de ces fonctionnalités dans ¨orpyste, un autre projet de l'auteur de ¨mistool).
 
 
 ==========
@@ -32,4 +32,4 @@
 **Amélioration des tests :** un script ``launch.py`` n'utilisant que les bibiliothèques standards permet de lancer tous les tests.
 
 
-**Ajout de fichiers path::``README.md`` aux dossiers path::``test`` et path::``factory`` :** c'est juste pour souligner que le package ¨orpyste est nécessaire en indiquant où le trouver.
+**Ajout de fichiers path::``README.md`` aux dossiers path::``test`` et path::``factory`` :** c'est juste pour souligner que le package ¨orpyste est nécessaire tout en indiquant où le trouver.

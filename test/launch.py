@@ -4,8 +4,6 @@
 # -- SEVERAL IMPORTS -- #
 # --------------------- #
 
-import platform
-
 from mistool.os_use import (
     cd,
     PPath,
