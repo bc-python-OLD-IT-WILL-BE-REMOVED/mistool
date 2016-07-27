@@ -1,22 +1,22 @@
 What about this package  ?
 ==========================
 
-**misTool** is the contraction of **missing**, **miscellaneous** and **tool**.
+**misTool** is the contraction of **missing**, **miscellaneous** and **tool(s)**.
 This package contains some modules that could be useful for Python
 developments.
 
 ***If you want more informations and examples than thereafter, just take
-a look in the docstrings.***
+a look at the docstrings.***
 
 
 I beg your pardon for my english...
 ===================================
 
-English is not my native language, so be nice if you notice misunderstandings, misspellings or grammatical errors in my documents and my codes.
+English is not my native language, so be nice if you notice misunderstandings, misspellings or grammatical errors in my documents and codes.
 
 
-Warning about this new version `1.0.0`
-======================================
+Warning about this new version `1.0.0-beta`
+===========================================
 
 This version breaks a lot of things regarding to the previous ones *(for
 example, the module ``log_test_use`` has been removed and a new module
@@ -31,7 +31,7 @@ Changing the working directory for commands
 
 With ``os_use.cd``, you have a context which changes temporarily the directory where launching terminal like commands. When the context is closed, the working directory goes back to the one just before the call of ``os_use.cd``.
 
-Let's see an example. We suppose that we have the following directory with the absolute path ``/Users/projects/basic_dir`` in a Unix system.
+Let's see an example. We suppose that we have the following directory with the absolute path ``/Users/projetmbc/basic_dir`` in a Unix system.
 
 ```
 + basic_dir
@@ -55,17 +55,17 @@ Let's see an example. We suppose that we have the following directory with the a
 ```
 
 
-The following code first goes inside ``/Users/projects/basic_dir`` and then it moves to ``/Users/projects/basic_dir/sub_dir``. With ``subprocess.call("ls")``, we simply use the Unix command ``ls`` so as to list files and folders inside the current working directory.
+The following code first goes inside ``/Users/projetmbc/basic_dir`` and then it moves to ``/Users/projetmbc/basic_dir/sub_dir``. With ``subprocess.call("ls")``, we simply use the Unix command ``ls`` so as to list files and folders inside the current working directory.
 
 ```python
 >>> import subprocess
 >>> from mistool.os_use import cd
->>> with cd("/Users/projects/basic_dir"):
+>>> with cd("/Users/projetmbc/basic_dir"):
 ...     subprocess.call("ls")
 empty_dir	python_1.py	python_4.py	text_2.txt
 latex_1.tex	python_2.py	sub_dir		text_3.txt
 latex_2.tex	python_3.py	text_1.txt
->>> with cd("/Users/projects/basic_dir/sub_dir"):
+>>> with cd("/Users/projetmbc/basic_dir/sub_dir"):
 ...     subprocess.call("ls")
 code_A.py	slide_A.pdf	sub_sub_dir
 code_B.py	slide_B.pdf
@@ -75,18 +75,18 @@ code_B.py	slide_B.pdf
 Launching commands like in a terminal
 -------------------------------------
 
-The aim of the function ``os_use.runthis`` is to simplify  a lot the launching of subprocesses *(just use commands as you were inside your terminal)*. Let's consider the basic following Python script with absolute path ``/Users/projects/script.py``.
+The aim of the function ``os_use.runthis`` is to simplify  a lot the launching of subprocesses *(just use commands as you were inside your terminal)*. Let's consider the basic following Python script with absolute path ``/Users/projetmbc/script.py``.
 
 ```python
 print("Everything is ok.")
 ```
 
-To launch this program, we just have to use the single string Unix command ``python3 /Users/projects/script.py`` like in the following lines. You can see that by default nothing is printed, so you have to use ``showoutput = True`` if
+To launch this program, we just have to use the single string Unix command ``python3 /Users/projetmbc/script.py`` like in the following lines. You can see that by default nothing is printed, so you have to use ``showoutput = True`` if
 you want to see what the script launched prints.
 
 ```python
 >>> from mistool.os_use import PPath, runthis
->>> pyfile = PPath("/Users/projects/script.py")
+>>> pyfile = PPath("/Users/projetmbc/script.py")
 >>> runthis(cmd = "python3 {0}".format(ppath))
 >>> runthis(cmd = "python3 {0}".format(ppath), showoutput = True)
 Everything is ok.
@@ -164,7 +164,7 @@ Obtaining a short version or a normalized one of a path needs no effort. Here is
 >>> from mistool.os_use import PPath
 >>> path_too_long = PPath("~/dir_1/dir_2/dir_3/../../file.txt")
 >>> path_too_long.normpath
-PPath('/Users/projects/dir_1/file.txt')
+PPath('/Users/projetmbc/dir_1/file.txt')
 >>> path_long = PPath("/Users/projetmbc/dir_1/dir_2/dir_3/../../file.txt")
 >>> path_long.shortpath
 PPath('~/dir_1/file.txt')
@@ -177,20 +177,20 @@ The "common" folder of several paths is obtained by using the method ``common_wi
 
 ```python
 >>> from mistool.os_use import PPath
->>> path        = PPath("/Users/projects/source/doc")
->>> path_1      = PPath("/Users/projects/README")
->>> path_2      = PPath("/Users/projects/source/misTool/os_use.py")
+>>> path        = PPath("/Users/projetmbc/source/doc")
+>>> path_1      = PPath("/Users/projetmbc/README")
+>>> path_2      = PPath("/Users/projetmbc/source/misTool/os_use.py")
 >>> path_danger = PPath("/NoUser/projects")
 >>> path.common_with(path_1)           # Same as ``path & path_1``
-PPath('/Users/projects')
+PPath('/Users/projetmbc')
 >>> path.common_with(path_2)           # Same as ``path & path_2``
-PPath('/Users/projects/source')
+PPath('/Users/projetmbc/source')
 >>> path.common_with(path_danger)      # No error raised !
 PPath('/')
 >>> path.common_with(path_1, path_2)   # Same as ``path & path_1 & path_2``
-PPath('/Users/projects')
+PPath('/Users/projetmbc')
 >>> path.common_with([path_1, path_2]) # Same as ``path & [path_1, path_2]``
-PPath('/Users/projects')
+PPath('/Users/projetmbc')
 ```
 
 
@@ -198,9 +198,9 @@ The class ``os_use.PPath`` adds a magic method so as to use ``path - anotherpath
 
 ```python
 >>> from mistool.os_use import PPath
->>> main    = PPath("/Users/projects")
->>> path_1  = PPath("/Users/projects/README")
->>> path_2  = PPath("/Users/projects/source/misTool/os_use.py")
+>>> main    = PPath("/Users/projetmbc")
+>>> path_1  = PPath("/Users/projetmbc/README")
+>>> path_2  = PPath("/Users/projetmbc/source/misTool/os_use.py")
 >>> path_1 - main
 PPath('README')
 >>> path_2 - main
@@ -208,7 +208,7 @@ PPath('source/misTool/os_use.py')
 >>> path_2 - path_1
 Traceback (most recent call last):
 [...]
-ValueError: '/Users/projects/source/misTool/os_use.py' does not start with '/Users/projects/README'
+ValueError: '/Users/projetmbc/source/misTool/os_use.py' does not start with '/Users/projetmbc/README'
 ```
 
 
@@ -216,9 +216,9 @@ If you need to know the depth of one path relatively to another, just call the m
 
 ```python
 >>> from mistool.os_use import PPath
->>> main    = PPath("/Users/projects")
->>> path_1  = PPath("/Users/projects/README")
->>> path_2  = PPath("/Users/projects/source/misTool/os_use.py")
+>>> main    = PPath("/Users/projetmbc")
+>>> path_1  = PPath("/Users/projetmbc/README")
+>>> path_2  = PPath("/Users/projetmbc/source/misTool/os_use.py")
 >>> path_pb = PPath("/NoUser/projects")
 >>> print(path_1.depth_in(main))
 0
@@ -227,7 +227,7 @@ If you need to know the depth of one path relatively to another, just call the m
 >>> print(path_pb.depth_in(main))
 Traceback (most recent call last):
 [...]
-ValueError: '/NoUser/projects' does not start with '/Users/projects'
+ValueError: '/NoUser/projects' does not start with '/Users/projetmbc'
 ```
 
 ### The special concept of "regpath"
@@ -244,7 +244,7 @@ The method ``see`` **tries** to open the current path with a possible associated
 
 
 You can walk very easily inside a directory thanks to the method ``walk`` and the "regpaths" *(see the previous section)*. For example, let's suppose that we have the following directory with absolute path
-``/Users/projects/basic_dir`` in a Unix system.
+``/Users/projetmbc/basic_dir`` in a Unix system.
 
 ```
 + basic_dir
@@ -273,43 +273,43 @@ non-recursive search contrary to the regpath ``"**"``.
 
 ```python
 >>> from mistool.os_use import PPath
->>> folder = PPath("/Users/projects/basic_dir")
+>>> folder = PPath("/Users/projetmbc/basic_dir")
 >>> for p in folder.walk("dir::**"):
 ...     print("+", p)
 ...
-+ /Users/projects/basic_dir/empty_dir
-+ /Users/projects/basic_dir/sub_dir
-+ /Users/projects/basic_dir/sub_dir/sub_sub_dir
++ /Users/projetmbc/basic_dir/empty_dir
++ /Users/projetmbc/basic_dir/sub_dir
++ /Users/projetmbc/basic_dir/sub_dir/sub_sub_dir
 >>> for p in folder.walk("file::**.py"):
 ...     print("+", p)
 ...
-+ /Users/projects/basic_dir/python_1.py
-+ /Users/projects/basic_dir/python_2.py
-+ /Users/projects/basic_dir/python_3.py
-+ /Users/projects/basic_dir/python_4.py
-+ /Users/projects/basic_dir/sub_dir/code_A.py
-+ /Users/projects/basic_dir/sub_dir/code_B.py
++ /Users/projetmbc/basic_dir/python_1.py
++ /Users/projetmbc/basic_dir/python_2.py
++ /Users/projetmbc/basic_dir/python_3.py
++ /Users/projetmbc/basic_dir/python_4.py
++ /Users/projetmbc/basic_dir/sub_dir/code_A.py
++ /Users/projetmbc/basic_dir/sub_dir/code_B.py
 >>> for p in folder.walk("file::*.py"):
 ...     print("+", p)
 ...
-+ /Users/projects/basic_dir/python_1.py
-+ /Users/projects/basic_dir/python_2.py
-+ /Users/projects/basic_dir/python_3.py
-+ /Users/projects/basic_dir/python_4.py
++ /Users/projetmbc/basic_dir/python_1.py
++ /Users/projetmbc/basic_dir/python_2.py
++ /Users/projetmbc/basic_dir/python_3.py
++ /Users/projetmbc/basic_dir/python_4.py
 ```
 
 
 ### Create
 
-Creating files and folders is straight forward with the method ``create`` even if this needs to add several parent directories that don't yet exist. In the following example, we suppose that the current directory has absolute path ``/Users/projects``, and doesn't contain any subfolder.
+Creating files and folders is straight forward with the method ``create`` even if this needs to add several parent directories that don't yet exist. In the following example, we suppose that the current directory has absolute path ``/Users/projetmbc``, and doesn't contain any subfolder.
 
 ```python
 >>> from mistool.os_use import PPath
 >>> path_1 = PPath("test/README")
->>> path.is_file()
+>>> path_1.is_file()
 False
 >>> path_1.create("file")
->>> path.is_file()
+>>> path_1.is_file()
 True
 >>> path_2 = PPath("test/README")
 >>> path_2.create("dir")
@@ -359,6 +359,7 @@ The class ``string_use.MultiReplace`` makes possible to do multi-replacements re
 >>> print(mreplace("W1 and W2 = W3"))
 Word #1 and Word #2 = Word #1 and Word #2
 >>> mreplace.mode = "norecu"  
+>>> mreplace.build()
 >>> print(mreplace("W1 and W2 = W3"))
 Word #1 and Word #2 = W1 and W2
 ```
@@ -826,8 +827,7 @@ In the following code, we call to the class ``term_use.DirView`` so as to show t
 indicates some lines not reproduced here)*.
 
 ```python
->>> from mistool.os_use import PPath
->>> from mistool.latex_use import Build
+>>> from mistool.latex_use import Build, PPath
 >>> from mistool.term_use import DirView
 >>> latexdir = PPath("/Users/projetmbc/latex/file.tex")
 >>> print(DirView(latexdir.parent).ascii)
@@ -865,8 +865,7 @@ Removing the temporary files produced by LaTeX
 We keep the same LaTeX example file. The function ``latex_use.clean`` cleans all unuseful temporary files when the compilation has been done.
 
 ```python
->>> from mistool.latex_use import clean
->>> from mistool.os_use import PPath
+>>> from mistool.latex_use import clean, PPath
 >>> from mistool.term_use import DirView
 >>> latexdir = PPath("/Users/projetmbc/latex")
 >>> print(DirView(latexdir.parent).ascii)
@@ -918,8 +917,7 @@ Let's suppose that we have package named ``lyxam`` stored in a folder having the
 To install this package locally in your LaTeX distribution, just do like in the code above.
 
 ```python
->>> from mistool.os_use import PPath
->>> from mistool.latex_use import install
+>>> from mistool.latex_use import install, PPath
 >>> package = PPath("/Users/projetmbc/latex/lyxam")
 >>> install(package)
 Starting installation of the package locally.
@@ -946,8 +944,7 @@ Starting installation of the package locally.
 Using the concept of "regpath" of the module ``os_use``, you can for example choose to not install all the ``TXT`` files.
 
 ```python
->>> from mistool.os_use import PPath
->>> from mistool.latex_use import install
+>>> from mistool.latex_use import install, PPath
 >>> package = PPath("/Users/projetmbc/latex/lyxam")
 >>> install(ppath = package, regpath = "file not::**.txt")
 Starting installation of the package locally.
