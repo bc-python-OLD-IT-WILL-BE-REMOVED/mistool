@@ -141,7 +141,7 @@ _FORMATS_TRANSLATIONS = {2}
     repr(langs_supported),
     repr(pointers),
     repr(lang2word)
-).strip()
+)
 
 with PY_FILE.open(
     mode     = 'w',

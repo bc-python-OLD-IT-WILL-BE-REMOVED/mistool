@@ -5,8 +5,8 @@ prototype::
     date = 2015-06-04
 
 
-This script gives a lot of useful functions in relation with the powerful langage
-¨latex for typing scientific documents.
+This script gives a lot of useful functions in relation with the powerful
+langage ¨latex for typing scientific documents.
 """
 
 from subprocess import CalledProcessError
@@ -244,7 +244,7 @@ info::
         if not ppath.is_file():
             _raise_io_error(
                 kind   = "file",
-                path   = ppath,
+                ppath  = ppath,
                 action = EXIST_ERROR
             )
 
@@ -252,7 +252,7 @@ info::
         if ppath.ext != "tex":
             _raise_io_error(
                 kind   = "file",
-                path   = path,
+                ppath  = ppath,
                 action = NOT_TEX_ERROR
             )
 
@@ -305,8 +305,8 @@ prototype::
 prototype::
     action = this method calls ¨latex so as to build the ¨pdf output.
         """
-# The option "-interaction=nonstopmode" don't stop the terminal even if there is
-# an error found by ¨latex.
+# The option "-interaction=nonstopmode" don't stop the terminal even if there
+# is an error found by ¨latex.
         self.cmd = 'pdflatex -interaction=nonstopmode'
         self.compile()
 
@@ -371,7 +371,7 @@ info::
         if ppath.ext != "tex":
             _raise_io_error(
                 kind   = "file",
-                path   = main,
+                ppath  = ppath,
                 action = NOT_TEX_ERROR
             )
 
@@ -443,11 +443,11 @@ def about():
     """
 prototype::
     return = dict ;
-             this function gives informations needed by the function ``install`.
+             this function gives informations used by the function ``install`.
 
 
-The dictionary returned looks like the following one. In this example, we are on
-a ¨mac computer where ¨texlive has been installed by ¨mactex.
+The dictionary returned looks like the following one. In this example, we are
+on a ¨mac computer where ¨texlive has been installed by ¨mactex.
 
 python::
     {
@@ -544,7 +544,7 @@ prototype::
              act on it
     """
 # We must have a local directory
-    if aboutlatex['localdir'] == None:
+    if aboutlatex['localdir'] is None:
         message = "no local directory for special packages has been found."
 
         if aboutlatex['latexname'] == MIKTEX:
@@ -736,7 +736,8 @@ In this example we have used some default settings.
 
     1) ``regpath = "file::**"`` asks to copy all the files.
 
-    2) ``name = ""`` tell to use the same name for the ¨latex package and the folder.
+    2) ``name = ""`` tell to use the same name for the ¨latex package and the
+    folder.
 
     3) ``clean = True`` is for removing first an old version if there is one
     (that is the case in our example).
@@ -793,7 +794,7 @@ pyterm::
 # We have to clean an old version.
     if clean and packagedir.is_dir():
         print(
-            '{0}Deletion of the old "{1}" '.format(_DECO_1, name) \
+            '{0}Deletion of the old "{1}" '.format(_DECO_1, name)
             + 'package in the local LaTeX directory.'
         )
 
@@ -801,7 +802,7 @@ pyterm::
 
 # Creation of the new local package.
     print(
-        '{0}Creation of a new "{1}" '.format(_DECO_1, name) \
+        '{0}Creation of a new "{1}" '.format(_DECO_1, name)
         + 'package in the local LaTeX directory.'
     )
 

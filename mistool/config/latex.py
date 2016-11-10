@@ -23,10 +23,14 @@ EXTS_TO_CLEAN = [
 # ``log`` is produced by latex compilations, ``ilg`` and ``glg`` by
 # makeindex compilations, where ``glg`` is related to the package glossary.
 # ``blg`` is produced by bibtex compilations.
+# 
+# 
     'blg', 'ilg', 'log', 'glg',
 # html
 #
 # This extensions are produced by the package ``tex4ht``.
+# 
+# 
     '4ct', '4tc', 'idv', 'lg', 'tmp', 'xref',
 # slide
     'nav', 'snm', 'vrb',
@@ -34,6 +38,8 @@ EXTS_TO_CLEAN = [
 #
 # ``synctex.gz`` is produced by some editors to do synchronization between
 # the LaTeX source file and its PDF output.
+# 
+# 
     'synctex.gz', 'synctex.gz(busy)',
 # float
     'fff', 'ttt',
@@ -44,10 +50,14 @@ EXTS_TO_CLEAN = [
 # 
 # ``f`` is for Figure, ``l`` for Listing (cf. the package ``listings``),
 # and ``t`` for Table.
+# 
+# 
     'lof', 'lol', 'lot', 'bcl',
 # toc
 #
 # The package ``minitoc`` produces all this extensions excepted ``toc``.
+# 
+# 
     'toc', 'maf', 'mlf', 'mlt', 'mtc', 'plf', 'plt', 'ptc',
 # ref
 #
@@ -58,11 +68,14 @@ EXTS_TO_CLEAN = [
 # if an additional makeindex compilation is launched.
 # 
 # ``idx`` and ``ind`` are produced by makeindex compilations.
+# 
+# 
     'aux', 'brf', 'out', 'glo', 'ist', 'gls', 'idx', 'ind',
 # biblio
 #
 # ``bbl`` is produces by bibtex compilations, and ``run.xml`` by biber
 # compilations.
+# 
     'bbl', 'run.xml',
 # theorem
     'thm'

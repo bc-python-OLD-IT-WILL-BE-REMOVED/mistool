@@ -1,0 +1,5 @@
+==========
+2016-11-10
+==========
+
+**Amélioration côté développement interne :** ¨flake8 est consulté pour améliorer le code de ¨mistool lorsque cela paraît pertinent (ceci a aussi permis de corriger quelques bugs très cachés).

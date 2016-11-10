@@ -28,8 +28,8 @@ prototype::
           the prefered quoting symbol
 
     return = str ;
-             the text quoted (the quote symbols in ``text`` are escaped if it is
-             necessary)
+             the text quoted (the quote symbols in ``text`` are escaped if it
+             is necessary)
 
 
 Here is a some examples where you can see that the function tries to use the
@@ -56,7 +56,7 @@ info::
     quoting symbols.
     """
     if all(x in text for x in QUOTE_SYMBOLS):
-        text = text.replace(symbol , '\\' + symbol)
+        text = text.replace(symbol, '\\' + symbol)
 
     elif symbol in text:
         for x in QUOTE_SYMBOLS:

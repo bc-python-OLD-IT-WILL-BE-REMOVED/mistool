@@ -16,7 +16,6 @@ simplify the use of a command line from ¨python codes.
 import os
 import pathlib
 import platform
-from random import randint
 import re
 import shlex
 import shutil
@@ -747,7 +746,8 @@ prototype::
 
 
 This magic method allows to use ``path - anotherpath`` instead of the long
-version ``path.relative_to(anotherpath)`` given by ``pathlib.Path``. Here are some examples of use.
+version ``path.relative_to(anotherpath)`` given by ``pathlib.Path``. Here are
+some examples of use.
 
 pyterm::
     >>> from mistool.os_use import PPath
@@ -761,7 +761,8 @@ pyterm::
     >>> path_2 - path_1
     Traceback (most recent call last):
     [...]
-    ValueError: '/Users/projetmbc/source/misTool/os_use.py' does not start with '/Users/projetmbc/README'
+    ValueError: '/Users/projetmbc/source/misTool/os_use.py' does not start with
+    '/Users/projetmbc/README'
         """
         return self.relative_to(path.normpath)
 
@@ -1108,7 +1109,7 @@ info::
             if not parent.is_dir():
                 parent.mkdir(parents = True)
 
-            with self.open(mode = "w") as file:
+            with self.open(mode = "w") as f:
                 ...
 
 
@@ -1223,8 +1224,8 @@ prototype::
 
 
 warning::
-     The use of ``safemode = False`` will erase **everything** at the destination
-     path.
+     The use of ``safemode = False`` will erase **everything** at the
+     destination path.
      """
 # Is the copy allowed ?
         dest.can_be_removed(safemode)

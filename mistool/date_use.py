@@ -8,10 +8,7 @@ prototype::
 This script contains two functions to ease the use of the package ``datetime``.
 """
 
-from datetime import (
-    datetime,
-    timedelta
-)
+from datetime import timedelta
 
 from mistool.config import date_name
 
@@ -108,8 +105,8 @@ prototype::
 
 
 The aim of this function is to avoid the use of something like in the following
-code (the documentation of the standard package ``locale`` avoids to do that kind
-of things).
+code (the documentation of the standard package ``locale`` avoids to do that
+kind of things).
 
 pyterm::
     >>> import locale

@@ -67,7 +67,8 @@ PY_TEXT += [
     pyrepr(
         onedict = FRAMES,
         name    = "ALL_FRAMES"
-    )
+    ),
+    ""
 ]
 
 

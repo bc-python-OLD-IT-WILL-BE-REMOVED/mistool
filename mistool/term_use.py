@@ -5,8 +5,8 @@ prototype::
     date = 2016-03-19
 
 
-This module contains mainly classes and functions producing strings useful to be
-printed in a terminal.
+This module contains mainly classes and functions producing strings useful to
+be printed in a terminal.
 """
 
 from mistool.config.frame import ALL_FRAMES
@@ -16,10 +16,8 @@ from mistool.os_use import (
     PPath,
 # Safe constants
     ALL_DIR_TAGS, ALL_FILE_TAGS,
-    DIR_TAG, DIR_OTHERS_TAG,
-    FILE_TAG, FILE_OTHERS_TAG,
-    FILE_DIR_QUERY, FILE_DIR_OTHERS_NAME,
-    XTRA_DISPLAY,
+    DIR_TAG, FILE_TAG,
+    FILE_DIR_OTHERS_NAME,
 )
 
 
@@ -91,11 +89,11 @@ For a file
 ==========
 
 The text can be returned when you call an instance of ``Step`` so you can do
-something else than print the steps in a terminal. You can even ask to not print
-anything.
+something else than print the steps in a terminal. You can even ask to not
+print anything.
 Here is an example where the actions are just put in a file with the long path
-path::``/Users/projetmbc/file.log`` (you can also use ``mistool.os_use`` for the
-actions on files).
+path::``/Users/projetmbc/file.log`` (you can also use ``mistool.os_use`` for
+the actions on files).
 
 python::
     from pathlib import Path
@@ -163,9 +161,9 @@ pyterm::
 Choose the way things are displayed
 ===================================
 
-The texts for the actions are made using the argument ``textit`` which must be a
-function of two variables ``n`` for the number, and ``t`` for the users's text.
-Here is an ugly but assumed example.
+The texts for the actions are made using the argument ``textit`` which must be
+a function of two variables ``n`` for the number, and ``t`` for the users's
+text. Here is an ugly but assumed example.
 
 pyterm::
     >>> from mistool.term_use import Step
@@ -486,8 +484,8 @@ code::
     &&=============== $$
 
 
-This string can be directly given to the function ``buildframe`` that will return
-a dictionary to be used with the function ``withframe``. That's all !
+This string can be directly given to the function ``buildframe`` that will
+return a dictionary to be used with the function ``withframe``. That's all !
 
 pyterm::
     >>> from mistool.term_use import buildframe
@@ -516,9 +514,9 @@ pyterm::
 
 warning::
     Only one character can be used upon ``{text}``, and the same is true below
-    ``{text}``, but you can use one character upside, and another downside as we
-    have done. This restriction comes from the different width of texts that can
-    be framed.
+    ``{text}``, but you can use one character upside, and another downside as
+    we have done. This restriction comes from the different width of texts that
+    can be framed.
     """
 # The lines used
     lines = text.splitlines()
@@ -556,7 +554,7 @@ warning::
 
             break
 
-    if inside == None:
+    if inside is None:
         raise ValueError("the line with ``{text}`` is missing.")
 
 # Near to the end...
@@ -651,8 +649,8 @@ prototype::
                choose the files and the directories that must be kept (see the
                documentation of ``os_use._ppath_regpath2meta``)
     arg-attr = str: display = "main short" in self.DISPLAY;
-               this argument gives informations about the output to produce (you
-               can just use the initials of the options)
+               this argument gives informations about the output to produce
+               (you can just use the initials of the options)
     arg-attr = str: sorting = "alpha" in [x for x in cls.LAMBDA_SORT] or
                                       in [x for x in cls.LAMBDA_SORT_LONGNAMES];
                this argument indicates the way to sort the paths found
@@ -914,7 +912,8 @@ The optional string argument ``sorting``, or the attribut with the same name
 ``sorting``, can be one of the following values (each name can be replaced by
 its initial).
 
-    a) ``alpha`` is the alphabetic sorting on the strings representing the paths. This the default value.
+    a) ``alpha`` is the alphabetic sorting on the strings representing the
+    paths. This the default value.
 
     b) ``filefirst`` gathers first the files and then the folders, and in each
     of this category an alphabetic sorting is applied.
@@ -1014,16 +1013,16 @@ info::
 
     UTF8_DECOS = {
 # Initial
-        DOT_TAG: "\u2578",          #--->  ╸
+        DOT_TAG: "\u2578",          # --->  ╸
 # Horizontal and vertical rules
-        HRULE_TAG: "\u2501",        #--->  ━
-        VRULE_TAG: "\u2503",        #--->  ┃
+        HRULE_TAG: "\u2501",        # --->  ━
+        VRULE_TAG: "\u2503",        # --->  ┃
 # First, vertical and horizontal nodes
-        FNODE_TAG: "\u250F",        #--->  ┏
-        VNODE_TAG: "\u2523",        #--->  ┣
-        LNODE_TAG: "\u2517",        #--->  ┗
+        FNODE_TAG: "\u250F",        # --->  ┏
+        VNODE_TAG: "\u2523",        # --->  ┣
+        LNODE_TAG: "\u2517",        # --->  ┗
 # Decorations
-        DIR_TAG : "\U0001F4C1",     #--->  📁
+        DIR_TAG : "\U0001F4C1",     # --->  📁
         FILE_TAG: "",
     }
 
@@ -1664,8 +1663,9 @@ prototype::
                     )
 
                     if lastparent != thisparent:
-                        dirpath \
-                        = mainname / metadatas[self.PPATH_TAG].parent.relative_to(self.ppath)
+                        dirpath = mainname / metadatas[
+                            self.PPATH_TAG
+                        ].parent.relative_to(self.ppath)
 
                         text.append("")
                         text.append("{0} {1}".format(decodir, dirpath))

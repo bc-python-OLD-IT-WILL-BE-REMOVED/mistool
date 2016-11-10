@@ -11,7 +11,6 @@ This module contains some tools to manipulate strings.
 from unicodedata import name as ucname
 
 from mistool.config.ascii import ASCII_CHARS
-from mistool.config.pattern import PATTERNS_WORDS
 
 
 # --------------------- #
@@ -21,7 +20,7 @@ from mistool.config.pattern import PATTERNS_WORDS
 _CASE_VARIANTS = FIRSTLAST, LOWER, SENTENCE, TITLE, UPPER \
                = 'firstlast', 'lower', 'sentence', 'title', 'upper'
 
-_LONG_CASE_VARIANTS = {x[0]:x for x in _CASE_VARIANTS}
+_LONG_CASE_VARIANTS = {x[0]: x for x in _CASE_VARIANTS}
 
 def case(text, kind):
     """
@@ -286,7 +285,8 @@ info::
     see in the following lines where no replacements have been done in the new
     text ``"W1 and W2"`` associated to the old one ``"W3"``. Be also careful
     about the fact that we only update the attribut ``recursive``, and then
-    that we have to use the method build so as to update our multireplacemnt functionnality.
+    that we have to use the method build so as to update our multireplacemnt
+    functionnality.
 
     ...pyterm::
         >>> mreplace.recursive = False
@@ -350,7 +350,7 @@ pyterm::
     Traceback (most recent call last):
     [...]
     ValueError: the following viscious circle has been found.
-    	 + WRONG_2 --> WRONG_3 --> WRONG_1 --> WRONG_2
+        + WRONG_2 --> WRONG_3 --> WRONG_1 --> WRONG_2
 
 
 ================================
@@ -373,7 +373,8 @@ pyterm::
     ... )
     >>> text = "@rest is a technology used to produce @html website."
     >>> print(mreplace(text))
-    "REpresentational State Transfer" is a technology used to produce "Hypertext Markup Language" website.
+    "REpresentational State Transfer" is a technology used to produce
+    "Hypertext Markup Language" website.
     """
 
     def __init__(
@@ -466,7 +467,7 @@ prototype::
                 wordsfound.append(old)
 
                 raise ValueError(
-                    "the following viscious circle has been found.\n\t + " \
+                    "the following viscious circle has been found.\n\t + "
                     + " --> ".join(wordsfound)
                 )
 
@@ -593,8 +594,8 @@ class MultiSplit():
     """
 prototype::
     arg-attr = str , list(str): seps ;
-               this argument can be either a string for a single separator, or a
-               list of strings for different level of separators
+               this argument can be either a string for a single separator, or
+               a list of strings for different level of separators
     arg-attr = str: esc_char = "" ;
                this string indicated an escaping sequence for the separators.
                By default, ``escape = ""`` indicates that there is no escaping
@@ -637,8 +638,8 @@ pyterm::
 Strip the pieces
 ================
 
-If you don't care about leading and ending spaces of each pieces found, just use
-``strip = True``.
+If you don't care about leading and ending spaces of each pieces found, just
+use ``strip = True``.
 
 python::
     >>> from mistool.string_use import MultiSplit
@@ -800,9 +801,9 @@ prototype::
           a text to be splitted.
 
     return = listview ;
-             this method builds a list view version of the splitted text that is
-             a list of lists of lists of ... of lists of strings. The minsize of
-             the list is equal to the number of separators
+             this method builds a list view version of the splitted text that
+             is a list of lists of lists of ... of lists of strings.
+             The minsize of the list is equal to the number of separators
              (indeed, all the job is done recursively by ``self._build``).
         """
         self.listview = self._build(
@@ -887,7 +888,7 @@ prototype::
 
     yield = SplitInfos
         """
-        if listview == None:
+        if listview is None:
             listview = self.listview
 
         return self._iter(listview, minsize = 0)
@@ -992,7 +993,9 @@ pyterm::
     if e == -1:
         return None
 
-    return [text[:s], text[sbis:e], text[e + len(end):]]
+    before, inside, after = text[:s], text[sbis:e], text[e + len(end):]
+
+    return [before, inside, after]
 
 
 # ---------- #
@@ -1015,8 +1018,8 @@ prototype::
 
     return = str ;
              the text obtained by joining the strings in ``texts`` using comas
-             between each string, excpet for the two last ones that are separated
-             by the value of ``andtext``
+             between each string, excpet for the two last ones that are
+             separated by the value of ``andtext``
 
 
 Here is a small example.
@@ -1033,9 +1036,6 @@ pyterm::
     """
     if len(texts) == 1:
         return texts[0]
-
-    if andtext == None:
-        andtext = AND_TEXT
 
     return "{0} {1} {2}".format(
         sep.join(texts[:-1]),
@@ -1175,10 +1175,10 @@ It's easy to increase the list of special characters managed by default.
             ? >>> 𝛃 : MATHEMATICAL BOLD SMALL BETA
             ? >>> 𝛂 : MATHEMATICAL BOLD SMALL ALPHA
 
-        c) The most important lines are the ones with your special letters. Just
-        copy all of them and produce the following text that you will send to
-        the author of this package. Here we have coosen to associate "a", "b"
-        and "g" to "𝛂", "𝛃" and "𝝲" respectively.
+        c) The most important lines are the ones with your special letters.
+        Just copy all of them and produce the following text that you will send
+        to the author of this package. Here we have choosen to associate "a",
+        "b" and "g" to "𝛂", "𝛃" and "𝝲" respectively.
 
         code::
             A sympathic message... ;-)
@@ -1210,7 +1210,7 @@ It's easy to increase the list of special characters managed by default.
             elif "MARK" in infos:
                 asciichar = ""
 
-            if asciichar != None:
+            if asciichar is not None:
                 oldnew[onechar] = case(
                     text = asciichar,
                     kind = caseformat
@@ -1280,15 +1280,16 @@ class AutoComplete:
     """
 prototype::
     arg-attr = str , None: words = None ;
-               either ``None`` or a list of words to use for the auto-completions
+               either ``None`` or a list of words to use for the
+               auto-completions
     arg-attr = {'words':list(str) , 'prefixes':{str:[int, int]}} ,
                None: assos = None ;
                either ``None`` or a "magical" dictionary that eases the
                auto-completions (see ``self._build_assos``)
     arg-attr = int : minsize = 0 ;
-               the minimal size of prefixes used to look for the auto-completions
-               with the convention that ``minsize = 0`` indicates to start with
-               the first letter
+               the minimal size of prefixes used to look for the
+               auto-completions with the convention that ``minsize = 0``
+               indicates to start with the first letter
 
     action = after defining an instance of this class, you can use your instance
              to do auto-completions
@@ -1322,8 +1323,8 @@ pyterm::
     ]
 
 
-If you need it, you can have the letters remaining after one prefix in a word by
-using the method ``missing`` as below.
+If you need it, you can have the letters remaining after one prefix in a word
+by using the method ``missing`` as below.
 
 ...pyterm::
     >>> print(myac.missing("art", 'article'))
@@ -1474,7 +1475,7 @@ list of words just one time, and then store this dictionary to reuse it later.
     def words(self, value):
         self._words = value
 
-        if value != None and self._not_first_setting:
+        if value is not None and self._not_first_setting:
             self.assos = None
 
 
@@ -1486,7 +1487,7 @@ list of words just one time, and then store this dictionary to reuse it later.
     def minsize(self, value):
         self._minsize = value
 
-        if self._words != None and self._not_first_setting:
+        if self._words is not None and self._not_first_setting:
             self.assos = None
 
 
@@ -1496,7 +1497,7 @@ list of words just one time, and then store this dictionary to reuse it later.
 
     @assos.setter
     def assos(self, value):
-        if value == None:
+        if value is None:
             self._build_assos()
 
         else:
@@ -1522,7 +1523,7 @@ info::
         self._not_first_setting = True
 
 # Can we do the job ?
-        if self.words == None:
+        if self.words is None:
             raise ValueError("missing value of ``words``.")
 
 # Sorted list of single words.

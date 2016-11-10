@@ -1,0 +1,12 @@
+==========
+2016-07-29
+==========
+
+**Utilisation du format ¨rest pour le README:** comme ¨pypi ne supporte pas le ¨markdown, il faut convertire le path::``README.md`` au format. C'est ¨pypandoc qui s'en charge.
+
+
+==========
+2016-07-28
+==========
+
+**Publication de la nouvelle version de ``mistool`` :** toutes les améliorations techniques faites, la mise à jour de tous les tests et la mise en ligne de la dernière version du package ¨orpyste ont permis de rendre public l'actuelle nouvelle version de ¨mistool. Comme la rétro-compatibilité est globalement cassée, il faut considérer ce package comme un tout nouveau ! Se reporter aux ¨chgts depuis le date::``2015-05-26``.

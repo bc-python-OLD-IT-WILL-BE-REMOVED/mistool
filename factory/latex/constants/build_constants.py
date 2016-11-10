@@ -205,7 +205,7 @@ for kind in ['text', 'math']:
 
 PY_TEXT[-1] = PY_TEXT[-1][:-1]
 
-PY_TEXT.append('}')
+PY_TEXT.append('}\n')
 PY_TEXT = '\n'.join(PY_TEXT)
 
 

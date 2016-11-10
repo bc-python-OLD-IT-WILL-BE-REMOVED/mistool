@@ -1,0 +1,5 @@
+==========
+2016-07-28
+==========
+
+**Publication of the new version of ``mistool``:** since the backward compatibility is generally broken, consider this package as a completly new one !
