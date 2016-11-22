@@ -1,3 +1,6 @@
+latexname
+	--> texlive
+
 latexfound
 	--> True
 
@@ -6,6 +9,3 @@ localdir
 
 osname
 	--> mac
-
-latexname
-	--> texlive

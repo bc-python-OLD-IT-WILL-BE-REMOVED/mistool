@@ -43,10 +43,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # --------------- #
@@ -54,17 +54,22 @@ def or_datas(request):
 # --------------- #
 
 def test_string_use_multireplace(or_datas):
-    tests = THE_DATAS_FOR_TESTING.recudict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for name, datas in tests.items():
-        oldnew  = datas['oldnew']
-        pattern = datas['pattern'][0].strip()
+    for testname, infos in tests.items():
+        oldnew = {
+            k: v['value']
+            for k, v in infos['oldnew'].items()
+        }
 
-        before = "\n".join(datas['before'])
+        _, pattern = infos['pattern'][0]
+        pattern    = pattern.strip()
+
+        before = "\n".join(l for _, l in infos['before'])
         before = before.strip()
 
-        after = "\n".join(datas['after'])
-        after = after.strip()
+        after_wanted = "\n".join(l for _, l in infos['after'])
+        after_wanted = after_wanted.strip()
 
         mreplace = CLASS_MULTI_REPLACE(
             oldnew  = oldnew,
@@ -73,4 +78,4 @@ def test_string_use_multireplace(or_datas):
 
         after_found = mreplace(before)
 
-        assert after == after_found
+        assert after_wanted == after_found

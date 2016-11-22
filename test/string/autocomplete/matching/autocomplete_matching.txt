@@ -1,4 +1,4 @@
-words_to_find::
+words::
 // A
     article artiste art
 // W

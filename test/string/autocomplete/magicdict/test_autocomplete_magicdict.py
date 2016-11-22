@@ -43,10 +43,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ---------------- #
@@ -54,28 +54,30 @@ def or_datas(request):
 # ---------------- #
 
 def test_string_use_autocomplete_magicdict(or_datas):
-    tests = THE_DATAS_FOR_TESTING.recudict(nosep = True)
+    infos = THE_DATAS_FOR_TESTING.treedict
 
-    userwords = [x.strip(" ") for l in tests['words'] for x in l.split()]
-
-    magicdict_expected = tests['magicdict']
-
-    shortlist_words = [
-        x.strip(" ")
-        for l in magicdict_expected['words']
-        for x in l.split()
+    userwords = [
+        x.strip()
+        for _, l in infos['words']
+        for x in l.split(" ")
     ]
 
-    prefixes = {
-        k: eval(v)
-        for k, v in magicdict_expected['prefixes'].items()
+    infos = infos['magicdict']
+
+    magicdict_words_wanted = [
+        l for _, l in infos['words']
+    ]
+
+    magicdict_prefixes_wanted = {
+        k: eval(v['value'])
+        for k, v in infos['prefixes'].items()
     }
 
-    magicdict_expected = {
-        'words'   : shortlist_words,
-        'prefixes': prefixes
+    magicdict_wanted = {
+        'words'   : magicdict_words_wanted,
+        'prefixes': magicdict_prefixes_wanted
     }
 
     magicdict_found = AUTO_COMPLETE(words = userwords).assos
 
-    assert magicdict_expected == magicdict_found
+    assert magicdict_wanted == magicdict_found

@@ -39,10 +39,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ------------- #
@@ -50,12 +50,13 @@ def or_datas(request):
 # ------------- #
 
 def test_python_use_quote(or_datas):
-    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for name, datas in tests.items():
-        text   = datas['text']
-        quoted = datas['quoted']
+    for testname, infos in tests.items():
+        text = infos['text']['value']
+
+        quoted_wanted = infos['quoted']['value']
 
         quoted_found = QUOTE_FUNCTION(text)
 
-        assert quoted == quoted_found
+        assert quoted_wanted == quoted_found

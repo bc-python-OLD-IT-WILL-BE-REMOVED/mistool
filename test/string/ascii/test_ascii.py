@@ -45,11 +45,11 @@ def or_datas(request):
     for kind in THE_DATAS_FOR_TESTING:
         THE_DATAS_FOR_TESTING[kind].build()
 
-    def remove():
+    def remove_extras():
         for kind in THE_DATAS_FOR_TESTING:
-            THE_DATAS_FOR_TESTING[kind].remove()
+            THE_DATAS_FOR_TESTING[kind].remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ---------------------------- #
@@ -57,15 +57,16 @@ def or_datas(request):
 # ---------------------------- #
 
 def test_string_use_ascii_good(or_datas):
-    tests = THE_DATAS_FOR_TESTING['good'].flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING['good'].treedict
 
-    for name, datas in tests.items():
-        dirty  = datas['dirty']
-        pretty = datas['pretty']
+    for testname, infos in tests.items():
+        dirty = infos['dirty']['value']
+
+        pretty_wanted = infos['pretty']['value']
 
         pretty_found = ASCII_FUNCTION(text = dirty)
 
-        assert pretty == pretty_found
+        assert pretty_wanted == pretty_found
 
 
 # --------------------------- #
@@ -73,10 +74,10 @@ def test_string_use_ascii_good(or_datas):
 # --------------------------- #
 
 def test_string_use_ascii_bad(or_datas):
-    tests = THE_DATAS_FOR_TESTING['bad'].flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING['bad'].treedict
 
-    for name, datas in tests.items():
-        text = datas['text']
+    for testname, infos in tests.items():
+        text = infos['text']['value']
 
         with raises(ValueError):
             ASCII_FUNCTION(text = text)

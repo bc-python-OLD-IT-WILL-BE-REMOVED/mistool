@@ -39,10 +39,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ---------------- #
@@ -50,24 +50,27 @@ def or_datas(request):
 # ---------------- #
 
 def test_string_use_autocomplete_matching(or_datas):
-    tests = THE_DATAS_FOR_TESTING.recudict(nosep = True)
+    infos = THE_DATAS_FOR_TESTING.treedict
 
     userwords = [
-        x.strip(" ")
-        for l in tests['words_to_find']
-        for x in l.split()
+        x.strip()
+        for _, l in infos['words']
+        for x in l.split(" ")
     ]
 
-    del tests['words_to_find']
 
-    for prefix, matching in tests.items():
+    for prefix, matching in infos.items():
+        if prefix == 'words':
+            continue
+
         if prefix == "empty_prefix":
             prefix = ""
 
         matching_expected = [
-            x.strip(" ")
-            for l in matching
-            for x in l.split()
+            x.strip()
+            for _, l in matching
+            for x in l.split(" ")
+            if x.strip()
         ]
 
         matching_found = CLASS_AUTO_COMPLETE(

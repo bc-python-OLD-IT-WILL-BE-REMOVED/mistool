@@ -39,10 +39,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ---------------------------- #
@@ -50,16 +50,17 @@ def or_datas(request):
 # ---------------------------- #
 
 def test_string_use_camelto(or_datas):
-    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for name, datas in tests.items():
-        text   = datas['text']
-        kind   = datas['kind']
-        output = datas['output']
+    for testname, infos in tests.items():
+        text = infos['text']['value']
+        kind = infos['kind']['value']
+
+        output_wanted = infos['output']['value']
 
         output_found = CAMEL_TO_FUNCTION(
             text = text,
             kind = kind
         )
 
-        assert output == output_found
+        assert output_wanted == output_found

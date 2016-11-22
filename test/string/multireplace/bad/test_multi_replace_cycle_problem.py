@@ -43,10 +43,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # --------------- #
@@ -54,11 +54,16 @@ def or_datas(request):
 # --------------- #
 
 def test_string_use_multireplace_cycle_problem(or_datas):
-    tests = THE_DATAS_FOR_TESTING.recudict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for name, datas in tests.items():
-        oldnew  = datas['oldnew']
-        pattern = datas['pattern'][0]
+    for testname, infos in tests.items():
+        oldnew = {
+            k: v['value']
+            for k, v in infos['oldnew'].items()
+        }
+
+        _, pattern = infos['pattern'][0]
+        pattern    = pattern.strip()
 
         with raises(ValueError):
             multireplace = CLASS_MULTI_REPLACE(

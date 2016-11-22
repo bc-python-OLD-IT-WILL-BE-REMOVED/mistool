@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-04-05
+    date = 2016-11-20
 
 This module contains some simple tools about the ¨python programming language.
 """
@@ -44,8 +44,8 @@ pyterm::
     'Same example.'
     >>> print(quote('One "small" example.'))
     'One "small" example.'
-    >>> print(quote("The same kind of 'example'."))
-    "The same kind of 'example'."
+    >>> print(quote("Another kind of \"example\"."))
+    'Another kind of "example".'
     >>> print(quote("An example a 'little' more \"problematic\"."))
     'An example a \'little\' more "problematic".'
 
@@ -94,36 +94,200 @@ pyterm::
     return list(set(onedict.values()))
 
 
-class OrderedRecuDict(OrderedDict):
+class MKOrderedDict():
     """
-This subclass of ``collections.OrderedDict`` allows to use a list of hashable
-keys, or just a single hashable key. Here is an example of use where the ouput
-is hand formatted.
+This class allows to work easily with multikeys ordered dictionaries. Here is
+a complete example of use where some ouputs have been hand formatted.
 
 pyterm::
-    >>> from mistool.python_use import OrderedRecuDict
-    >>> onerecudict = OrderedRecuDict()
+    >>> from mistool.python_use import MKOrderedDict
+    >>> onemkdict = MKOrderedDict()
+    >>> onemkdict[(1, 2, 4)] = "1st value"
+    >>> onemkdict["key"] = "2nd value"
+    >>> onemkdict["key"] = "3rd value"
+    >>> print(onemkdict)
+    MKOrderedDict([
+        ((id=0, key=(1, 2, 4)), value='1st value'),
+        ((id=0, key='key')    , value='2nd value'),
+        ((id=1, key='key')    , value='3rd value')
+    ])
+    >>> for k_id, val in onemkdict["key"]:
+    ...     print(k_id, val)
+    ...
+    0 2nd value
+    1 3rd value
+    >>> print(onemkdict.getitembyid(1, "key"))
+    3rd value
+    >>> for (k_id, key), val in onemkdict.items():
+    ...     print((k_id, key), "===>", val)
+    ...
+    (0, (1, 2, 4)) ===> 1st value
+    (0, 'key') ===> 2nd value
+    (1, 'key') ===> 3rd value
+    >>> for key, val in onemkdict.items(noid=True):
+    ...     print(key, "===>", val)
+    ...
+    (1, 2, 4) ===> 1st value
+    key ===> 2nd value
+    key ===> 3rd value
+    >>> "key" in onemkdict
+    True
+    >>> "kaaaay" in onemkdict
+    False
+    >>> onemkdict.setitembyid(0, "key", "New 2nd value")
+    >>> print(onemkdict)
+    MKOrderedDict([
+        ((id=0, key=(1, 2, 4)), value='1st value'),
+        ((id=0, key='key')    , value='New 2nd value'),
+        ((id=1, key='key')    , value='3rd value')])
+    """
+
+    def __init__(self):
+        self._internaldict = OrderedDict()
+        self._keyids       = {}
+
+
+    def __setitem__(self, key, val):
+        if not isinstance(key, Hashable):
+            raise KeyError("key must be hashable")
+
+        if key in self._keyids:
+            self._keyids[key] += 1
+
+        else:
+            self._keyids[key] = 0
+
+        self._internaldict[(self._keyids[key], key)] = val
+
+
+    def setitembyid(self, keyid, key, val):
+        self._internaldict[(keyid, key)] = val
+
+
+    def __getitem__(self, key, keyid = None):
+        keyfound = False
+
+        for (oneid, onekey), oneval in self._internaldict.items():
+            if key == onekey:
+                keyfound = True
+
+                yield oneid, oneval
+
+        if not keyfound:
+            raise KeyError("key not used in the MKOrderedDict")
+
+
+    def getitembyid(self, keyid, key):
+        for (oneid, onekey), oneval in self._internaldict.items():
+            if keyid == oneid and key == onekey:
+                return oneval
+
+        raise KeyError("key not used in the MKOrderedDict")
+
+
+    def items(self, noid = False):
+        for id_key, oneval in self._internaldict.items():
+            if noid:
+                yield id_key[1], oneval
+
+            else:
+                yield id_key, oneval
+
+
+    def __contains__(self, key):
+        for (oneid, onekey), oneval in self._internaldict.items():
+            if key == onekey:
+                return True
+
+        return False
+
+
+    def __eq__(self, other):
+        if not isinstance(other, MKOrderedDict):
+            return False
+
+        if self._internaldict.keys() != other._internaldict.keys():
+            return False
+
+        for k, v in self._internaldict.items():
+            if v != other.getitembyid(*k):
+                return False
+
+        return True
+
+
+    def __str__(self):
+        text = repr(self)
+
+        while "\n    " in text:
+            text = text.replace("\n    ", "\n")
+
+        text = text.replace("\n", "")
+
+        return text
+
+
+    def __repr__(self):
+        text = ["MKOrderedDict(["]
+
+        for (oneid, onekey), oneval in self._internaldict.items():
+            text.append(
+                "    (id={0}, key={1}, value={2}), ".format(
+                    oneid,
+                    repr(onekey),
+                    repr(oneval).replace("\n    ", "\n        ")
+                )
+            )
+
+        if len(text) != 1:
+            text[-1] = text[-1][:-2]
+
+        text.append("])")
+
+        text = "\n".join(text)
+
+        return text
+
+
+class RecuOrderedDict(OrderedDict):
+    """
+This subclass of ``collections.OrderedDict`` allows to use a list of hashable
+keys, or just a single hashable key. Here is a complete example of use where
+some ouputs have been hand formatted.
+
+pyterm::
+    >>> from mistool.python_use import RecuOrderedDict
+    >>> onerecudict = RecuOrderedDict()
     >>> onerecudict[[1, 2, 4]] = "1st value"
     >>> onerecudict[(1, 2, 4)] = "2nd value"
+    >>> onerecudict["key"] = "3rd value"
     >>> print(onerecudict)
-    OrderedRecuDict([
+    RecuOrderedDict([
         (
             1,
-            OrderedRecuDict([
+            RecuOrderedDict([
                 (
                     2,
-                    OrderedRecuDict([ (4, '1st value') ])
+                    RecuOrderedDict([ (4, '1st value') ])
                 )
             ])
         ),
         (
             (1, 2, 4),
             '2nd value'
+        ),
+        (
+            'key',
+            '3rd value'
         )
     ])
+    >>> [1, 2, 4] in onerecudict
+    True
+    >>> [2, 4] in onerecudict[1]
+    True
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
     def __getitem__(self, keys):
@@ -152,7 +316,7 @@ pyterm::
 
             else:
                 if others:
-                    subdict         = OrderedRecuDict()
+                    subdict         = RecuOrderedDict()
                     subdict[others] = val
                     val             = subdict
 

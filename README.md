@@ -15,12 +15,12 @@ I beg your pardon for my english...
 English is not my native language, so be nice if you notice misunderstandings, misspellings or grammatical errors in my documents and codes.
 
 
-Warning about this new version `1.0.0-beta`
+What's new in this version `1.1.0-beta`
 ===========================================
 
-This version breaks a lot of things regarding to the previous ones *(for
-example, the module ``log_test_use`` has been removed and a new module
-``term_use`` has been added)*. See the change log for more informations.
+In the module ``python_use``, the new class ``MKOrderedDict`` allows to define kinds of ordered dictionaries accepting several times the same key but at different "places".
+
+**Warning !** The class ``OrderedRecuDict`` becomes ``RecuOrderedDict``.
 
 
 The module ``os_use``
@@ -688,6 +688,113 @@ You can also use the following property methods.
 The module ``python_use``
 =========================
 
+A multikeys dictionary
+----------------------
+
+The class ``MKOrderedDict`` allows to work easily with multikeys ordered dictionaries. Here is a complete example of use.
+
+```python
+>>> from mistool.python_use import MKOrderedDict
+>>> onemkdict = MKOrderedDict()
+>>> onemkdict[(1, 2, 4)] = "1st value"
+>>> onemkdict["key"] = "2nd value"
+>>> onemkdict["key"] = "3rd value"
+>>> print(onemkdict)
+MKOrderedDict([
+    ((id=0, key=(1, 2, 4)), value='1st value'),
+    ((id=0, key='key')    , value='2nd value'),
+    ((id=1, key='key')    , value='3rd value')
+])
+>>> for k_id, val in onemkdict["key"]:
+...     print(k_id, val)
+...
+0 2nd value
+1 3rd value
+>>> for k_id, val in onemkdict["key"]:
+...     print(k_id, val)
+...
+0 2nd value
+1 3rd value
+>>> print(onemkdict.getitembyid(1, "key"))
+3rd value
+>>> for (key, k_id), val in onemkdict.items():
+...     print((key, k_id), "===>", val)
+...
+(0, (1, 2, 4)) ===> 1st value
+(0, 'key') ===> 2nd value
+(1, 'key') ===> 3rd value
+>>> for key, val in onemkdict.items(noid=True):
+...     print(key, "===>", val)
+...
+(1, 2, 4) ===> 1st value
+key ===> 2nd value
+key ===> 3rd value
+>>> "key" in onemkdict
+True
+>>> "kaaaay" in onemkdict
+False
+>>> onemkdict.setitembyid(0, "key", "New 2nd value")
+>>> print(onemkdict)
+MKOrderedDict([
+    ((id=0, key=(1, 2, 4)), value='1st value'),
+    ((id=0, key='key')    , value='New 2nd value'),
+    ((id=1, key='key')    , value='3rd value')])
+```
+
+
+A dictionary defined recursivly
+-------------------------------
+
+The class ``RecuOrderedDict`` allows to use a list of hashable keys, or just a single hashable key. Here is a complete example of use.
+
+```python
+>>> from mistool.python_use import RecuOrderedDict
+>>> onerecudict = RecuOrderedDict()
+>>> onerecudict[[1, 2, 4]] = "1st value"
+>>> onerecudict[(1, 2, 4)] = "2nd value"
+>>> onerecudict["key"] = "3rd value"
+>>> print(onerecudict)
+RecuOrderedDict([
+    (
+        1,
+        RecuOrderedDict([
+            (
+                2,
+                RecuOrderedDict([ (4, '1st value') ])
+            )
+        ])
+    ),
+    (
+        (1, 2, 4),
+        '2nd value'
+    ),
+    (
+        'key',
+        '3rd value'
+    )
+])
+>>> [1, 2, 4] in onerecudict
+True
+>>> [2, 4] in onerecudict[1]
+True
+```
+
+
+List of single values of a dictionary
+-------------------------------------
+
+If you need to list all the value of one dictionary, the function ``python_use.dictvalues`` is made for you.
+
+```python
+>>> from mistool.python_use import dictvalues
+>>> onedict = {"a": 1, "b": 2, "c": 1}
+>>> print(dictvalues(onedict))
+[1, 2]
+>>> print(list(onedict.values()))
+[2, 1, 1]
+```
+
+
 Easy quoted text with the least escaped quote symbols
 -----------------------------------------------------
 
@@ -705,21 +812,6 @@ With ``python_use.quote`` you can add without pain quotes around a text.
 "The same kind of 'example'."
 >>> print(quote("An example a 'little' more \"problematic\"."))
 'An example a \'little\' more "problematic".'
-```
-
-
-List of single values of a dictionary
--------------------------------------
-
-If you need to list all the value of one dictionary, the function ``python_use.dictvalues`` is made for you.
-
-```python
->>> from mistool.python_use import dictvalues
->>> onedict = {"a": 1, "b": 2, "c": 1}
->>> print(dictvalues(onedict))
-[1, 2]
->>> print(list(onedict.values()))
-[2, 1, 1]
 ```
 
 

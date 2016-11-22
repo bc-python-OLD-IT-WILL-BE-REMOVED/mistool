@@ -39,10 +39,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ------------------- #
@@ -50,26 +50,28 @@ def or_datas(request):
 # ------------------- #
 
 def test_latex_use_escape(or_datas):
-    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for name, datas in tests.items():
-        source        = datas['source']
+    for testname, infos in tests.items():
+        source        = infos['source']['value']
         escaped_texts = {}
 
-        if 'text' in datas:
-            escaped_texts['text'] = datas['text']
+        if 'text' in infos:
+            escaped_texts['text'] = infos['text']['value']
         else:
-            escaped_texts['text'] = datas['both']
+            escaped_texts['text'] = infos['both']['value']
 
-        if 'math' in datas:
-            escaped_texts['math'] = datas['math']
+        if 'math' in infos:
+            escaped_texts['math'] = infos['math']['value']
         else:
-            escaped_texts['math'] = datas['both']
+            escaped_texts['math'] = infos['both']['value']
 
         for mode in ['text', 'math']:
-            answer = ESCAPE_FUNCTION(
+            answer_wanted = ESCAPE_FUNCTION(
                 text = source,
                 mode = mode
             )
 
-            assert answer == escaped_texts[mode]
+            answer_found = escaped_texts[mode]
+
+            assert answer_wanted == answer_found

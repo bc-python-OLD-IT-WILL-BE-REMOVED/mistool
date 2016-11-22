@@ -1,41 +1,20 @@
 no_common_path::
-    main_path::
-        /Users/Documents/projects/python/misTool/source
-
-    other_paths::
-        /Userrrs/Documents/projects/python/pyBa
-
+    main   = /Users/Documents/projects/python/misTool/source
+    others = /Userrrs/Documents/projects/python/pyBa
 
 two_paths_1::
-    main_path::
-        /Users/Documents/projects/python/misTool/source_dev
-
-    other_paths::
-        /Users/Documents/projects/python/misTool/mistool
-
-    common::
-        /Users/Documents/projects/python/misTool
-
+    main   = /Users/Documents/projects/python/misTool/source_dev
+    others = /Users/Documents/projects/python/misTool/mistool
+    common = /Users/Documents/projects/python/misTool
 
 two_paths_2::
-    main_path::
-        /Users/Documents/projects/python/misTool/config/fr.txt
-
-    other_paths::
-        /Users/Documents/projects/python/misTool/mistool
-
-    common::
-        /Users/Documents/projects/python/misTool
-
+    main   = /Users/Documents/projects/python/misTool/config/fr.txt
+    others = /Users/Documents/projects/python/misTool/mistool
+    common = /Users/Documents/projects/python/misTool
 
 four_other_paths::
-    main_path::
-        /Users/Documents/projects/python/misTool/source
-
-    other_paths::
-        /Users/Documents/projects/python/misTool/mistool
-        /Users/Documents/projects/python/misTool/change_log/12.txt
-        /Users/Documents/projects/python/pyBa
-
-    common::
-        /Users/Documents/projects/python
+    main   = /Users/Documents/projects/python/misTool/source
+    others = /Users/Documents/projects/python/misTool/mistool ,
+             /Users/Documents/projects/python/misTool/change_log/12.txt ,
+             /Users/Documents/projects/python/pyBa
+    common = /Users/Documents/projects/python

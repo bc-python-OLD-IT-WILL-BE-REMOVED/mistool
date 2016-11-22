@@ -39,10 +39,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ------------- #
@@ -50,13 +50,16 @@ def or_datas(request):
 # ------------- #
 
 def test_python_use_dictvalues(or_datas):
-    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for name, datas in tests.items():
-        onedict      = eval(datas['onedict'])
-        singlevalues = eval(datas['singlevalues'])
+    for testname, infos in tests.items():
+        onedict = infos['onedict']['value']
+        onedict = eval(onedict)
+
+        singlevalues_wanted = infos['singlevalues']['value']
+        singlevalues_wanted = eval(singlevalues_wanted)
 
         singlevalues_found = DICT_VALUES_FUNCTION(onedict)
         singlevalues_found = sorted(singlevalues_found)
 
-        assert singlevalues == singlevalues_found
+        assert singlevalues_wanted == singlevalues_found

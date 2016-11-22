@@ -39,10 +39,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ---------------------- #
@@ -50,15 +50,15 @@ def or_datas(request):
 # ---------------------- #
 
 def test_os_use_parent_dir(or_datas):
-    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for kind, datas in tests.items():
-        path = datas['path'].replace('/', os_use.SEP)
+    for testname, infos in tests.items():
+        path = infos['path']['value']
         path = PPATH_CLASS(path)
 
-        parent = datas['parent'].replace('/', os_use.SEP)
-        parent = PPATH_CLASS(parent)
+        parent_wanted = infos['parent']['value']
+        parent_wanted = PPATH_CLASS(parent_wanted)
 
         parent_found = path.parent
 
-        assert parent == parent_found
+        assert parent_wanted == parent_found

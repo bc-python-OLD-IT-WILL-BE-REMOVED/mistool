@@ -39,10 +39,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ---------------- #
@@ -50,11 +50,11 @@ def or_datas(request):
 # ---------------- #
 
 def test_url_use_linked(or_datas):
-    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
     for name, datas in tests.items():
-        url     = datas['url']
-        success = eval(datas['success'])
+        url     = datas['url']['value']
+        success = eval(datas['success']['value'])
 
         success_found = ISLINKED_FUNCTION(url)
 

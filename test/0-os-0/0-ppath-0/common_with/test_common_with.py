@@ -32,20 +32,17 @@ PPATH_CLASS = os_use.PPath
 
 THE_DATAS_FOR_TESTING = READ(
     content = THIS_DIR / 'common_with.txt',
-    mode    = {
-        "container": ":default:",
-        "verbatim" : ["common", "main_path", "other_paths"]
-    }
+    mode    = {"keyval:: =": ":default:"}
 )
 
 @fixture(scope="module")
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ----------------- #
@@ -53,20 +50,24 @@ def or_datas(request):
 # ----------------- #
 
 def test_os_use_common_with(or_datas):
-    tests = THE_DATAS_FOR_TESTING.recudict()
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for name, datas in tests.items():
-        main_path = datas['main_path'][0].replace('/', os_use.SEP)
-        main_path = PPATH_CLASS(main_path)
+    for testname, infos in tests.items():
+        main = infos['main']['value']
+        main = PPATH_CLASS(main)
 
-        other_paths = [
-            PPATH_CLASS(x.replace('/', os_use.SEP))
-            for x in datas['other_paths']
+        others = [
+            PPATH_CLASS(x.strip())
+            for x in infos['others']['value'].split(",")
         ]
 
-        common = datas.get('common', "/")[0].replace('/', os_use.SEP)
-        common = PPATH_CLASS(common)
+        common_wanted = "/"
 
-        common_found = main_path.common_with(other_paths)
+        if "common" in infos:
+            common_wanted = infos['common']['value']
 
-        assert common == common_found
+        common_wanted = PPATH_CLASS(common_wanted)
+
+        common_found = main.common_with(others)
+
+        assert common_wanted == common_found

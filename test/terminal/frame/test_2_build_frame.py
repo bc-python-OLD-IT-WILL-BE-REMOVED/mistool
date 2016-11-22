@@ -55,11 +55,11 @@ def or_datas(request):
     for style, allinfos in THE_DATAS_FOR_TESTING.items():
         allinfos.build()
 
-    def remove():
+    def remove_extras():
         for style, allinfos in THE_DATAS_FOR_TESTING.items():
-            allinfos.remove()
+            allinfos.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ------------------- #
@@ -68,17 +68,17 @@ def or_datas(request):
 
 def test_term_use_frame(or_datas):
     for style, allinfos in THE_DATAS_FOR_TESTING.items():
-        infos = allinfos.flatdict(nosep = True)
+        infos = allinfos.treedict
 
         gene  = infos['gene']
-        align = gene['align']
+        align = gene['align']['value']
 
-        model = "\n".join(infos['model'])
+        model = "\n".join(l for _, l in infos['model'])
         model = model.replace("/:", "/").replace(":/", "/")
         frame = BUILDFRAME_FUNCTION(model)
 
-        text   = "\n".join(infos['text'])
-        output = "\n".join(infos['output'])\
+        text   = "\n".join(l for _, l in infos['text'])
+        output = "\n".join(l for _, l in infos['output'])\
                     .replace("/:", "/")\
                     .replace(":/", "/")
 

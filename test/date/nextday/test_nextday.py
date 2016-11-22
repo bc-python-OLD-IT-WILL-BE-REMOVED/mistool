@@ -40,10 +40,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ---------------- #
@@ -51,22 +51,22 @@ def or_datas(request):
 # ---------------- #
 
 def test_date_use_nextday(or_datas):
-    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for name, datas in tests.items():
-        date_start = datas["start"]
+    for testname, infos in tests.items():
+        date_start = infos['start']['value']
         y, m, d    = [int(x) for x in date_start.split('-')]
         date_start = datetime.date(y, m, d)
 
-        next_date = datas["next"]
-        y, m, d   = [int(x) for x in next_date.split('-')]
-        next_date = datetime.date(y, m, d)
+        next_date_wanted = infos['next']['value']
+        y, m, d          = [int(x) for x in next_date_wanted.split('-')]
+        next_date_wanted = datetime.date(y, m, d)
 
-        name = datas["name"]
+        name = infos['name']['value']
 
-        date_found = NEXTDAY_FUNCTION(
+        next_date_found = NEXTDAY_FUNCTION(
             date = date_start,
             name = name
         )
 
-        assert next_date == date_found
+        assert next_date_wanted == next_date_found

@@ -39,10 +39,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # --------------------------- #
@@ -50,14 +50,14 @@ def or_datas(request):
 # --------------------------- #
 
 def test_os_use_file_extension_which_one(or_datas):
-    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for kind, datas in tests.items():
-        path  = datas['path'].replace('/', os_use.SEP)
-        ext   = datas['ext']
+    for testname, infos in tests.items():
+        ext_wanted = infos['ext']['value']
 
+        path = infos['path']['value']
         path = PPATH_CLASS(path)
 
         ext_found = path.ext
 
-        assert ext == ext_found
+        assert ext_wanted == ext_found

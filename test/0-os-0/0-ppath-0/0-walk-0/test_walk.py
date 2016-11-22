@@ -38,9 +38,10 @@ DIR_PPATH = PPATH_CLASS(DIR_PPATH)
 
 # To find paths, we have to use standard methods ! So boring...
 # We use the method ``glob`` coming directly from ``pathlib.Path``.
-ALL_PATHS = []
-ALL_FILES = []
-ALL_DIRS  = []
+ALL_PATHS_WANTED = []
+ALL_FILES_WANTED = []
+ALL_DIRS_WANTED  = []
+
 MAX_DEPTH = 10
 
 for i in range(MAX_DEPTH):
@@ -58,9 +59,9 @@ for i in range(MAX_DEPTH):
         else:
             dirs.append(strpath)
 
-    ALL_PATHS += files + dirs
-    ALL_FILES += files
-    ALL_DIRS  += dirs
+    ALL_PATHS_WANTED += files + dirs
+    ALL_FILES_WANTED += files
+    ALL_DIRS_WANTED  += dirs
 
 
 # ------------------------- #
@@ -73,7 +74,7 @@ def test_walk_all():
         for p in DIR_PPATH.walk()
     ]
 
-    assert ALL_PATHS == paths_found
+    assert ALL_PATHS_WANTED == paths_found
 
 
 def test_walk_all_dirs():
@@ -82,7 +83,7 @@ def test_walk_all_dirs():
         for p in DIR_PPATH.walk("dir::**")
     ]
 
-    assert ALL_DIRS == paths_found
+    assert ALL_DIRS_WANTED == paths_found
 
 
 def test_walk_all_files():
@@ -91,7 +92,7 @@ def test_walk_all_files():
         for p in DIR_PPATH.walk("file::**")
     ]
 
-    assert ALL_FILES == paths_found
+    assert ALL_FILES_WANTED == paths_found
 
 
 def test_walk_all_python_files():
@@ -100,6 +101,6 @@ def test_walk_all_python_files():
         for p in DIR_PPATH.walk("file::**.py")
     ]
 
-    all_py_files = [p for p in ALL_FILES if p.endswith(".py")]
+    all_py_files_wanted = [p for p in ALL_FILES_WANTED if p.endswith(".py")]
 
-    assert all_py_files == paths_found
+    assert all_py_files_wanted == paths_found

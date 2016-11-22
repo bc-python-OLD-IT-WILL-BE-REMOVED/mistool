@@ -43,11 +43,11 @@ def or_datas(request):
     for kind in THE_DATAS_FOR_TESTING:
         THE_DATAS_FOR_TESTING[kind].build()
 
-    def remove():
+    def remove_extras():
         for kind in THE_DATAS_FOR_TESTING:
-            THE_DATAS_FOR_TESTING[kind].remove()
+            THE_DATAS_FOR_TESTING[kind].remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ---------------- #
@@ -55,25 +55,30 @@ def or_datas(request):
 # ---------------- #
 
 def test_string_use_between_good(or_datas):
-    tests = THE_DATAS_FOR_TESTING['good'].flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING['good'].treedict
 
-    for name, datas in tests.items():
-        text  = datas['text']
-        start = datas['start']
-        end   = datas['end']
+    for testname, infos in tests.items():
+        text  = infos['text']['value']
+        start = infos['start']['value']
+        end   = infos['end']['value']
 
-        before  = datas['before'].replace(':space:', ' ')
-        between = datas['between'].replace(':space:', ' ')
-        after   = datas['after'].replace(':space:', ' ')
+        before_wanted = infos['before']['value']
+        before_wanted = before_wanted.replace(':space:', ' ')
+
+        between_wanted = infos['between']['value']
+        between_wanted = between_wanted.replace(':space:', ' ')
+
+        after_wanted = infos['after']['value']
+        after_wanted = after_wanted.replace(':space:', ' ')
 
         before_found, between_found, after_found = BETWEEN_FUNCTION(
             text  = text,
             seps = [start, end]
         )
 
-        assert before == before_found
-        assert between == between_found
-        assert after == after_found
+        assert before_wanted == before_found
+        assert between_wanted == between_found
+        assert after_wanted == after_found
 
 
 # --------------- #
@@ -81,11 +86,11 @@ def test_string_use_between_good(or_datas):
 # --------------- #
 
 def test_string_use_between_bad(or_datas):
-    tests = THE_DATAS_FOR_TESTING['bad'].flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING['bad'].treedict
 
-    for name, datas in tests.items():
-        start = datas['start']
-        end   = datas['end']
+    for testname, infos in tests.items():
+        start = infos['start']['value']
+        end   = infos['end']['value']
 
         with raises(ValueError):
             BETWEEN_FUNCTION(

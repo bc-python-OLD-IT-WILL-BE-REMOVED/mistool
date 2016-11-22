@@ -41,10 +41,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ---------------------- #
@@ -52,16 +52,19 @@ def or_datas(request):
 # ---------------------- #
 
 def test_string_use_joinand(or_datas):
-    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for name, datas in tests.items():
-        thelist = [x.strip() for x in datas['list'].split(',')]
-        text    = datas['text']
-        andtext = datas['andtext']
+    for testname, infos in tests.items():
+        thelist = infos['list']['value']
+        thelist = [x.strip() for x in thelist.split(',')]
+
+        andtext = infos['andtext']['value']
+
+        text_wanted = infos['text']['value']
 
         text_found = JOIN_AND_FUNCTION(
             texts   = thelist,
             andtext = andtext
         )
 
-        assert text == text_found
+        assert text_wanted == text_found

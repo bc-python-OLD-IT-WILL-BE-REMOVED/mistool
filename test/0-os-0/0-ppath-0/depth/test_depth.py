@@ -43,11 +43,11 @@ def or_datas(request):
     for kind in THE_DATAS_FOR_TESTING:
         THE_DATAS_FOR_TESTING[kind].build()
 
-    def remove():
+    def remove_extras():
         for kind in THE_DATAS_FOR_TESTING:
-            THE_DATAS_FOR_TESTING[kind].remove()
+            THE_DATAS_FOR_TESTING[kind].remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # ----------------- #
@@ -55,21 +55,20 @@ def or_datas(request):
 # ----------------- #
 
 def test_os_use_depth_good(or_datas):
-    tests = THE_DATAS_FOR_TESTING['good'].flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING['good'].treedict
 
-    for name, datas in tests.items():
-        main = datas['main'].replace('/', os_use.SEP)
+    for testname, infos in tests.items():
+        main = infos['main']['value']
         main = PPATH_CLASS(main)
 
-        sub = datas['sub'].replace('/', os_use.SEP)
+        sub = infos['sub']['value']
         sub = PPATH_CLASS(sub)
 
-        depth = datas['depth']
+        depth_wanted = infos['depth']['value']
 
         depth_found = str(sub.depth_in(main))
 
-        assert depth == depth_found
-        print(name)
+        assert depth_wanted == depth_found
 
 
 # ---------------- #
@@ -77,13 +76,13 @@ def test_os_use_depth_good(or_datas):
 # ---------------- #
 
 def test_os_use_depth_bad(or_datas):
-    tests = THE_DATAS_FOR_TESTING['bad'].flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING['bad'].treedict
 
-    for name, datas in tests.items():
-        main = datas['main'].replace('/', os_use.SEP)
+    for testname, infos in tests.items():
+        main = infos['main']['value']
         main = PPATH_CLASS(main)
 
-        sub = datas['sub'].replace('/', os_use.SEP)
+        sub = infos['sub']['value']
         sub = PPATH_CLASS(sub)
 
         with raises(ValueError):

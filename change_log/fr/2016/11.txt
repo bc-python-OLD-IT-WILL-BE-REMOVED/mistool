@@ -1,5 +1,26 @@
 ==========
+2016-11-22
+==========
+
+**Mise à jour des tests :** ceci a été rendu nécessaire pour s'adapter au nouveau fonctionnement de la dernière version ``1.2.0-beta`` du package ¨orpyste (au passage, cette mise à jour a fait naître la nouvelle propriété ``treedict`` de la classe ``data.ReadBlock`` du module ¨orpyste).
+
+
+==========
+2016-11-20
+==========
+
+**Des ¨chgts dans le module ``python_use`` :** voici ce qui a été fait.
+
+    1) Une belle nouveauté... ou pas. On peut maintenant définir des sortes de dictionnaires ordonnés acceptant plusieurs fois la même clé mais à des "endroits" différents. Ceci se fait via la classe ``MKOrderedDict``.
+
+    2) La classe ``OrderedRecuDict`` devient ``RecuOrderedDict`` afin d'avoir un nom formé de la même façon que ``MKOrderedDict``.
+
+
+**Mise à jour du code des tests :** changements tenant compte de la dernière version de ¨orpyste qui a changé le nom de la méthode ``remove`` de la classe ``data.ReadBlock`` en ``remove_extras``.
+
+
+==========
 2016-11-10
 ==========
 
-**Amélioration côté développement interne :** ¨flake8 est consulté pour améliorer le code de ¨mistool lorsque cela paraît pertinent (ceci a aussi permis de corriger quelques bugs très cachés).
+**Amélioration côté développement interne :** ¨flake8 et ¨pylint sont consultés pour améliorer le code de ¨orpyste lorsque cela paraît pertinent (ceci a aussi permis de corriger quelques bugs très cachés).

@@ -40,10 +40,10 @@ THE_DATAS_FOR_TESTING = READ(
 def or_datas(request):
     THE_DATAS_FOR_TESTING.build()
 
-    def remove():
-        THE_DATAS_FOR_TESTING.remove()
+    def remove_extras():
+        THE_DATAS_FOR_TESTING.remove_extras()
 
-    request.addfinalizer(remove)
+    request.addfinalizer(remove_extras)
 
 
 # --------------------- #
@@ -51,16 +51,17 @@ def or_datas(request):
 # --------------------- #
 
 def test_date_use_translate(or_datas):
-    tests = THE_DATAS_FOR_TESTING.flatdict(nosep = True)
+    tests = THE_DATAS_FOR_TESTING.treedict
 
-    for name, datas in tests.items():
-        date    = datas["date"]
+    for testname, infos in tests.items():
+        date    = infos['date']['value']
         y, m, d = [int(x) for x in date.split('-')]
         date    = datetime.date(y, m, d)
 
-        lang        = datas["lang"]
-        strformat   = datas["format"]
-        translation = datas["translation"]
+        lang      = infos['lang']['value']
+        strformat = infos['format']['value']
+
+        translation_wanted = infos['translation']['value']
 
         translation_found = TRANSLATE_FUNCTION(
             date      = date,
@@ -68,4 +69,4 @@ def test_date_use_translate(or_datas):
             lang      = lang
         )
 
-        assert translation == translation_found
+        assert translation_wanted == translation_found
