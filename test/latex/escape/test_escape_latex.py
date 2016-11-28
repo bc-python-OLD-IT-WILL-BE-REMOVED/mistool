@@ -50,21 +50,21 @@ def or_datas(request):
 # ------------------- #
 
 def test_latex_use_escape(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        source        = infos['source']['value']
+        source        = infos['source']
         escaped_texts = {}
 
         if 'text' in infos:
-            escaped_texts['text'] = infos['text']['value']
+            escaped_texts['text'] = infos['text']
         else:
-            escaped_texts['text'] = infos['both']['value']
+            escaped_texts['text'] = infos['both']
 
         if 'math' in infos:
-            escaped_texts['math'] = infos['math']['value']
+            escaped_texts['math'] = infos['math']
         else:
-            escaped_texts['math'] = infos['both']['value']
+            escaped_texts['math'] = infos['both']
 
         for mode in ['text', 'math']:
             answer_wanted = ESCAPE_FUNCTION(

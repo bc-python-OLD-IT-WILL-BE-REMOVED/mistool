@@ -55,20 +55,20 @@ def or_datas(request):
 # ---------------- #
 
 def test_string_use_between_good(or_datas):
-    tests = THE_DATAS_FOR_TESTING['good'].treedict
+    tests = THE_DATAS_FOR_TESTING['good'].mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        text  = infos['text']['value']
-        start = infos['start']['value']
-        end   = infos['end']['value']
+        text  = infos['text']
+        start = infos['start']
+        end   = infos['end']
 
-        before_wanted = infos['before']['value']
+        before_wanted = infos['before']
         before_wanted = before_wanted.replace(':space:', ' ')
 
-        between_wanted = infos['between']['value']
+        between_wanted = infos['between']
         between_wanted = between_wanted.replace(':space:', ' ')
 
-        after_wanted = infos['after']['value']
+        after_wanted = infos['after']
         after_wanted = after_wanted.replace(':space:', ' ')
 
         before_found, between_found, after_found = BETWEEN_FUNCTION(
@@ -86,11 +86,11 @@ def test_string_use_between_good(or_datas):
 # --------------- #
 
 def test_string_use_between_bad(or_datas):
-    tests = THE_DATAS_FOR_TESTING['bad'].treedict
+    tests = THE_DATAS_FOR_TESTING['bad'].mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        start = infos['start']['value']
-        end   = infos['end']['value']
+        start = infos['start']
+        end   = infos['end']
 
         with raises(ValueError):
             BETWEEN_FUNCTION(

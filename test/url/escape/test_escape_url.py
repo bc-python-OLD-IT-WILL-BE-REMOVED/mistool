@@ -50,11 +50,11 @@ def or_datas(request):
 # --------------------- #
 
 def test_url_use_escape(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for name, datas in tests.items():
-        url    = datas['url']['value']
-        escape = datas['escape']['value']
+        url    = datas['url']
+        escape = datas['escape']
 
         escape_found = ESCAPE_FUNCTION(url)
 

@@ -53,18 +53,16 @@ def or_datas(request):
 # --------------- #
 
 def test_string_use_multisplit_iterator(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("tree std nosep nonb")
 
     for testname, infos in tests.items():
-        _, text = infos['text'][0]
-        text    = text.strip()
+        text = infos['text'][0].strip()
 
-        _, seps = infos['seps'][0]
-        seps    = eval(seps)
+        seps = eval(infos['seps'][0])
 
         listiter_wanted = [
             eval("({0})".format(l))
-            for _, l in infos['listiter']
+            for l in infos['listiter']
         ]
 
         msplit = CLASS_MULTI_SPLIT(

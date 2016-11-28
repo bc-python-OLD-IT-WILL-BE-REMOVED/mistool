@@ -50,11 +50,11 @@ def or_datas(request):
 # ---------------- #
 
 def test_url_use_linked(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for name, datas in tests.items():
-        url     = datas['url']['value']
-        success = eval(datas['success']['value'])
+        url     = datas['url']
+        success = eval(datas['success'])
 
         success_found = ISLINKED_FUNCTION(url)
 

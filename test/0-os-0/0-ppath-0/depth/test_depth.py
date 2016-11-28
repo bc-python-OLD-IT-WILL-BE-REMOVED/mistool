@@ -55,16 +55,16 @@ def or_datas(request):
 # ----------------- #
 
 def test_os_use_depth_good(or_datas):
-    tests = THE_DATAS_FOR_TESTING['good'].treedict
+    tests = THE_DATAS_FOR_TESTING['good'].mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        main = infos['main']['value']
+        main = infos['main']
         main = PPATH_CLASS(main)
 
-        sub = infos['sub']['value']
+        sub = infos['sub']
         sub = PPATH_CLASS(sub)
 
-        depth_wanted = infos['depth']['value']
+        depth_wanted = infos['depth']
 
         depth_found = str(sub.depth_in(main))
 
@@ -76,13 +76,13 @@ def test_os_use_depth_good(or_datas):
 # ---------------- #
 
 def test_os_use_depth_bad(or_datas):
-    tests = THE_DATAS_FOR_TESTING['bad'].treedict
+    tests = THE_DATAS_FOR_TESTING['bad'].mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        main = infos['main']['value']
+        main = infos['main']
         main = PPATH_CLASS(main)
 
-        sub = infos['sub']['value']
+        sub = infos['sub']
         sub = PPATH_CLASS(sub)
 
         with raises(ValueError):

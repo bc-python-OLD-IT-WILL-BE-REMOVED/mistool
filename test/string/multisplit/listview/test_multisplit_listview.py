@@ -53,26 +53,19 @@ def or_datas(request):
 # --------------- #
 
 def test_string_use_multisplit_listview(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("tree std nosep nonb")
 
     for testname, infos in tests.items():
-        _, text = infos['text'][0]
-        text    = text.strip()
+        text = infos['text'][0].strip()
 
-        _, seps = infos['seps'][0]
-        seps    = eval(seps)
+        seps = eval(infos['seps'][0])
 
-        print(infos['listview'])
-
-        listview_wanted = " ".join([
-            l
-            for _, l in infos['listview']
-        ])
+        listview_wanted = " ".join(infos['listview'])
 
         listview_wanted = eval("({0})".format(listview_wanted))
 
         if 'escape' in infos:
-            _, escape = infos['escape'][0]
+            escape = infos['escape'][0]
 
         else:
             escape = ""

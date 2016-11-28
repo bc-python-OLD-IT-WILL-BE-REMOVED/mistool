@@ -50,12 +50,12 @@ def or_datas(request):
 # --------------------------- #
 
 def test_os_use_file_extension_which_one(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        ext_wanted = infos['ext']['value']
+        ext_wanted = infos['ext']
 
-        path = infos['path']['value']
+        path = infos['path']
         path = PPATH_CLASS(path)
 
         ext_found = path.ext

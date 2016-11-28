@@ -50,12 +50,12 @@ def or_datas(request):
 # ------------- #
 
 def test_python_use_quote(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        text = infos['text']['value']
+        text = infos['text']
 
-        quoted_wanted = infos['quoted']['value']
+        quoted_wanted = infos['quoted']
 
         quoted_found = QUOTE_FUNCTION(text)
 

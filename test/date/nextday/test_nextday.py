@@ -51,18 +51,18 @@ def or_datas(request):
 # ---------------- #
 
 def test_date_use_nextday(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        date_start = infos['start']['value']
+        date_start = infos['start']
         y, m, d    = [int(x) for x in date_start.split('-')]
         date_start = datetime.date(y, m, d)
 
-        next_date_wanted = infos['next']['value']
+        next_date_wanted = infos['next']
         y, m, d          = [int(x) for x in next_date_wanted.split('-')]
         next_date_wanted = datetime.date(y, m, d)
 
-        name = infos['name']['value']
+        name = infos['name']
 
         next_date_found = NEXTDAY_FUNCTION(
             date = date_start,

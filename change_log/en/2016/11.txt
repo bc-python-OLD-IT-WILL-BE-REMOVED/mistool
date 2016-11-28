@@ -4,6 +4,6 @@
 
 **Some changes in the module ``python_use``: ** here is what has been done.
 
-     1) A beautiful novelty ... or not. One can now define kinds of ordered dictionaries accepting several times the same key but at different "places". This is done via the class ``MKOrderedDict``.
+     1) A beautiful novelty... or not. One can now define kinds of ordered dictionaries accepting several times the same key but at different "places". This is done via the class ``MKOrderedDict``.
 
      2) The class ``OrderedRecuDict`` becomes ``RecuOrderedDict``.

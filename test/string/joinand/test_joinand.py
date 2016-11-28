@@ -52,15 +52,15 @@ def or_datas(request):
 # ---------------------- #
 
 def test_string_use_joinand(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        thelist = infos['list']['value']
+        thelist = infos['list']
         thelist = [x.strip() for x in thelist.split(',')]
 
-        andtext = infos['andtext']['value']
+        andtext = infos['andtext']
 
-        text_wanted = infos['text']['value']
+        text_wanted = infos['text']
 
         text_found = JOIN_AND_FUNCTION(
             texts   = thelist,

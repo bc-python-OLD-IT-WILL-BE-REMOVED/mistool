@@ -50,13 +50,13 @@ def or_datas(request):
 # ---------------------- #
 
 def test_os_use_parent_dir(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        path = infos['path']['value']
+        path = infos['path']
         path = PPATH_CLASS(path)
 
-        parent_wanted = infos['parent']['value']
+        parent_wanted = infos['parent']
         parent_wanted = PPATH_CLASS(parent_wanted)
 
         parent_found = path.parent

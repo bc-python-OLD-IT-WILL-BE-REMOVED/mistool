@@ -54,16 +54,15 @@ def or_datas(request):
 # --------------- #
 
 def test_string_use_multireplace_cycle_problem(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("tree std nosep nonb")
 
     for testname, infos in tests.items():
         oldnew = {
-            k: v['value']
+            k: v
             for k, v in infos['oldnew'].items()
         }
 
-        _, pattern = infos['pattern'][0]
-        pattern    = pattern.strip()
+        pattern = infos['pattern'][0].strip()
 
         with raises(ValueError):
             multireplace = CLASS_MULTI_REPLACE(

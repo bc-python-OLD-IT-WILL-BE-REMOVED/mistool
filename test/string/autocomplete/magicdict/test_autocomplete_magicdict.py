@@ -54,23 +54,19 @@ def or_datas(request):
 # ---------------- #
 
 def test_string_use_autocomplete_magicdict(or_datas):
-    infos = THE_DATAS_FOR_TESTING.treedict
+    infos = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     userwords = [
         x.strip()
-        for _, l in infos['words']
+        for l in infos['words']
         for x in l.split(" ")
     ]
 
-    infos = infos['magicdict']
-
-    magicdict_words_wanted = [
-        l for _, l in infos['words']
-    ]
+    magicdict_words_wanted = list(infos['magicdict/words'])
 
     magicdict_prefixes_wanted = {
-        k: eval(v['value'])
-        for k, v in infos['prefixes'].items()
+        k: eval(v)
+        for k, v in infos['magicdict/prefixes'].items()
     }
 
     magicdict_wanted = {

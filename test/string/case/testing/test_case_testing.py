@@ -56,15 +56,13 @@ def or_datas(request):
 
 def test_string_use_case_testing(or_datas):
     for kind, tests in THE_DATAS_FOR_TESTING.items():
-        tests  = tests.treedict
+        tests  = tests.mydict("std nosep nonb")
 
         answer_wanted = (kind == 'good')
 
         for case, texts in tests.items():
-            _, onetext = texts[0]
-
             answer_found = CASE_TESTING_FUNCTION(
-                text = onetext,
+                text = texts[0],
                 kind = case
             )
 

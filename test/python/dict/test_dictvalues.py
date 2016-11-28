@@ -50,13 +50,13 @@ def or_datas(request):
 # ------------- #
 
 def test_python_use_dictvalues(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        onedict = infos['onedict']['value']
+        onedict = infos['onedict']
         onedict = eval(onedict)
 
-        singlevalues_wanted = infos['singlevalues']['value']
+        singlevalues_wanted = infos['singlevalues']
         singlevalues_wanted = eval(singlevalues_wanted)
 
         singlevalues_found = DICT_VALUES_FUNCTION(onedict)

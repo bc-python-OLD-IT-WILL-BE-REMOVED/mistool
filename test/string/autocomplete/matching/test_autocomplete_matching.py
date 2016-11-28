@@ -50,11 +50,11 @@ def or_datas(request):
 # ---------------- #
 
 def test_string_use_autocomplete_matching(or_datas):
-    infos = THE_DATAS_FOR_TESTING.treedict
+    infos = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     userwords = [
         x.strip()
-        for _, l in infos['words']
+        for l in infos['words']
         for x in l.split(" ")
     ]
 
@@ -68,7 +68,7 @@ def test_string_use_autocomplete_matching(or_datas):
 
         matching_expected = [
             x.strip()
-            for _, l in matching
+            for l in matching
             for x in l.split(" ")
             if x.strip()
         ]

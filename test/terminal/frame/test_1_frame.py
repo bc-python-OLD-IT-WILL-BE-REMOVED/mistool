@@ -67,21 +67,21 @@ def or_datas(request):
 
 def test_term_use_frame(or_datas):
     for style, allinfos in THE_DATAS_FOR_TESTING.items():
-        infos = allinfos.treedict
+        infos = allinfos.mydict("std nosep nonb")
 
         gene  = infos['gene']
-        align = gene['align']['value']
+        align = gene['align']
 
         if 'frame' in infos:
-            frame = "\n".join(l for _, l in infos['frame'])
+            frame = "\n".join(infos['frame'])
 
         else:
             frame = "term_use.ALL_FRAMES['{0}']".format(style)
 
         frame = eval(frame)
 
-        text   = "\n".join(l for _, l in infos['text'])
-        output = "\n".join(l for _, l in infos['output'])\
+        text   = "\n".join(infos['text'])
+        output = "\n".join(infos['output'])\
                     .replace("/:", "/")\
                     .replace(":/", "/")
 

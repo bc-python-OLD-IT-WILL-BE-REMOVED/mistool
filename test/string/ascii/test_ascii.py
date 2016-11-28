@@ -57,12 +57,12 @@ def or_datas(request):
 # ---------------------------- #
 
 def test_string_use_ascii_good(or_datas):
-    tests = THE_DATAS_FOR_TESTING['good'].treedict
+    tests = THE_DATAS_FOR_TESTING['good'].mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        dirty = infos['dirty']['value']
+        dirty = infos['dirty']
 
-        pretty_wanted = infos['pretty']['value']
+        pretty_wanted = infos['pretty']
 
         pretty_found = ASCII_FUNCTION(text = dirty)
 
@@ -74,10 +74,10 @@ def test_string_use_ascii_good(or_datas):
 # --------------------------- #
 
 def test_string_use_ascii_bad(or_datas):
-    tests = THE_DATAS_FOR_TESTING['bad'].treedict
+    tests = THE_DATAS_FOR_TESTING['bad'].mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        text = infos['text']['value']
+        text = infos['text']
 
         with raises(ValueError):
             ASCII_FUNCTION(text = text)

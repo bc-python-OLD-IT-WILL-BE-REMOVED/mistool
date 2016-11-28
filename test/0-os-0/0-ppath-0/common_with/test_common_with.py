@@ -50,21 +50,21 @@ def or_datas(request):
 # ----------------- #
 
 def test_os_use_common_with(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        main = infos['main']['value']
+        main = infos['main']
         main = PPATH_CLASS(main)
 
         others = [
             PPATH_CLASS(x.strip())
-            for x in infos['others']['value'].split(",")
+            for x in infos['others'].split(",")
         ]
 
         common_wanted = "/"
 
         if "common" in infos:
-            common_wanted = infos['common']['value']
+            common_wanted = infos['common']
 
         common_wanted = PPATH_CLASS(common_wanted)
 

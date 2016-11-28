@@ -50,13 +50,13 @@ def or_datas(request):
 # ------------------- #
 
 def test_string_use_case_formatting(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        text = infos['text']['value']
-        kind = infos['kind']['value']
+        text = infos['text']
+        kind = infos['kind']
 
-        output_wanted = infos['output']['value']
+        output_wanted = infos['output']
 
         output_found = CASE_FORMATTING_FUNCTION(
             text = text,

@@ -69,24 +69,24 @@ def or_datas(request):
 
 def test_dirview(or_datas):
     for name, allinfos in THE_DATAS_FOR_TESTING.items():
-        infos = allinfos.treedict
+        infos = allinfos.mydict("tree std nosep nonb")
 
         gene = infos['gene']
 
-        dirname = gene['dirname']['value']
+        dirname = gene['dirname']
 
         if 'regpath' in gene:
-            regpath = gene['regpath']['value']
+            regpath = gene['regpath']
         else:
             regpath = "**"
 
         if 'display' in gene:
-            display = gene['display']['value']
+            display = gene['display']
         else:
             display = "main short"
 
         if 'sorting' in gene:
-            sorting = gene['sorting']['value']
+            sorting = gene['sorting']
         else:
             sorting = "alpha"
 
@@ -100,11 +100,11 @@ def test_dirview(or_datas):
         print("PB ? name =", name)
 
         if "ascii" in infos:
-            ascii_ = "\n".join(l for _, l in infos["ascii"])
+            ascii_ = "\n".join(infos["ascii"])
 
             assert dirview.ascii == ascii_
 
         if "toc" in infos:
-            toc = "\n".join(l for _, l in infos["toc"])
+            toc = "\n".join(infos["toc"])
 
             assert dirview.toc == toc

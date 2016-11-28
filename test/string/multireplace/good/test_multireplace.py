@@ -54,21 +54,20 @@ def or_datas(request):
 # --------------- #
 
 def test_string_use_multireplace(or_datas):
-    tests = THE_DATAS_FOR_TESTING.treedict
+    tests = THE_DATAS_FOR_TESTING.mydict("tree std nosep nonb")
 
     for testname, infos in tests.items():
         oldnew = {
-            k: v['value']
+            k: v
             for k, v in infos['oldnew'].items()
         }
 
-        _, pattern = infos['pattern'][0]
-        pattern    = pattern.strip()
+        pattern = infos['pattern'][0].strip()
 
-        before = "\n".join(l for _, l in infos['before'])
+        before = "\n".join(infos['before'])
         before = before.strip()
 
-        after_wanted = "\n".join(l for _, l in infos['after'])
+        after_wanted = "\n".join(infos['after'])
         after_wanted = after_wanted.strip()
 
         mreplace = CLASS_MULTI_REPLACE(
