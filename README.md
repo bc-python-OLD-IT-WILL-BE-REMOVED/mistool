@@ -15,12 +15,16 @@ I beg your pardon for my english...
 English is not my native language, so be nice if you notice misunderstandings, misspellings or grammatical errors in my documents and codes.
 
 
-What's new in this version `1.1.0-beta`
-===========================================
+What's new in this version `1.1.1-beta` ?
+=========================================
 
 In the module ``python_use``, the new class ``MKOrderedDict`` allows to define kinds of ordered dictionaries accepting several times the same key but at different "places".
 
-**Warning !** The class ``OrderedRecuDict`` becomes ``RecuOrderedDict``.
+**Warning !** Here are some important changes.
+
+1. In the module ``python_use``, the class ``OrderedRecuDict`` becomes ``RecuOrderedDict``.
+
+1. In the module ``string_use``, the function ``ascii_it`` becomes ``asciify``.
 
 
 The module ``os_use``
@@ -499,25 +503,25 @@ False
 ```
 
 
-You can also transform a string to a pure ASCII one *(this will not always work but in case of failure you can contribute very easily to enhance ``string_use.ascii_it``)*.
+You can also transform a string to a pure ASCII one *(this will not always work but in case of failure you can contribute very easily to enhance ``string_use.asciify``)*.
 
 ```python
->>> from mistool.string_use import ascii_it
->>> print(ascii_it("¡Viva España!"))
+>>> from mistool.string_use import asciify
+>>> print(asciify("¡Viva España!"))
 Viva Espana!
 >>> oldnew = {'!': ""}
->>> print(ascii_it(text = "¡Viva España!", oldnew = oldnew))
+>>> print(asciify(text = "¡Viva España!", oldnew = oldnew))
 Viva Espana
 ```
 
 
-The last example above shows how to be permissive : this means that ``string_use.ascii_it`` will "asciify" the most characters as possible.
+The last example above shows how to be permissive : this means that ``string_use.asciify`` will "asciify" the most characters as possible.
 
 ```python
->>> from mistool.string_use import ascii_it
->>> print(ascii_it(text = "L'Odyssée de ∏", strict = False))
+>>> from mistool.string_use import asciify
+>>> print(asciify(text = "L'Odyssée de ∏", strict = False))
 L'Odyssee de ∏
->>> print(ascii_it("L'Odyssée de ∏"))
+>>> print(asciify("L'Odyssée de ∏"))
 Traceback (most recent call last):
 [...]
 ValueError: ASCII conversion can't be made because of the character << ∏ >>.
@@ -710,15 +714,10 @@ MKOrderedDict([
 ...
 0 2nd value
 1 3rd value
->>> for k_id, val in onemkdict["key"]:
-...     print(k_id, val)
-...
-0 2nd value
-1 3rd value
 >>> print(onemkdict.getitembyid(1, "key"))
 3rd value
->>> for (key, k_id), val in onemkdict.items():
-...     print((key, k_id), "===>", val)
+>>> for (k_id, key), val in onemkdict.items():
+...     print((k_id, key), "===>", val)
 ...
 (0, (1, 2, 4)) ===> 1st value
 (0, 'key') ===> 2nd value
@@ -742,8 +741,8 @@ MKOrderedDict([
 ```
 
 
-A dictionary defined recursivly
--------------------------------
+A dictionary defined recursively
+--------------------------------
 
 The class ``RecuOrderedDict`` allows to use a list of hashable keys, or just a single hashable key. Here is a complete example of use.
 
@@ -808,8 +807,8 @@ With ``python_use.quote`` you can add without pain quotes around a text.
 'Same example.'
 >>> print(quote('One "small" example.'))
 'One "small" example.'
->>> print(quote("The same kind of 'example'."))
-"The same kind of 'example'."
+>>> print(quote("Another kind of \"example\"."))
+'Another kind of "example".'
 >>> print(quote("An example a 'little' more \"problematic\"."))
 'An example a \'little\' more "problematic".'
 ```
