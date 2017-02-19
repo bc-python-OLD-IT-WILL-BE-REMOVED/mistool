@@ -5,6 +5,9 @@
 **Nouvelle mise à jour des tests :** utilisation de la nouvelle méthode ``mydict`` de la classe ``data.ReadBlock`` du module ¨orpyste afin d'avoir une manipulation bien moins "lourdingue" des données (c'est d'ailleurs cette constatation qui a poussé à la création de la méthode ``mydict``).
 
 
+**Implémentation de la méthode magique ``__len__`` pour la classe ``python_use.MKOrderedDict``.**
+
+
 ==========
 2016-11-22
 ==========

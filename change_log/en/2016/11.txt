@@ -1,4 +1,11 @@
 ==========
+2016-11-28
+==========
+
+**Implementation of the magic method ``__len__`` for the class ``python_use.MKOrderedDict``.**
+
+
+==========
 2016-11-20
 ==========
 

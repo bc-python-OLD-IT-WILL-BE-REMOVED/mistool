@@ -1,0 +1,5 @@
+==========
+2016-12-07
+==========
+
+**Dans le module ``string_use``, ¨chgt de nom de la fonction ``ascii_it``:** le nouveau nom est ``asciify`` (ce ¨chgt implique que le numéro de version passe de version::``1.1.0-beta`` à version::``1.1.1-beta``).

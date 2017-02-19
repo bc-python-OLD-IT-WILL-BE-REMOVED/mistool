@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-04-09
+    date = 2016-12-07
 
 
 This module contains some tools to manipulate strings.
@@ -995,6 +995,13 @@ pyterm::
 
     before, inside, after = text[:s], text[sbis:e], text[e + len(end):]
 
+    if start in inside:
+        raise ValueError(
+            'separator << {0} >> found in the "inside" content'.format(
+                start
+            )
+        )
+
     return [before, inside, after]
 
 
@@ -1070,7 +1077,7 @@ pyterm::
     return bool(set(text) <= ASCII_CHARS)
 
 
-def ascii_it(
+def asciify(
     text,
     oldnew = {},
     strict = True
@@ -1100,8 +1107,8 @@ use is for avoiding strange names of files. Here is a standard use where you can
 see that none ¨ascii ponctuation mark is simply removed.
 
 pyterm::
-    >>> from mistool.string_use import ascii_it
-    >>> print(ascii_it("¡Viva España!"))
+    >>> from mistool.string_use import asciify
+    >>> print(asciify("¡Viva España!"))
     Viva Espana!
 
 
@@ -1113,9 +1120,9 @@ You can use the optional argument ``oldnew`` so as to do more replacements. In
 the code below we have choosen to also clean ``!``.
 
 pyterm::
-    >>> from mistool.string_use import ascii_it
+    >>> from mistool.string_use import asciify
     >>> oldnew = {'!': ""}
-    >>> print(ascii_it(text = "¡Viva España!", oldnew = oldnew))
+    >>> print(asciify(text = "¡Viva España!", oldnew = oldnew))
     Viva Espana
 
 
@@ -1128,10 +1135,10 @@ example below, we use ``strict`` so as to obtain ``L'Odyssee de ∏`` instead
 of an error as the second use of ``ascii`` shows.
 
 pyterm::
-    >>> from mistool.string_use import ascii_it
-    >>> print(ascii_it(text = "L'Odyssée de ∏", strict = False))
+    >>> from mistool.string_use import asciify
+    >>> print(asciify(text = "L'Odyssée de ∏", strict = False))
     L'Odyssee de ∏
-    >>> print(ascii_it("L'Odyssée de ∏"))
+    >>> print(asciify("L'Odyssée de ∏"))
     Traceback (most recent call last):
     [...]
     ValueError: ASCII conversion can't be made because of the character << ∏ >>.
@@ -1240,7 +1247,7 @@ prototype::
 
     for onechar in set(text) - ASCII_CHARS:
         try:
-            ascii_it(onechar)
+            asciify(onechar)
 
         except ValueError as e:
             problems.append(

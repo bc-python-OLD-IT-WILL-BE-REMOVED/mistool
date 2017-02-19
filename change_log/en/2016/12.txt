@@ -1,0 +1,12 @@
+==========
+2016-12-07
+==========
+
+**In the module ``string_use``, renaming of the function ``ascii_it``:** the new name is ``asciify`` (this change and the preceding one imply that number of the version goes from version::``1.1.0-beta`` to version::``1.1.1-beta``).
+
+
+==========
+2016-12-06
+==========
+
+**New argument for the fonction ``string_use.between`` :** the argument ``nosepin`` allows to accept or not that the "inside" content has one of the separators (which only can be an opening one in practice). By default, ``nosepin = True`` asks to not authorize this.

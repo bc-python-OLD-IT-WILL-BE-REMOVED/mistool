@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-11-20
+    date = 2016-11-28
 
 This module contains some simple tools about the ¨python programming language.
 """
@@ -145,6 +145,7 @@ pyterm::
     def __init__(self):
         self._internaldict = OrderedDict()
         self._keyids       = {}
+        self._len          = 0
 
 
     def __setitem__(self, key, val):
@@ -159,8 +160,13 @@ pyterm::
 
         self._internaldict[(self._keyids[key], key)] = val
 
+        self._len += 1
+
 
     def setitembyid(self, keyid, key, val):
+        if (keyid, key) not in self._internaldict:
+            self._len += 1
+
         self._internaldict[(keyid, key)] = val
 
 
@@ -200,6 +206,10 @@ pyterm::
                 return True
 
         return False
+
+
+    def __len__(self):
+        return self._len
 
 
     def __eq__(self, other):
