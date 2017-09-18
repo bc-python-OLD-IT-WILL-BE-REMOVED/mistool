@@ -1,0 +1,9 @@
+==========
+2017-07-26
+==========
+
+warning::
+    Dernière rédaction du journal de bord en français ! À l'avenir, seul l'anglais sera utilisé pour que l'auteur profite plus de son vélo...
+
+
+**Une modification dans le module ``string_use`` :** la casse de type ``FIRSTLAST`` n'est plus disponible (c'était une vraie fausse bonne idée).

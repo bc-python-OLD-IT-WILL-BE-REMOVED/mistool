@@ -4,7 +4,6 @@
 # -- SEVERAL IMPORTS -- #
 # --------------------- #
 
-import datetime
 from pathlib import Path
 from pytest import fixture
 
@@ -15,7 +14,7 @@ from orpyste.data import ReadBlock as READ
 # -- MODULE TESTED -- #
 # ------------------- #
 
-from mistool import date_use
+from mistool import datetime_use
 
 
 # ----------------------- #
@@ -24,7 +23,7 @@ from mistool import date_use
 
 THIS_DIR = Path(__file__).parent
 
-TRANSLATE_FUNCTION = date_use.translate
+BUILD_DDATETIME = datetime_use.build_ddatetime
 
 
 # ----------------------- #
@@ -50,21 +49,20 @@ def or_datas(request):
 # -- TRANSLATE DATES -- #
 # --------------------- #
 
-def test_date_use_translate(or_datas):
+def test_datetime_use_translate(or_datas):
     tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for testname, infos in tests.items():
         date    = infos['date']
         y, m, d = [int(x) for x in date.split('-')]
-        date    = datetime.date(y, m, d)
+        ddate   = BUILD_DDATETIME(y, m, d)
 
         lang      = infos['lang']
         strformat = infos['format']
 
         translation_wanted = infos['translation']
 
-        translation_found = TRANSLATE_FUNCTION(
-            date      = date,
+        translation_found = ddate.translate(
             strformat = strformat,
             lang      = lang
         )

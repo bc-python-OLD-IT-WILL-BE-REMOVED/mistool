@@ -9,6 +9,3 @@ sentence::
 
 title::
     Bonjour Inconnu
-
-firstlast::
-    Bonjour inconnU

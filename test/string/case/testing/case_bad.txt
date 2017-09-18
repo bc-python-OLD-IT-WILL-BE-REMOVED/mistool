@@ -9,6 +9,3 @@ sentence::
 
 title::
     bonjour inconnu
-
-firstlast::
-    bonjour inconnu

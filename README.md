@@ -15,6 +15,12 @@ I beg your pardon for my english...
 English is not my native language, so be nice if you notice misunderstandings, misspellings or grammatical errors in my documents and codes.
 
 
+What's new in this version `1.2.0-beta` ?
+=========================================
+
+The module ``date_use`` has been changed to ``datetime_use`` : see the presentation above to know how to work now with dates inside **misTool**.
+
+
 What's new in this version `1.1.1-beta` ?
 =========================================
 
@@ -460,14 +466,13 @@ The function ``string_use.case`` gives more auto-formatting of strings *(the las
 ```python
 >>> from mistool.string_use import case
 >>> text = "onE eXamPLe"
->>> for kind in ['lower', 'upper', 'sentence', 'title', 'firstlast']:
+>>> for kind in ['lower', 'upper', 'sentence', 'title']:
 ...     print("{0}  [{1}]".format(case(text, kind), kind))
 ...
 one example   [lower]
 ONE EXAMPLE   [upper]
 One example   [sentence]
 One Example   [title]
-One examplE   [firstlast]
 ```
 
 
@@ -476,14 +481,13 @@ A camel case string can be "uncamelized" by the function ``string_use.camelto``.
 ```python
 >>> from mistool.string_use import camelto
 >>> text = "OneSmallExampLE"
->>> for kind in ['lower', 'upper', 'sentence', 'title', 'firstlast']:
+>>> for kind in ['lower', 'upper', 'sentence', 'title']:
 ...     print("{0}  [{1}]".format(camelto(text, kind), kind))
 ...
 one_small_examp_l_e   [lower]
 ONE_SMALL_EXAMP_L_E   [upper]
 One_small_examp_l_e   [sentence]
 One_Small_Examp_L_E   [title]
-One_small_examp_l_E   [firstlast]
 ```
 
 If you need to check the case of a string, just use ``string_use.iscase(text, kind)``.
@@ -814,39 +818,81 @@ With ``python_use.quote`` you can add without pain quotes around a text.
 ```
 
 
-The module ``date_use``
-=======================
+The module ``datetime_use``
+===========================
 
-Translating dates
------------------
+Special class `ddatetime`
+-------------------------
 
-The function ``date_use.translate`` translates safely and easily all the names in dates.
+The class `ddatetime` is an enhanced version of the class `datetime.datetime` : see the two sections below. It is very easy to build an instance of `ddatetime` thanks to the very cool function `build_ddatetime`. The examples above show different ways to define a date.
 
 ```python
->>> import datetime
->>> from mistool.date_use import translate
->>> onedate   = datetime.date(2015, 6, 2)
->>> oneformat = "%A %d %B %Y"
->>> print(translate(date = onedate, strformat = oneformat))
-Tuesday 02 June 2015
->>> print(translate(date = onedate, strformat = oneformat, lang = "fr_FR"))
-Mardi 02 juin 2015
+>>> from mistool.datetime_use import build_ddatetime
+>>> build_ddatetime((2017, 8, 1))
+ddatetime(2017, 8, 1, 0, 0)
+>>> build_ddatetime(2017, 8, 1)
+ddatetime(2017, 8, 1, 0, 0)
+>>> build_ddatetime("2017-08-01")
+ddatetime(2017, 8, 1, 0, 0)
+>>> build_ddatetime("Friday 01 august 2017")
+ddatetime(2017, 8, 1, 0, 0)
+>>> build_ddatetime("Vendredi 1er août 2017", lang = "fr_FR")
+ddatetime(2017, 8, 1, 0, 0)
+>>> build_ddatetime("Vendredi 1er août 2017")
+[...]
+ValueError: Unknown string format
+>>> build_ddatetime("Vendredi 1er août 2017", "fr_FR")
+[...]
+TypeError: an integer is required (got type str)
 ```
+
+Note that you **must** define a special language using ``lang = "fr_FR"`` as you can see in the two last commands in the preceding example.
+
 
 Next day having a fixed english name
 ------------------------------------
 
-In some applications you want to know the next monday after a fixing date. Here is how to do that.
+In some applications you want to know the next monday after a fixing date.
 
 ```python
->>> from datetime import datetime
->>> from mistool.date_use import nextday
->>> onedate = datetime.strptime("2013-11-30", "%Y-%m-%d")
->>> print(onedate.strftime("%Y-%m-%d is a %A"))
-2013-11-30 is a Saturday
->>> nextsunday = nextday(date = onedate, name = "sunday")
->>> print("Next Sunday:", nextsunday.strftime("%Y-%m-%d"))
-Next Sunday: 2013-12-01
+>>> from mistool.datetime_use import ddatetime
+>>> onedate = ddatetime(2017,8, 1)
+>>> print(onedate.strftime("%Y-%m-%d is a %A."))
+2017-08-01 is a Tuesday.
+>>> nextfriday = onedate.nextday(name = "friday")
+>>> print("Next Friday:", nextfriday.strftime("%Y-%m-%d"))
+Next Friday: 2017-08-04
+```
+
+Translating a date
+------------------
+
+Thanks to the class `ddatetime`, it is easy to safely translate all the names in a date.
+
+```python
+>>> from mistool.datetime_use import ddatetime
+>>> onedate   = ddatetime(2015, 6, 2)
+>>> oneformat = "%A %d %B %Y"
+>>> print(onedate.translate(strformat = oneformat))
+Tuesday 02 June 2015
+>>> print(onedate.translate(strformat = oneformat, lang = "fr_FR"))
+Mardi 02 juin 2015
+```
+
+Parsing a string to build a date
+--------------------------------
+
+The function ``parsedate`` is an international version of the function ``dateutil.parser.parse`` (translations need external contributions : the job is very easy to do !).
+
+```python
+>>> from mistool.datetime_use import parsedate
+>>> parsedate("Friday 01 august 2017")
+ddatetime(2017, 8, 1, 0, 0)
+>>> parsedate(timestr = "Vendredi 1er Août 2017", lang = "fr_FR")
+ddatetime(2017, 8, 1, 0, 0)
+>>> parsedate(timestr = "Montag, 11. April 2016", lang = "de_DE")
+[...]
+ValueError: unsupported language ''de_DE''
 ```
 
 

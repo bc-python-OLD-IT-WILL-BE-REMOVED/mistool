@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2016-12-07
+    date = 2017-07-26
 
 
 This module contains some tools to manipulate strings.
@@ -17,8 +17,8 @@ from mistool.config.ascii import ASCII_CHARS
 # -- CASE FORMATTING -- #
 # --------------------- #
 
-_CASE_VARIANTS = FIRSTLAST, LOWER, SENTENCE, TITLE, UPPER \
-               = 'firstlast', 'lower', 'sentence', 'title', 'upper'
+_CASE_VARIANTS = LOWER, SENTENCE, TITLE, UPPER \
+               = 'lower', 'sentence', 'title', 'upper'
 
 _LONG_CASE_VARIANTS = {x[0]: x for x in _CASE_VARIANTS}
 
@@ -62,7 +62,10 @@ info::
     kind = _LONG_CASE_VARIANTS.get(kind, kind)
 
     if kind not in _CASE_VARIANTS:
-        raise ValueError('unknown kind of case formatting.')
+        raise ValueError(
+            'unknown kind of case formatting : '
+            '``{0}``'.format(kind)
+        )
 
 # Let's work...
     if kind == LOWER:
@@ -391,7 +394,6 @@ pyterm::
 # Build the value of ``self.asit``
         self.build()
 
-
 # ---------------------------- #
 # -- BUILD OF ``self.asit`` -- #
 # ---------------------------- #
@@ -409,7 +411,6 @@ prototype::
 
         self._lookforcycle()
         self._build_asit()
-
 
     def _lookforcycle(self):
         """
@@ -434,7 +435,6 @@ prototype::
             ]
 
         self._noviciouscycle(self._allold)
-
 
     def _noviciouscycle(
         self,
@@ -478,7 +478,6 @@ prototype::
                         nextwords  = self._inold[old]
                     )
 
-
     def _build_asit(self):
         """
 prototype::
@@ -494,7 +493,6 @@ prototype::
 
         else:
             self.asit = self.oldnew
-
 
     def _replace_in_new(self, text):
         """
@@ -521,7 +519,6 @@ prototype::
             else:
                 text = newtext
 
-
     def _apply_in_new_for_asit(self, match):
         """
 prototype::
@@ -529,7 +526,6 @@ prototype::
              ``self.asit`` regarding the words defined by ``self.pattern``.
         """
         return self.oldnew.get(match.group(1), match.group(0))
-
 
 # ----------------------- #
 # -- REPLACE IN A TEXT -- #
@@ -557,7 +553,6 @@ prototype::
                 text = text.replace(old, self.oldnew[old])
 
         return text
-
 
     def _apply_asit(self, match):
         """
@@ -752,7 +747,6 @@ warning::
         self.esc_char = esc_char
         self.strip    = strip
 
-
 # --------------------- #
 # -- SPECIAL SETTERS -- #
 # --------------------- #
@@ -787,7 +781,6 @@ warning::
 
         self._seps = value
 
-
 # -------------- #
 # -- LISTVIEW -- #
 # -------------- #
@@ -812,7 +805,6 @@ prototype::
         )
 
         return self.listview
-
 
     def _build(self, text, seps):
         """
@@ -872,7 +864,6 @@ prototype::
 # The job has been done !
         return answer
 
-
 # ------------------------------------ #
 # -- ITERATE EASILY IN THE LISTVIEW -- #
 # ------------------------------------ #
@@ -892,7 +883,6 @@ prototype::
             listview = self.listview
 
         return self._iter(listview, minsize = 0)
-
 
     def _iter(self, listview, minsize):
         """
@@ -1469,7 +1459,6 @@ list of words just one time, and then store this dictionary to reuse it later.
         self.minsize = minsize
         self.assos   = assos
 
-
 # --------------------- #
 # -- SPECIAL SETTERS -- #
 # --------------------- #
@@ -1485,7 +1474,6 @@ list of words just one time, and then store this dictionary to reuse it later.
         if value is not None and self._not_first_setting:
             self.assos = None
 
-
     @property
     def minsize(self):
         return self._minsize
@@ -1496,7 +1484,6 @@ list of words just one time, and then store this dictionary to reuse it later.
 
         if self._words is not None and self._not_first_setting:
             self.assos = None
-
 
     @property
     def assos(self):
@@ -1509,7 +1496,6 @@ list of words just one time, and then store this dictionary to reuse it later.
 
         else:
             self._assos = value
-
 
 # -------------------------- #
 # -- THE MAGIC DICTIONARY -- #
@@ -1558,7 +1544,6 @@ info::
 
         self.assos = assos
 
-
     def matching(
         self,
         prefix
@@ -1581,7 +1566,6 @@ prototype::
             return self.assos['words'][first: last]
 
         return []
-
 
     def missing(
         self,

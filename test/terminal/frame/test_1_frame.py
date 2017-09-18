@@ -52,6 +52,7 @@ for ppath in cfgdir.walk(regpath = "file::**.txt"):
 @fixture(scope="module")
 def or_datas(request):
     for style, allinfos in THE_DATAS_FOR_TESTING.items():
+        print("style :", style)
         allinfos.build()
 
     def remove_extras():

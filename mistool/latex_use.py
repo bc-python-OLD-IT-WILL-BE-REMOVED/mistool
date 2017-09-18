@@ -263,7 +263,6 @@ info::
 
         self.cmd = None
 
-
     def compile(self):
         """
 prototype::
@@ -298,7 +297,6 @@ prototype::
                 print(end_compile.format(i))
 
         self.cmd = None
-
 
     def pdf(self):
         """

@@ -36,7 +36,7 @@ longdesc = pypandoc.convert(str(readme), 'rst')
 setup(
 # General
     name         = "mistool",
-    version      = "1.1.1-beta",
+    version      = "1.2.0-beta",
     url          = 'https://github.com/bc-python-tools/mistool',
     license      = 'GPLv3',
     author       = "Christophe BAL",

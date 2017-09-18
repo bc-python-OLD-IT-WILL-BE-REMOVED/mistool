@@ -4,7 +4,6 @@
 # -- SEVERAL IMPORTS -- #
 # --------------------- #
 
-import datetime
 from pathlib import Path
 from pytest import fixture
 
@@ -15,7 +14,7 @@ from orpyste.data import ReadBlock as READ
 # -- MODULE TESTED -- #
 # ------------------- #
 
-from mistool import date_use
+from mistool import datetime_use
 
 
 # ----------------------- #
@@ -24,7 +23,7 @@ from mistool import date_use
 
 THIS_DIR = Path(__file__).parent
 
-NEXTDAY_FUNCTION = date_use.nextday
+BUILD_DDATETIME = datetime_use.build_ddatetime
 
 
 # ----------------------- #
@@ -32,7 +31,7 @@ NEXTDAY_FUNCTION = date_use.nextday
 # ----------------------- #
 
 THE_DATAS_FOR_TESTING = READ(
-    content = THIS_DIR / 'nextday.txt',
+    content = THIS_DIR / 'builddate.txt',
     mode    = {"keyval:: =": ":default:"}
 )
 
@@ -50,23 +49,17 @@ def or_datas(request):
 # -- NEXT DAY ? -- #
 # ---------------- #
 
-def test_date_use_nextday(or_datas):
+def test_datetime_use_build_ddatetime(or_datas):
     tests = THE_DATAS_FOR_TESTING.mydict("std nosep nonb")
 
     for testname, infos in tests.items():
-        date_start = infos['start']
-        y, m, d    = [int(x) for x in date_start.split('-')]
-        date_start = datetime.date(y, m, d)
+        if 'lang' in infos:
+            _instr = f"BUILD_DDATETIME({infos['in']}, lang = '{infos['lang']}')"
 
-        next_date_wanted = infos['next']
-        y, m, d          = [int(x) for x in next_date_wanted.split('-')]
-        next_date_wanted = datetime.date(y, m, d)
+        else:
+            _instr = f"BUILD_DDATETIME({infos['in']})"
 
-        name = infos['name']
+        _in  = str(eval(_instr))
+        _out = f"{infos['out']} 00:00:00"
 
-        next_date_found = NEXTDAY_FUNCTION(
-            date = date_start,
-            name = name
-        )
-
-        assert next_date_wanted == next_date_found
+        assert _in == _out

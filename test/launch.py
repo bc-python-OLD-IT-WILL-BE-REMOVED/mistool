@@ -44,7 +44,7 @@ with cd(THIS_DIR):
         tests_passed = True
 
         runthis(
-            cmd        = "py.test -v --resultlog=x-pytest_log-x.txt",
+            cmd        = "py.test -v",
             showoutput = True
         )
 

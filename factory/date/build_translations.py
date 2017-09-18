@@ -6,8 +6,9 @@
 
 import locale
 import datetime
-
 from pathlib import Path
+
+from orpyste.data import ReadBlock
 
 
 # --------------- #
@@ -21,6 +22,24 @@ for parent in THIS_DIR.parents:
         break
 
 PY_FILE = parent / 'mistool/config/date_name.py'
+
+
+# ------------------- #
+# -- NAME TO INDEX -- #
+# ------------------- #
+
+WEEKDAYS_TO_INDEXES = {
+    name: i
+    for i,  name in enumerate([
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday"
+    ])
+}
 
 
 # ------------------ #
@@ -56,8 +75,8 @@ MONTH_NAME = [
 ]
 
 # Each word translated and all the languages that correspond to it.
-lang2word = {}
-langs_supported = []
+LANG2WORD = {}
+LANGS_SUPPORTED = []
 
 for onelang in langs:
     try:
@@ -65,7 +84,7 @@ for onelang in langs:
 
 #    * Days
         for format_ in ["%A", "%a"]:
-            l2w = lang2word.get(format_, {})
+            l2w = LANG2WORD.get(format_, {})
 
             alldaynames = []
 
@@ -77,15 +96,15 @@ for onelang in langs:
 
             if len(alldaynames) == 7:
                 if format_ == "%A":
-                    langs_supported.append(onelang)
+                    LANGS_SUPPORTED.append(onelang)
 
-                if onelang in langs_supported:
+                if onelang in LANGS_SUPPORTED:
                     l2w[onelang]       = alldaynames
-                    lang2word[format_] = l2w
+                    LANG2WORD[format_] = l2w
 
 #   * Months
         for format_ in ["%B", "%b"]:
-            l2w = lang2word.get(format_, {})
+            l2w = LANG2WORD.get(format_, {})
 
             allmonthnames = []
 
@@ -96,9 +115,9 @@ for onelang in langs:
                     allmonthnames.append(monthname)
 
             if len(allmonthnames) == 12:
-                if onelang in langs_supported:
+                if onelang in LANGS_SUPPORTED:
                     l2w[onelang]       = allmonthnames
-                    lang2word[format_] = l2w
+                    LANG2WORD[format_] = l2w
 
     except locale.Error:
         ...
@@ -108,18 +127,90 @@ for onelang in langs:
 # -- POINTERS -- #
 # -------------- #
 
-print('    * Building the pointers')
+print('    * Building the POINTERS FOR WORDS')
 
-pointers = []
+POINTERS = []
 
-for _, trans in lang2word.items():
+for _, trans in LANG2WORD.items():
     newTrans = {}
 
     for lang, words in trans.items():
-        if not words in pointers:
-            pointers.append(words)
+        if not words in POINTERS:
+            POINTERS.append(words)
 
-        trans[lang] = pointers.index(words)
+        trans[lang] = POINTERS.index(words)
+
+
+# ------------- #
+# -- PARSING -- #
+# ------------- #
+
+print('    * Looking for parsing infos...')
+
+
+EXTRAS_POINTERS = []
+HMS             = {}
+JUMP            = {}
+
+PARSE_EXTRAS_DIR = THIS_DIR / "config" / "parse_extras"
+
+for langfile in PARSE_EXTRAS_DIR.glob("*.peuf"):
+    lang = langfile.stem
+
+    with ReadBlock(
+        content = langfile,
+        mode    = "verbatim"
+    ) as datas:
+        datas = datas.mydict("std nosep nonb")
+
+        hms = []
+
+        for kind in ["hour", "minute", "second"]:
+            pieces = []
+
+            for onepiece in " ".join(datas[kind]).split(" "):
+                onepiece = onepiece.strip()
+
+                if onepiece:
+                    pieces.append(onepiece)
+
+            if len(pieces) != 3:
+                raise ValueError(f"illegal definition for ``{kind}`` in file ``{lang}.peuf``")
+
+            hms.append(tuple(pieces))
+
+            if hms not in EXTRAS_POINTERS:
+                EXTRAS_POINTERS.append(hms)
+
+            HMS[lang] = EXTRAS_POINTERS.index(hms)
+
+
+        jump = []
+
+        for onepiece in " ".join(datas["jump"]).split(" "):
+            onepiece = onepiece.strip()
+
+            if onepiece:
+                jump.append(onepiece)
+
+        if jump not in EXTRAS_POINTERS:
+            EXTRAS_POINTERS.append(jump)
+
+        JUMP[lang] = EXTRAS_POINTERS.index(jump)
+
+
+# Auto added lang
+for onedict in [HMS, JUMP]:
+    langs = list(onedict.keys())
+
+    for lang in langs:
+        pointers_infos = LANG2WORD['%A']
+        pointerwanted  = pointers_infos[lang]
+
+        for otherlang in pointers_infos:
+            if otherlang != lang \
+            and pointers_infos[otherlang] == pointerwanted:
+                onedict[otherlang] = onedict[lang]
 
 
 # ---------------------------- #
@@ -128,20 +219,25 @@ for _, trans in lang2word.items():
 
 print('    * Updating the Python file')
 
-PY_TEXT = """#!/usr/bin/env python3
+PY_TEXT = f"""#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 # Note: the following ugly variables were automatically built.
 
-LANGS = {0}
+WEEKDAYS = {WEEKDAYS_TO_INDEXES}
 
-_POINTERS = {1}
+LANGS = {LANGS_SUPPORTED}
 
-_FORMATS_TRANSLATIONS = {2}
-""".format(
-    repr(langs_supported),
-    repr(pointers),
-    repr(lang2word)
-)
+POINTERS = {POINTERS}
+
+FORMATS_TRANSLATIONS = {LANG2WORD}
+
+EXTRAS_POINTERS = {EXTRAS_POINTERS}
+
+HMS_TRANSLATIONS = {HMS}
+
+JUMP_TRANSLATIONS = {JUMP}
+"""
 
 with PY_FILE.open(
     mode     = 'w',

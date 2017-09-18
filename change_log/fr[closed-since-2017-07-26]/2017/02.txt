@@ -1,0 +1,5 @@
+==========
+2017-02-22
+==========
+
+**Application de la ¨pep8 sur les lignes vides :** on n'utilise plus qu'un seul espace pour séparer les méthodes d'une même classe.

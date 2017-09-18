@@ -191,7 +191,6 @@ pyterm::
         self.isprinted  = isprinted
         self.isreturned = isreturned
 
-
     def __call__(
         self,
         text
@@ -1067,7 +1066,6 @@ info::
 
     DISPLAY_LONGNAMES = {x[0]: x for x in DISPLAY}
 
-
     def __init__(
         self,
         ppath,
@@ -1083,7 +1081,6 @@ info::
         self.regpath = regpath
         self.display = display
         self.sorting = sorting
-
 
 # --------------------- #
 # -- SPECIAL SETTERS -- #
@@ -1102,7 +1099,6 @@ info::
 
         self._ppath = value
 
-
     @property
     def regpath(self):
         return self._regpath
@@ -1111,7 +1107,6 @@ info::
     @mustrebuild
     def regpath(self, value):
         self._regpath = value
-
 
     @property
     def display(self):
@@ -1140,7 +1135,6 @@ info::
 
         self._mustberebuilt = True
 
-
     @property
     def sorting(self):
         return self._sorting
@@ -1152,7 +1146,6 @@ info::
 
         if self._sorting not in self.LAMBDA_SORT:
             raise ValueError("unknown sorting rule.")
-
 
 # -------------------- #
 # -- INTERNAL VIEWS -- #
@@ -1218,7 +1211,6 @@ info::
         self.sort()
         self._mustberebuilt = False
 
-
     def _build_treeview(self):
         """
 prototype::
@@ -1276,7 +1268,6 @@ prototype::
 # Let's work recursively.
         self.treeview = self._rbuild_treeview(walkview)
 
-
     def _rbuild_treeview(self, walkview, depth = 0):
         """
 prototype::
@@ -1323,7 +1314,6 @@ prototype::
 
         return treeview
 
-
     def _build_listview(self):
         """
 prototype::
@@ -1333,7 +1323,6 @@ prototype::
              job is done recursively by the method ``self._rbuild_listview``)
         """
         self.listview = self._rbuild_listview(self.treeview)
-
 
     def _rbuild_listview(self, treeview):
         """
@@ -1367,7 +1356,6 @@ prototype::
 
         return listview
 
-
 # ------------- #
 # -- SORTING -- #
 # ------------- #
@@ -1387,7 +1375,6 @@ prototype::
 
         else:
             return self._lambda_sort(metadatas)
-
 
     def sort(self):
         """
@@ -1416,7 +1403,6 @@ info::
 # We have to go back to ``self.listview`` !
         self.listview = self._rbuild_listview(self.treeview)
 
-
     def _rsort(self, treeview):
         """
 prototype::
@@ -1439,7 +1425,6 @@ prototype::
 
         return treeview
 
-
 # ------------- #
 # -- OUTPUTS -- #
 # ------------- #
@@ -1455,7 +1440,6 @@ prototype::
             self.buildviews()
 
         return kind not in self.outputs
-
 
     def pathtoprint(self, metadatas):
         """
@@ -1484,7 +1468,6 @@ prototype::
             strpath = str(ppath)
 
         return strpath
-
 
     @property
     def ascii(self):
@@ -1515,7 +1498,6 @@ prototype::
 # The job has been done.
         return self.outputs[self.ASCII_TAG]
 
-
     @property
     def tree(self):
         """
@@ -1541,7 +1523,6 @@ prototype::
 
 # The job has been done.
         return self.outputs[self.TREE_TAG]
-
 
     def _rtree(self, treeview):
         """
@@ -1611,7 +1592,6 @@ prototype::
                 ]
 
         return lines
-
 
     @property
     def toc(self):
@@ -1687,7 +1667,6 @@ prototype::
 
 # The job has been done.
         return self.outputs[self.TOC_TAG]
-
 
     @property
     def latex(self):

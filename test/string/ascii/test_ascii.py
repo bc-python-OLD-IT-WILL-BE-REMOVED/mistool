@@ -23,7 +23,7 @@ from mistool import string_use
 
 THIS_DIR = Path(__file__).parent
 
-ASCII_FUNCTION = string_use.ascii_it
+ASCII_FUNCTION = string_use.asciify
 
 STRING_USE_ERROR = ValueError
 

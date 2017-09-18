@@ -462,7 +462,6 @@ prototype::
 
         return True
 
-
     def is_protected(self):
         """
 prototype::
@@ -493,7 +492,6 @@ prototype::
             mode = os.W_OK | os.X_OK
         )
 
-
     @property
     def depth(self):
         """
@@ -513,7 +511,6 @@ pyterm::
     4
         """
         return len(self.parents) - 1
-
 
     @property
     def ext(self):
@@ -539,7 +536,6 @@ pyterm::
         """
 # An extension is a suffix without the leading point.
         return self.suffix[1:]
-
 
 # -- CHANGING A PATH -- #
 
@@ -570,7 +566,6 @@ pyterm::
 
         return self.with_suffix(ext)
 
-
     @property
     def normpath(self):
         """
@@ -596,7 +591,6 @@ pyterm::
                 os.path.expanduser(str(self))
             )
         )
-
 
     @property
     def shortpath(self):
@@ -624,7 +618,6 @@ pyterm::
             path = "~" + self._flavour.sep + path[len(userpath):]
 
         return PPath(path)
-
 
 # -- COMPARING PATHS -- #
 
@@ -715,7 +708,6 @@ info::
 
         return commonpath
 
-
     def __and__(self, paths):
         """
 prototype::
@@ -733,7 +725,6 @@ This magic method allows to use ``path & paths`` instead of the long version
 a list or a tuple of paths.
         """
         return self.common_with(paths)
-
 
     def __sub__(self, path):
         """
@@ -766,7 +757,6 @@ pyterm::
         """
         return self.relative_to(path.normpath)
 
-
     def depth_in(self, path):
         """
 prototype::
@@ -795,7 +785,6 @@ pyterm::
     ValueError: '/NoUser/projects' does not start with '/Users/projetmbc'
         """
         return len(self.relative_to(path.normpath).parts) - 1
-
 
 # -- WALK AND SEE -- #
 
@@ -845,7 +834,6 @@ prototype::
                     self
                 )
             )
-
 
     def walk(self, regpath = "**"):
         """
@@ -1050,7 +1038,6 @@ info::
 
                     yield absppath
 
-
 # -- CREATE -- #
 
     def create(self, kind):
@@ -1097,7 +1084,7 @@ info::
                 raise FileExistsError("path points to an existing file.")
 
             elif not self.is_dir():
-                str(self).mkdir(parents = True)
+                self.mkdir(parents = True)
 
 # A new file.
         elif self.is_dir():
@@ -1111,7 +1098,6 @@ info::
 
             with self.open(mode = "w") as f:
                 ...
-
 
 # -- REMOVE -- #
 
@@ -1138,7 +1124,6 @@ prototype::
                     "(use ``safemode = False`` to force the erasing)"
                 )
 
-
     def remove(self):
         """
 prototype::
@@ -1163,7 +1148,6 @@ warning::
                 "the following path points nowhere :"
                 "\n    + {0}".format(self)
             )
-
 
     def clean(self, regpath):
         """
@@ -1205,7 +1189,6 @@ prototype::
 # << Warning ! >> We have to be carefull with empty directories.
             for path in sortedpaths:
                 path.remove()
-
 
 # -- MOVE & COPY -- #
 
@@ -1284,7 +1267,6 @@ warning::
 
             else:
                 raise FileNotFoundError(e)
-
 
     def move_to(self, dest, safemode = True):
         """

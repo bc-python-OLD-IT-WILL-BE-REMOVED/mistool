@@ -17,8 +17,3 @@ title::
     text   = Bonjour IncoNNu
     kind   = title
     output = Bonjour Inconnu
-
-firstLast::
-    text   = Bonjour IncoNNu
-    kind   = firstlast
-    output = Bonjour inconnU

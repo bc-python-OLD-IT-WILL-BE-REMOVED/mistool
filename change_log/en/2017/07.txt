@@ -1,0 +1,9 @@
+==========
+2017-07-26
+==========
+
+warning::
+    So as to do more cycling, from now the author will just write an english log with all the details (maybe the author will improve his english by this way).
+
+
+**One modification in the module ``string_use``:** the case ``FIRSTLAST`` has been removed (it was a real wrong good idea).

@@ -17,8 +17,3 @@ title::
     text   = oneSmallExample
     kind   = title
     output = One_Small_Example
-
-firstLast::
-    text   = oneSmallExample
-    kind   = firstlast
-    output = One_small_examplE

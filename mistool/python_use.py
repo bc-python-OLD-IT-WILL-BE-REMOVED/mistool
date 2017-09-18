@@ -147,7 +147,6 @@ pyterm::
         self._keyids       = {}
         self._len          = 0
 
-
     def __setitem__(self, key, val):
         if not isinstance(key, Hashable):
             raise KeyError("key must be hashable")
@@ -162,13 +161,11 @@ pyterm::
 
         self._len += 1
 
-
     def setitembyid(self, keyid, key, val):
         if (keyid, key) not in self._internaldict:
             self._len += 1
 
         self._internaldict[(keyid, key)] = val
-
 
     def __getitem__(self, key, keyid = None):
         keyfound = False
@@ -182,14 +179,12 @@ pyterm::
         if not keyfound:
             raise KeyError("key not used in the MKOrderedDict")
 
-
     def getitembyid(self, keyid, key):
         for (oneid, onekey), oneval in self._internaldict.items():
             if keyid == oneid and key == onekey:
                 return oneval
 
         raise KeyError("key not used in the MKOrderedDict")
-
 
     def items(self, noid = False):
         for id_key, oneval in self._internaldict.items():
@@ -199,7 +194,6 @@ pyterm::
             else:
                 yield id_key, oneval
 
-
     def __contains__(self, key):
         for (oneid, onekey), oneval in self._internaldict.items():
             if key == onekey:
@@ -207,10 +201,8 @@ pyterm::
 
         return False
 
-
     def __len__(self):
         return self._len
-
 
     def __eq__(self, other):
         if not isinstance(other, MKOrderedDict):
@@ -225,7 +217,6 @@ pyterm::
 
         return True
 
-
     def __str__(self):
         text = repr(self)
 
@@ -235,7 +226,6 @@ pyterm::
         text = text.replace("\n", "")
 
         return text
-
 
     def __repr__(self):
         text = ["MKOrderedDict(["]
@@ -299,7 +289,6 @@ pyterm::
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-
     def __getitem__(self, keys):
         if isinstance(keys, Hashable):
             return super().__getitem__(keys)
@@ -312,7 +301,6 @@ pyterm::
 
             else:
                 return self[first]
-
 
     def __setitem__(self, keys, val):
         if isinstance(keys, Hashable):
@@ -331,7 +319,6 @@ pyterm::
                     val             = subdict
 
                 self[first] = val
-
 
     def __contains__(self, keys):
         if isinstance(keys, Hashable):

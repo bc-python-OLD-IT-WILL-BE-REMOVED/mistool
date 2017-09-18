@@ -1,0 +1,24 @@
+minus::
+    in  = "2017-08-01"
+    out = 2017-08-01
+
+list::
+    in  = [2017, 8, 1]
+    out = 2017-08-01
+
+tuple::
+    in  = (2017, 8, 1)
+    out = 2017-08-01
+
+kargs::
+    in  = *[2017, 8, 1]
+    out = 2017-08-01
+
+parse_default::
+    in  = "Friday 01 august 2017"
+    out = 2017-08-01
+
+parse_fr::
+    in   = "Vendredi 1er août 2017"
+    out  = 2017-08-01
+    lang = fr_FR
