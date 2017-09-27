@@ -36,17 +36,14 @@ def doubleslash(text):
 # -- EXTENSIONS -- #
 # ---------------- #
 
-data = ReadBlock(
+with ReadBlock(
     content = CONFIG_DIR / "extension.peuf",
     mode    = {
         'container': ":default:",
         'verbatim' : ["extension", "comment"]
     }
-)
-
-data.build()
-dicoview = data.recudict(nosep = True)
-data.remove()
+) as data:
+    dicoview = data.mydict("tree mini")
 
 
 onetab = ' '*4
@@ -111,7 +108,7 @@ for kind, spec in dicoview.items():
     ]
 
     if comment:
-        TEXT_FORUM += [''] + comment
+        TEXT_FORUM += [''] + list(comment)
 
 # No final coma...
 TEXT_CLASS_EXT[-1] = TEXT_CLASS_EXT[-1][:-1]
@@ -127,15 +124,11 @@ PY_TEXT = TEXT_CLASS_EXT + ['])', ''] + TEXT_ALL_EXT + [']']
 # -- TO ESCAPE IT -- #
 # ------------------ #
 
-data = ReadBlock(
+with ReadBlock(
     content = CONFIG_DIR / "escape.peuf",
     mode    = "verbatim"
-)
-
-data.build()
-dicoview = data.recudict(nosep = True)
-data.remove()
-
+) as data:
+    dicoview = data.mydict("tree mini")
 
 PY_TEXT += [
 """
@@ -171,14 +164,11 @@ CHARS_TO_LATEXIFY = {"""
 
 # ------ #
 
-data = ReadBlock(
+with ReadBlock(
     content = CONFIG_DIR / "latexify.peuf",
     mode    = 'keyval:: ='
-)
-
-data.build()
-dicoview = data.flatdict(nosep = True)
-data.remove()
+) as data:
+    dicoview = data.mydict("tree mini")
 
 
 texifybykind = {

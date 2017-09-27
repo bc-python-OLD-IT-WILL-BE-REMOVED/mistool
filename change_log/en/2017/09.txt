@@ -1,4 +1,18 @@
 ==========
+2017-09-27
+==========
+
+**New version version::``1.2.1-beta``:** see above to see what is new.
+
+
+**Back to past for the function ``betwwen`` in ``string_use``:** an optional argument ``keepseps`` allows to keep separators inside the "before" and the "after" parts.
+
+
+**Little update of ``config.latex``:** a new extension has been added (the package ``tcolorbox`` produces ``listing`` when the macros ``tcblisting`` is used).
+
+
+
+==========
 2017-09-18
 ==========
 

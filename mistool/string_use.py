@@ -2,7 +2,7 @@
 
 """
 prototype::
-    date = 2017-07-26
+    date = 2017-09-27
 
 
 This module contains some tools to manipulate strings.
@@ -925,7 +925,8 @@ prototype::
 
 def between(
     text,
-    seps
+    seps,
+    keepseps = False
 ):
     """
 prototype::
@@ -934,13 +935,19 @@ prototype::
     arg = [str, str]: seps ;
           ``seps[0]`` is the start delimiter and ``seps[1]`` the end delimiter,
           none of this strings can be empty
+    arg = bool: keepseps = False ;
+          tghis is ti have or not the separators in the "before" and the
+          "after" texts
 
     return = [str, str, str] , None ;
-             ``[before, between, after]`` where ``between`` is the piece of text
-             between the first ``seps[0]`` and ``seps[1]``, in this order, that
-             have been found in ``text``, and where ``before`` is just before
+             **if nothing has been found**, the function will return ``None``, But if not, ``[before, between, after]`` is returned where
+             ``between`` is the piece of text between the first ``seps[0]``
+             and ``seps[1]``, in this order, that have been found in ``text``.
+             If ``keepseps = False``, then ``before`` is just before
              ``seps[0]``, and ``after`` just after ``seps[1]``, but **if nothing
-             has been found**, the function will return ``None``
+             has been found**, the function will return ``None``.
+             But if ``keepseps = True``, then ``before`` will finsih by
+             ``seps[0]``, and ``after`` will start by ``seps[1]``.
 
 
 Here is an example of use where the value ``None`` is a soft way to say that
@@ -955,6 +962,12 @@ pyterm::
         'f',                # Before
         'x ; y',            # Between
         ' = x**2 + y**2'    # After
+    ]
+    >>> print(between(text, seps, True))
+    [
+        'f(',               # Before
+        'x ; y',            # Between
+        ') = x**2 + y**2'   # After
     ]
     >>> seps = ["{", "}"]
     >>> print(between(text, seps))
@@ -991,6 +1004,10 @@ pyterm::
                 start
             )
         )
+
+    if keepseps:
+        before += start
+        after  = end + after
 
     return [before, inside, after]
 

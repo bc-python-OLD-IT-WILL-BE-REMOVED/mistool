@@ -15,6 +15,12 @@ I beg your pardon for my english...
 English is not my native language, so be nice if you notice misunderstandings, misspellings or grammatical errors in my documents and codes.
 
 
+What's new in this version `1.2.1-beta` ?
+=========================================
+
+The function ``between`` in ``string_use`` has a new optional argument ``keepseps`` so as to keep or not the seprators.
+
+
 What's new in this version `1.2.0-beta` ?
 =========================================
 
@@ -423,8 +429,7 @@ The aim of the class ``string_use.MultiSplit`` is to split a text on several sem
 Before, between and after
 -------------------------
 
-The function ``string_use.between`` looks for two separators such as to return the text before, between and after the first matching of this separators.
-``None`` is returned if no matching has been found. Just take a look at a concrete example.
+The function ``string_use.between`` looks for two separators such as to return the text before, between and after the first matching of this separators. By default, separators are not kept but you can ask to the function to keep them. ``None`` is returned if no matching has been found. Just take a look at a concrete example.
 
 ```python
 >>> from mistool.string_use import between
@@ -435,6 +440,12 @@ The function ``string_use.between`` looks for two separators such as to return t
     'f',                # Before
     'x ; y',            # Between
     ' = x**2 + y**2'    # After
+]
+>>> print(between(text, seps, True))
+[
+    'f(',                # Before
+    'x ; y',             # Between
+    ') = x**2 + y**2'    # After
 ]
 >>> seps = ["{", "}"]
 >>> print(between(text, seps))

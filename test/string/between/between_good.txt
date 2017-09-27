@@ -1,4 +1,4 @@
-keep_all::
+default::
     text = Texte de démonstration, mais ceci est en trop, allez on continue...
 
     start = ,
@@ -7,3 +7,15 @@ keep_all::
     before  = Texte de démonstration
     between = :space:mais ceci est en trop
     after   = :space:allez on continue...
+
+
+keep_seps::
+    text     = f(x,y) = cos x sin y
+    keepseps = True
+
+    start = (
+    end   = )
+
+    before  = f(
+    between = x,y
+    after   = ) = cos x sin y

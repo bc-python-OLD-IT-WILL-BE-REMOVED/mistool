@@ -14,6 +14,7 @@ TEMP_EXTS = OrderedDict([
     ('toc', ['toc', 'maf', 'mlf', 'mlt', 'mtc', 'plf', 'plt', 'ptc']),
     ('ref', ['aux', 'brf', 'out', 'glo', 'ist', 'gls', 'idx', 'ind']),
     ('biblio', ['bbl', 'run.xml']),
+    ('listings', ['listing']),
     ('theorem', ['thm'])
 ])
 
@@ -64,7 +65,7 @@ EXTS_TO_CLEAN = [
 # ``out`` is produced by the package ``hyperref`` with the option
 # ``bookmarks``, and ``brf`` with the option ``backref``.
 # 
-# The package `` glossary`` produces ``glo`` and ``gls``, and also ``ist``
+# The package ``glossary`` produces ``glo`` and ``gls``, and also ``ist``
 # if an additional makeindex compilation is launched.
 # 
 # ``idx`` and ``ind`` are produced by makeindex compilations.
@@ -76,7 +77,14 @@ EXTS_TO_CLEAN = [
 # ``bbl`` is produces by bibtex compilations, and ``run.xml`` by biber
 # compilations.
 # 
+# 
     'bbl', 'run.xml',
+# listings
+#
+# The package ``tcolorbox`` produces ``listing`` when the macros ``tcblisting`` is used.
+# 
+# 
+    'listing',
 # theorem
     'thm'
 ]

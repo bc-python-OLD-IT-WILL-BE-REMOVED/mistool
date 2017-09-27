@@ -35,7 +35,7 @@ THE_DATAS_FOR_TESTING = {}
 for kind in ["good", "bad"]:
     THE_DATAS_FOR_TESTING[kind] = READ(
         content = THIS_DIR / 'between_{0}.txt'.format(kind),
-        mode    = {"keyval:: =": ":default:"}
+        mode    = "keyval:: ="
     )
 
 @fixture(scope="module")
@@ -71,9 +71,12 @@ def test_string_use_between_good(or_datas):
         after_wanted = infos['after']
         after_wanted = after_wanted.replace(':space:', ' ')
 
+        keepseps = infos.get('keepseps', False)
+
         before_found, between_found, after_found = BETWEEN_FUNCTION(
-            text  = text,
-            seps = [start, end]
+            text     = text,
+            seps     = [start, end],
+            keepseps = keepseps
         )
 
         assert before_wanted == before_found
