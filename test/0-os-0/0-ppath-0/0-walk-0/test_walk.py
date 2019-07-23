@@ -104,3 +104,14 @@ def test_walk_all_python_files():
     all_py_files_wanted = [p for p in ALL_FILES_WANTED if p.endswith(".py")]
 
     assert all_py_files_wanted == paths_found
+
+
+def test_walk_not_all_python_files():
+    paths_found = [
+        str(p.relative_to(DIR_PPATH))
+        for p in DIR_PPATH.walk("not file::**.py")
+    ]
+
+    all_py_files_wanted = [p for p in ALL_FILES_WANTED if not p.endswith(".py")]
+
+    assert all_py_files_wanted == paths_found

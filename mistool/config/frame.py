@@ -3,12 +3,16 @@
 # Note: the following ugly dictionary was automatically built.
 
 ALL_FRAMES = {}
-ALL_FRAMES['ascii_star'] = {'down': '*', 'upright': '**', 'right': ' *', 'downleft': '**', 'left': '* ', 'downright': '**', 'up': '*', 'upleft': '**'}
-ALL_FRAMES['c_basic'] = {'down': '*', 'upright': '**', 'right': ' *', 'downleft': ' **', 'left': ' * ', 'downright': '**/', 'up': '*', 'upleft': '/**'}
-ALL_FRAMES['c_pretty'] = {'down': '-', 'upright': '--- *', 'right': ' -- *', 'downleft': ' * ---', 'left': ' * -- ', 'downright': '--- */', 'up': '-', 'upleft': '/* ---'}
-ALL_FRAMES['pyba_title_1'] = {'down': '=', 'upright': '', 'right': '', 'downleft': '', 'left': '', 'downright': '', 'up': '=', 'upleft': ''}
-ALL_FRAMES['pyba_title_2'] = {'down': '-', 'upright': '', 'right': '', 'downleft': '', 'left': '', 'downright': '', 'up': '-', 'upleft': ''}
-ALL_FRAMES['pyba_title_3'] = {'down': '*', 'upright': '', 'right': '', 'downleft': '', 'left': '', 'downright': '', 'up': '*', 'upleft': ''}
-ALL_FRAMES['pyba_title_4'] = {'down': ':', 'upright': '', 'right': '', 'downleft': '', 'left': '', 'downright': '', 'up': ':', 'upleft': ''}
-ALL_FRAMES['python_basic'] = {'down': '#', 'upright': '##', 'right': ' #', 'downleft': '##', 'left': '# ', 'downright': '##', 'up': '#', 'upleft': '##'}
-ALL_FRAMES['python_pretty'] = {'down': '-', 'upright': '--- #', 'right': ' -- #', 'downleft': '# ---', 'left': '# -- ', 'downright': '--- #', 'up': '-', 'upleft': '# ---'}
+ALL_FRAMES['ascii_star'] = {'upleft': '**', 'upright': '**', 'left': '* ', 'right': ' *', 'downleft': '**', 'downright': '**', 'up': '*', 'down': '*'}
+ALL_FRAMES['c_basic'] = {'upleft': '/**', 'upright': '**', 'left': ' * ', 'right': ' *', 'downleft': ' **', 'downright': '**/', 'up': '*', 'down': '*'}
+ALL_FRAMES['c_pretty'] = {'upleft': '/* ---', 'upright': '--- *', 'left': ' * -- ', 'right': ' -- *', 'downleft': ' * ---', 'downright': '--- */', 'up': '-', 'down': '-'}
+ALL_FRAMES['html_basic'] = {'upleft': '<!-- ', 'upright': ' --', 'left': '  -- ', 'right': ' --', 'downleft': '  -- ', 'downright': ' -->', 'up': '-', 'down': '-'}
+ALL_FRAMES['html_empty'] = {'upleft': '<!--', 'upright': '', 'left': '     ', 'right': '', 'downleft': '     ', 'downright': ' -->', 'up': ' ', 'down': ' '}
+ALL_FRAMES['latex_basic'] = {'upleft': '%%', 'upright': '%%', 'left': '% ', 'right': ' %', 'downleft': '%%', 'downright': '%%', 'up': '%', 'down': '%'}
+ALL_FRAMES['latex_pretty'] = {'upleft': '% ---', 'upright': '--- %', 'left': '% -- ', 'right': ' -- %', 'downleft': '% ---', 'downright': '--- %', 'up': '-', 'down': '-'}
+ALL_FRAMES['pyba_title_1'] = {'upleft': '', 'upright': '', 'left': '', 'right': '', 'downleft': '', 'downright': '', 'up': '=', 'down': '='}
+ALL_FRAMES['pyba_title_2'] = {'upleft': '', 'upright': '', 'left': '', 'right': '', 'downleft': '', 'downright': '', 'up': '-', 'down': '-'}
+ALL_FRAMES['pyba_title_3'] = {'upleft': '', 'upright': '', 'left': '', 'right': '', 'downleft': '', 'downright': '', 'up': '*', 'down': '*'}
+ALL_FRAMES['pyba_title_4'] = {'upleft': '', 'upright': '', 'left': '', 'right': '', 'downleft': '', 'downright': '', 'up': ':', 'down': ':'}
+ALL_FRAMES['python_basic'] = {'upleft': '##', 'upright': '##', 'left': '# ', 'right': ' #', 'downleft': '##', 'downright': '##', 'up': '#', 'down': '#'}
+ALL_FRAMES['python_pretty'] = {'upleft': '# ---', 'upright': '--- #', 'left': '# -- ', 'right': ' -- #', 'downleft': '# ---', 'downright': '--- #', 'up': '-', 'down': '-'}

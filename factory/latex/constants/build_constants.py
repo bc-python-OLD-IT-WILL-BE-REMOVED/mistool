@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-# --------------------- #
-# -- SEVERAL IMPORTS -- #
-# --------------------- #
-
 from pathlib import Path
 
 from orpyste.data import ReadBlock

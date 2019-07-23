@@ -125,6 +125,7 @@ info::
         2) ``CHARS_TO_LATEXIFY`` is for expressions that needs one ¨latex
         command.
     """
+
     if mode not in CHARS_TO_ESCAPE:
         raise ValueError("unknown mode.")
 
@@ -806,7 +807,10 @@ pyterm::
 
     fileadded = False
 
-    for pathfrom in ppath.walk(regpath):
+    filestocopy = [p for p in ppath.walk(regpath)]
+    filestocopy.sort()
+
+    for pathfrom in filestocopy:
         fileadded = True
         pathto = pathfrom.relative_to(ppath)
 

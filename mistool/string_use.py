@@ -80,9 +80,6 @@ info::
     elif kind == TITLE:
         return text.title()
 
-    elif kind == FIRSTLAST:
-        return text[0].upper() + text[1:-1].lower() + text[-1].upper()
-
 
 def camelto(
     text,

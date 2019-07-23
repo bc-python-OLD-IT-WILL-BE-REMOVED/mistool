@@ -1,0 +1,5 @@
+==========
+2018-10-28
+==========
+
+**New frame for ``term_use.withframe``:** an ¨html basic frame has been added.

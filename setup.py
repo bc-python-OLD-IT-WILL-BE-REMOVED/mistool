@@ -5,7 +5,7 @@
 # Source: https://pypi.python.org/pypi/twine
 
 #     1) Create some distributions in the normal way:
-#         > python setup.py sdist bdist_wheel
+#         > python setup.py sdist bdist_wheel |
 #
 #     2) Upload with twine:
 #         > twine upload dist/* --skip-existing
@@ -15,10 +15,13 @@
 # -- STANDARD TOOLS -- #
 # -------------------- #
 
+
+# MAJ Z + pandoc pas sur 3.7 !!!
+
 from setuptools import setup, find_packages
 from pathlib import Path
 
-import pypandoc
+# import pypandoc
 
 # ----------------- #
 # -- README FILE -- #
@@ -26,7 +29,7 @@ import pypandoc
 
 readme = Path(__file__).parent / 'README.md'
 
-longdesc = pypandoc.convert(str(readme), 'rst')
+longdesc = "??????" # pypandoc.convert(str(readme), 'rst')
 
 
 # ----------------- #
@@ -36,7 +39,7 @@ longdesc = pypandoc.convert(str(readme), 'rst')
 setup(
 # General
     name         = "mistool",
-    version      = "1.2.1-beta",
+    version      = "1.2.2-beta",
     url          = 'https://github.com/bc-python-tools/mistool',
     license      = 'GPLv3',
     author       = "Christophe BAL",

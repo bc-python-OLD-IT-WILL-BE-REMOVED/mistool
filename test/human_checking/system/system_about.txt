@@ -2,4 +2,4 @@ system
 	--> mac
 
 pathenv
-	--> /Users/projetmbc/anaconda/bin:/Users/projetmbc/cling/bin:/anaconda/bin:/usr/local/git/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/usr/local/git/bin:/opt/ImageMagick/bin:/Library/TeX/texbin
+	--> /Users/projetmbc/anaconda3/bin:/Users/projetmbc/cling/bin:/usr/local/git/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/opt/X11/bin:/opt/ImageMagick/bin:/Applications/Wireshark.app/Contents/MacOS:/usr/local/git/bin

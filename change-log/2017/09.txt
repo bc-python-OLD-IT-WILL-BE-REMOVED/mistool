@@ -1,14 +1,21 @@
 ==========
+2017-09-28
+==========
+
+**Small update of ``config.frame``:** adding two frames for ¨latex files.
+
+
+==========
 2017-09-27
 ==========
 
-**New version version::``1.2.1-beta``:** see above to see what is new.
+**New version version::``1.2.1-beta``:** see below to see what is new.
 
 
-**Back to past for the function ``betwwen`` in ``string_use``:** an optional argument ``keepseps`` allows to keep separators inside the "before" and the "after" parts.
+**Back to past for the function ``between`` in ``string_use``:** an optional argument ``keepseps`` allows to keep separators inside the "before" and the "after" parts (this implies a minor change version).
 
 
-**Little update of ``config.latex``:** a new extension has been added (the package ``tcolorbox`` produces ``listing`` when the macros ``tcblisting`` is used).
+**Small update of ``config.latex``:** a new extension has been added (the package ``tcolorbox`` produces ``listing`` when the macros ``tcblisting`` is used).
 
 
 
@@ -16,7 +23,7 @@
 2017-09-18
 ==========
 
-**New version version::``1.2.0-beta``:** see above to see what is new.
+**New version version::``1.2.0-beta``:** see below to see what is new.
 
 
 **``date_use`` becomes ``datetime_use``:** major changes have been made. Here are the new features.

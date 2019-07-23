@@ -1,0 +1,30 @@
+==========
+2017-11-15
+==========
+
+**Another small update of ``config.latex``:** tow new extensions ``fdb_latexmk`` and ``fls`` have been added.
+
+
+==========
+2017-11-12
+==========
+
+**Small update of ``config.latex``:** the new extension ``synctex(busy)`` has been added.
+
+
+==========
+2017-09-18
+==========
+
+**New version version::``1.2.0-beta``:** see below to see what is new.
+
+
+**``date_use`` becomes ``datetime_use``:** major changes have been made. Here are the new features.
+
+    1) The function ``nextday`` and ``translate`` have been removed. They become two methods of ``ddatetime`` which is a new subclass of ``datetime.datetime``.
+
+    1) The function ``parsedate`` tries, in an international context, to simplify the use of ``parse`` from ``dateutil.parser``.
+
+    << Warning ! >> For the moment, only the french language is fully supported but contributions for other languages are very easy to do. See the ``README.md`` file or the technical documentation.
+
+    1) All constants have been put into ``config/date_name.py``.

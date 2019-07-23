@@ -1,0 +1,7 @@
+==========
+2019-07-23
+==========
+
+**New version version::``1.2.2-beta``:** see the change before to see what is new.
+
+**New frame for ``term_use.withframe``:** a ¨latex basic frame has been added.

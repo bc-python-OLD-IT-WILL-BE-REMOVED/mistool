@@ -8,14 +8,15 @@ TEMP_EXTS = OrderedDict([
     ('debug', ['blg', 'ilg', 'log', 'glg']),
     ('html', ['4ct', '4tc', 'idv', 'lg', 'tmp', 'xref']),
     ('slide', ['nav', 'snm', 'vrb']),
-    ('editor', ['synctex.gz', 'synctex.gz(busy)']),
+    ('editor', ['synctex.gz', 'synctex.gz(busy)', 'synctex(busy)']),
     ('float', ['fff', 'ttt']),
     ('list', ['lof', 'lol', 'lot', 'bcl']),
     ('toc', ['toc', 'maf', 'mlf', 'mlt', 'mtc', 'plf', 'plt', 'ptc']),
-    ('ref', ['aux', 'brf', 'out', 'glo', 'ist', 'gls', 'idx', 'ind']),
+    ('ref', ['aux', 'brf', 'out', 'glo', 'ist', 'gls', 'idx', 'ind', 'xdy']),
     ('biblio', ['bbl', 'run.xml']),
     ('listings', ['listing']),
-    ('theorem', ['thm'])
+    ('theorem', ['thm']),
+    ('misc', ['fdb_latexmk', 'fls'])
 ])
 
 EXTS_TO_CLEAN = [
@@ -41,7 +42,7 @@ EXTS_TO_CLEAN = [
 # the LaTeX source file and its PDF output.
 # 
 # 
-    'synctex.gz', 'synctex.gz(busy)',
+    'synctex.gz', 'synctex.gz(busy)', 'synctex(busy)',
 # float
     'fff', 'ttt',
 # list
@@ -70,8 +71,10 @@ EXTS_TO_CLEAN = [
 # 
 # ``idx`` and ``ind`` are produced by makeindex compilations.
 # 
+# ``xdy`` is produced by the package glossary.
 # 
-    'aux', 'brf', 'out', 'glo', 'ist', 'gls', 'idx', 'ind',
+# 
+    'aux', 'brf', 'out', 'glo', 'ist', 'gls', 'idx', 'ind', 'xdy',
 # biblio
 #
 # ``bbl`` is produces by bibtex compilations, and ``run.xml`` by biber
@@ -86,7 +89,9 @@ EXTS_TO_CLEAN = [
 # 
     'listing',
 # theorem
-    'thm'
+    'thm',
+# misc
+    'fdb_latexmk', 'fls'
 ]
 
 # Sources :
