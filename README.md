@@ -1,5 +1,5 @@
-What about this package  ?
-==========================
+About this package
+==================
 
 **misTool** is the contraction of **missing**, **miscellaneous** and **tool(s)**.
 This package contains some modules that could be useful for Python
@@ -15,10 +15,17 @@ I beg your pardon for my english...
 English is not my native language, so be nice if you notice misunderstandings, misspellings or grammatical errors in my documents and codes.
 
 
+What's new in this version `1.2.2-beta` ?
+=========================================
+
+¨html and ¨latex basic frames have been added to be used with `term_use.withframe`.
+
+
+
 What's new in this version `1.2.1-beta` ?
 =========================================
 
-The function ``between`` in ``string_use`` has a new optional argument ``keepseps`` so as to keep or not the seprators.
+The function ``between`` in ``string_use`` has a new optional argument ``keepseps`` so as to keep or not the separators.
 
 
 What's new in this version `1.2.0-beta` ?
